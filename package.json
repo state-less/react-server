@@ -1,0 +1,25 @@
+{
+  "name": "server-state",
+  "version": "0.0.1",
+  "description": "A state server that uses sockets to provide two way data-binding between a PWA (react/vue) and a server.",
+  "main": "index.js",
+  "dependencies": {
+    "socket.io": "^3.0.3",
+    "socket.io-client": "^3.0.3",
+    "uuid": "^8.3.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/C5H8NNaO4/server-state.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/C5H8NNaO4/server-state/issues"
+  },
+  "homepage": "https://github.com/C5H8NNaO4/server-state#readme"
+}
