@@ -19,25 +19,35 @@ io.on('connection', ConnectionHandler(broker, store));
 
 const socket = client('http://localhost:3000');
 
+const {useState: usePublicState} = public;
+
+
 http.listen(3000, () => {
     console.log('listening on *:3000');
 });
 
-const {useState: usePublicState} = public;
 
-
-io.on('connection', (socket) => {
+setInterval(() => {
     const {value, setValue} = usePublicState('connections', 1);
-    logger.info`Connection reveived, value: ${value}`;
-    setValue(value + 1);
+    const len = io.sockets.size;
+    logger.warning`Updating connection count ${value}. ${io.sockets.sockets.size}`;
 
-    socket.on('disconnecting', function() {
-        const {value, setValue} = usePublicState('connections', 1);
-        logger.info`CLient disconnected, value: ${value}`;
 
-        setValue(value - 1);
-    });
-})
+    setValue(io.sockets.sockets.size);
+},1000);
+
+// io.on('connection', (socket) => {
+//     const {value, setValue} = usePublicState('connections', 1);
+//     logger.info`Connection reveived, value: ${value}`;
+//     setValue(value + 1);
+
+//     socket.on('disconnecting', function() {
+//         const {value, setValue} = usePublicState('connections', 1);
+//         logger.info`CLient disconnected, value: ${value}`;
+
+//         setValue(value - 1);
+//     });
+// })
 
 socket.on('close', () => {
     const {state, setValue} = useState('connections', 0);
