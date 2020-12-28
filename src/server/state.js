@@ -4,7 +4,7 @@ const {EVENT_STATE_ERROR, EVENT_STATE_USE, EVENT_STATE_SET, EVENT_STATE_PERMIT, 
 
 const logger = require('../lib/logger');
 
-const {isFunction} = require('common-fns');
+const isFunction = fn =>  'function' === typeof fn;
 
 class Broker {
 }
