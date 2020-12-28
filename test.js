@@ -27,17 +27,18 @@ const {useState: usePublicState} = public;
 
 
 io.on('connection', (socket) => {
-    const {conns, setValue} = usePublicState('connections', 1);
-    setValue(conns + 1);
+    const {value, setValue} = usePublicState('connections', 1);
+    logger.info`Connection reveived, value: ${value}`;
+    setValue(value + 1);
 
     socket.on('disconnect', function() {
-        const {conns, setValue} = usePublicState('connections', 1);
-        setValue(conns - 1);
+        const {value, setValue} = usePublicState('connections', 1);
+        setValue(value - 1);
     });
 })
 
 socket.on('close', () => {
-    const {conns, setValue} = useState('connections', 0);
+    const {state, setValue} = useState('connections', 0);
 
     logger.info`client conencted`;
     setValue(conns + 1);
