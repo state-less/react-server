@@ -9,6 +9,9 @@ const chalk = require('chalk');
 
 const { LOG_LEVEL, LOG_LEVEL_HTTP } = require('./consts');
 
+ConsoleTransport.surpressed = false;
+ConsoleTransport.surpress();
+
 let State;
 const setState = (v) => State = v;
 
@@ -114,7 +117,10 @@ const formatMap = new Map([
     [isSocket, formatSocket],
     ...Color.formatMap
 ]);
-const formatter = new Color(null, {
+const formatter = new Color((options) => {
+    const {ts, level, scope, message} = options;
+    return `${ts} ${scope} ${level}: ${message}`
+}, {
     //The format map used to format log messages on a per object basis
     formatMap, 
     //The chalk color level. 1 = 256
@@ -132,14 +138,16 @@ const transports = [
 ];
 
 const logger = new Logger(LOG_LEVEL, {transports});
-console.log ("LOGLEVEL", LOG_LEVEL)
 //Add a http level to the loglevel set. - This way we can control the log level of http logs individually. 
 logger.levels.http = LOG_LEVEL_HTTP;
 Color.colors.key.level.http = 'purple';
 
-//We need to provide the loggin function ourselves. There's no setter on the levels object. Maybe i should add a addLogLevel method.
+//We need to provide the logging function ourselves. There's no setter on the levels object. Maybe i should add a addLogLevel method.
 logger.http = (...args) => logger.setLevel('http').log(...args);
 
 logger.setState = setState;
 module.exports = logger;
 
+
+
+Logger.scope = /.*/

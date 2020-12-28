@@ -4,6 +4,8 @@ const {EVENT_STATE_ERROR, EVENT_STATE_USE, EVENT_STATE_SET, EVENT_STATE_PERMIT, 
 
 const logger = require('../lib/logger');
 
+const {isFunction} = require('common-fns');
+
 class Broker {
 }
 ee(Broker.prototype);
@@ -25,16 +27,22 @@ class SocketIOBroker extends Broker {
         socket.emit(EVENT_STATE_ERROR+':'+options.clientId, {error: message, ...options});
     }
 
+    emit (socket, event, message) {
+        socket.emit(event, message);
+    }
     syncInitialState (state, socket, options) {
         const {id, value} = state;
         socket.emit(EVENT_STATE_CREATE+':'+options.clientId, {id, value, ...options});
     }
 
     sync (state, socket) {
-        logger.info`Syncing state ${state} with socket ${socket.id}`
-        const {id, value} = state;
+        logger.info`Syncing state ${state} with socket ${socket.id}. ${state.args.clientId}`
+        const {id, args: {clientId}, value} = state;
         socket.emit(EVENT_STATE_SET+':'+id, {
-            id, value
+            id, value, clientId
+        })
+        socket.emit(EVENT_STATE_SET+':$'+clientId, {
+            id, value, clientId
         })
     };
 }
@@ -44,6 +52,7 @@ class Store {
     constructor (options = {}) {
         const {key, parent = null, autoCreate = false, onRequestState} = options;
         this.map = new Map;
+        this.actions = new Map;
         this.scopes = new Map;
         Object.assign(this, {key, parent, autoCreate, onRequestState});
     }
@@ -66,13 +75,14 @@ class Store {
 
         this.scopes.set(key, store);
 
-        console.log("EMIT",EVENT_SCOPE_CREATE)
+        store.actions = this.actions;
+
         this.emit(EVENT_SCOPE_CREATE, store, key, ...args);
         return store;
     }
 
     createState = (key, def, ...args) => {
-        const state = new State(def);
+        const state = new State(def , {args});
 
         if (!key) 
             key = state.id;
@@ -86,12 +96,20 @@ class Store {
         return state;
     }
 
+    /**
+     * @description Callback to accept or deny requests to use a state.
+     * @param {any} key - The key of the state.
+     * @param {*} options - The options
+     * @param  {...any} args - Additional arguments
+     */
+    onRequestState = (key, options, ...args) => false;
+
     requestState = (key, options, ...args) => {
         this.emit(EVENT_STATE_REQUEST, key, options, ...args);
 
         //Deny all state requests by default
         let permitted = Store.STATE_PERMIT_DEFAULT;
-        if ('function' === typeof this.onRequestState) {
+        if (isFunction(this.onRequestState)) {
             permitted = this.onRequestState(key, options, ...args);
         }
 
@@ -117,12 +135,37 @@ class Store {
         throw new Error (`Attempt to use non-existent state '${key}' failed.`);
     }
 
+    action (key, callback) {
+        if ('function' !== typeof callback) 
+            throw new Error('Expected callback to be of type function.');
+
+        logger.debug`Registering action ${key}.`;
+
+        this.actions.set(key, callback);
+    }
+
+    exec = (key, args, ...extra) => {
+        const action = this.actions.get(key);
+
+        if (!isFunction(action)) {
+            throw new Error('Attemp to call action ${key} failed. Action is not of type function');
+        }
+
+        logger.debug`Calling action ${key} with arguments ${args}.`;
+
+        const result = action(...args);
+
+        return result;
+    }
+
     emit = (...args) => {
         //Append events to callstack in order to get chained methods to work.
         setImmediate(() => {
             Store.prototype.emit.call(this, ...args);
         })
     }
+
+    
 }
 ee(Store.prototype);
 
@@ -132,11 +175,11 @@ class State {
     }
 
     constructor (defaultValue, options = {}) {
-        const {syncInitialState = false} = options;
+        const {syncInitialState = false, args} = options;
 
         const id = State.genId();
 
-        const instanceVariables = {id, value: defaultValue, syncInitialState, brokers: []};
+        const instanceVariables = {id, args, value: defaultValue, syncInitialState, brokers: []};
         Object.assign(this, instanceVariables);    
         
         if (syncInitialState)

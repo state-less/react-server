@@ -5,27 +5,38 @@ var io = require('socket.io')(http, { cors: {
     origin: '*',
   }});
 const {io: client} = require('socket.io-client');
+const logger = require('./src/lib/logger');
 
 const store = new Store({autoCreate: true});
 const broker = new SocketIOBroker();
 
+store.onRequestState = () => true;
+
 io.on('connection', ConnectionHandler(broker, store));
 
 
-const socket = client('http://localhost:3000');
+const socket = client('http://158.177.173.155:3000');
 
 http.listen(3000, () => {
     console.log('listening on *:3000');
 });
 
+socket.on('connect', () => {
+    logger.info`client conencted`;
+})
+
+socket.on('error', () => {
+    logger.error`client conencted`;
+})
 
 socket.on('createState:123', data => {
     console.log ("Client create state", data);
-});
 
-socket.on('setState', (state) => {
+});
+socket.on(`setState:$123`, (state) => {
     console.log ("Client set state", state)
 })
+
 socket.on('*', (state) => {
     console.log ("Client set state", state)
 })

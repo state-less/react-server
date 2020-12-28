@@ -6,7 +6,7 @@
   "dependencies": {
     "chalk": "^4.1.0",
     "event-emitter": "^0.3.5",
-    "l0g": "file:../l0g",
+    "l0g": "file:../../l0g",
     "socket.io": "^3.0.3",
     "socket.io-client": "^3.0.3",
     "uuid": "^8.3.1"

@@ -1,5 +1,22 @@
 const ee = require('event-emitter');
-const logger = require('../lib/logger');
+const _logger = require('../lib/logger');
+const logger = _logger.scope('state-server.handler');
+
+const sendPing = (broker,socket) => broker.emit(socket, 'ping', +new Date);
+const getScope = (broker,socket, options) => broker.getScope(socket, options);
+const createScope = (store,key) => store.scope(key);
+
+const handleSetState = (broker, store, socket) => (data, options = {}) => {
+    const {id, key = id , value} = data;
+    const scopeKey = getScope(broker, socket, options);
+    const {useState, has} = createScope(store, scopeKey);
+
+    if (!key || !(has(key))) 
+        return console.error(`Error setting state with key ${key}`);
+        
+    const {setValue} = useState(key);
+    setValue(value)
+}
 // const state = require('./state');
 /**
  * Default connection handler, takes a broker and a store. - Simply stores states in a store.
@@ -9,19 +26,8 @@ const logger = require('../lib/logger');
 const ConnectionHandler = (broker, store = new Store) => (socket) => {
     const states = new Map;
 
-    socket.emit('ping', 'ping');
-
-    socket.on('setState', (data, options = {}) => {
-        const {id, key = id , value} = data;
-        const {useState, has} = store.scope(broker.getScope(socket, options));
-
-        if (!key || !(has(key))) 
-            return console.error(`Error setting state with key ${key}`);
-            
-        const {setValue} = useState(key);
-
-        setValue(value)
-    })
+    sendPing(broker, socket);
+    socket.on('setState', handleSetState(broker, store, socket));
 
     socket.on('useState', (key, def, options = {}) => {
         const scope = broker.getScope(socket, options);
@@ -34,8 +40,6 @@ const ConnectionHandler = (broker, store = new Store) => (socket) => {
             if (!socketSet) socketSet = states.set(socket, new Set).get(socket);   
             
             const state = useState(key, def, options, socket);
-            logger.debug`Syncing state ${key} with socket ${socket.id}.`
-
             if (!socketSet.has(state)) {
                 socketSet.add(state);
                 state.sync(broker, socket);           
@@ -51,6 +55,16 @@ const ConnectionHandler = (broker, store = new Store) => (socket) => {
 
         }
     })
+
+    socket.on('call', (key, args, options = {}) => {
+        const {exec} = store.scope(broker.getScope(socket, options));
+
+        const result = exec(key, args, options);
+
+        logger.warning`Result ${result}`;
+
+        broker.emit(socket, `called:${key}`, result);
+    });
 
     socket.on('disconnect', () => {
         logger.warning`Client ${socket.id} disconnected. ${states.get(socket)}`;
