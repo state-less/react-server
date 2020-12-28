@@ -31,8 +31,10 @@ io.on('connection', (socket) => {
     logger.info`Connection reveived, value: ${value}`;
     setValue(value + 1);
 
-    socket.on('disconnect', function() {
+    socket.on('disconnecting', function() {
         const {value, setValue} = usePublicState('connections', 1);
+        logger.info`CLient disconnected, value: ${value}`;
+
         setValue(value - 1);
     });
 })
