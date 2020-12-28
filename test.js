@@ -27,27 +27,27 @@ http.listen(3000, () => {
 });
 
 
-setInterval(() => {
-    const {value, setValue} = usePublicState('connections', 1);
-    const len = io.sockets.size;
-    logger.warning`Updating connection count ${value}. ${io.sockets.sockets.size}`;
-
-
-    setValue(io.sockets.sockets.size);
-},1000);
-
-// io.on('connection', (socket) => {
+// setInterval(() => {
 //     const {value, setValue} = usePublicState('connections', 1);
-//     logger.info`Connection reveived, value: ${value}`;
-//     setValue(value + 1);
+//     const len = io.sockets.size;
+//     logger.warning`Updating connection count ${value}. ${io.sockets.sockets.size}`;
 
-//     socket.on('disconnecting', function() {
-//         const {value, setValue} = usePublicState('connections', 1);
-//         logger.info`CLient disconnected, value: ${value}`;
 
-//         setValue(value - 1);
-//     });
-// })
+//     setValue(io.sockets.sockets.size);
+// },1000);
+
+io.on('connection', (socket) => {
+    const {value, setValue} = usePublicState('connections', 0);
+    logger.info`Connection reveived, value: ${value}`;
+    setValue(value + 1);
+
+    socket.on('disconnecting', function() {
+        const {value, setValue} = usePublicState('connections', 0);
+        logger.info`CLient disconnected, value: ${value}`;
+
+        setValue(value - 1);
+    });
+})
 
 socket.on('close', () => {
     const {state, setValue} = useState('connections', 0);

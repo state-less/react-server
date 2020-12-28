@@ -75,7 +75,7 @@ const ConnectionHandler = (broker, store = new Store) => (socket) => {
                 logger.info`Removing socket ${socket.id} from state ${state}`;
                 state.unsync(broker, (args) => {
                     const [_socket] = args;
-                    return _socket === socket;
+                    return _socket.id === socket.id;
                 });
             })
         }

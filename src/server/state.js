@@ -41,9 +41,9 @@ class SocketIOBroker extends Broker {
         socket.emit(EVENT_STATE_SET+':'+id, {
             id, value, clientId
         })
-        socket.emit(EVENT_STATE_SET+':$'+clientId, {
-            id, value, clientId
-        })
+        // socket.emit(EVENT_STATE_SET+':$'+clientId, {
+        //     id, value, clientId
+        // })
     };
 }
 
@@ -210,14 +210,15 @@ class State {
 
     unsync = (broker, filterFn) => {
         logger.debug`Unsyncing ${this.brokers}`;
-        this.brokers = this.brokers.filter((entry) => {
+        const index = this.brokers.findIndex((entry) => {
             const [_broker, _args] = entry;
             const match = filterFn(_args);
             logger.debug`Unsyncing ${broker} ${_broker}. Filtered ${_broker !== broker && !match}`;
-            return _broker !== broker && !match;
+            return match //_broker == broker //&& !match;
         });
-        logger.debug`Unsynced ${this.brokers}`;
+        this.brokers.splice(index, 1);
 
+        logger.debug`Unsynced ${this.brokers}`;
     }
 
     static sync (instance) {
