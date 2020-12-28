@@ -8,6 +8,8 @@ const {io: client} = require('socket.io-client');
 const logger = require('./src/lib/logger');
 
 const store = new Store({autoCreate: true});
+const public = store.scope('public');
+public.autoCreate = true;
 const broker = new SocketIOBroker();
 
 store.onRequestState = () => true;
@@ -15,14 +17,30 @@ store.onRequestState = () => true;
 io.on('connection', ConnectionHandler(broker, store));
 
 
-const socket = client('http://3.21.165.34:3000');
+const socket = client('http://localhost:3000');
 
 http.listen(3000, () => {
     console.log('listening on *:3000');
 });
 
-socket.on('connect', () => {
+const {useState: usePublicState} = public;
+
+
+io.on('connection', (socket) => {
+    const {conns, setValue} = usePublicState('connections', 1);
+    setValue(conns + 1);
+
+    socket.on('disconnect', function() {
+        const {conns, setValue} = usePublicState('connections', 1);
+        setValue(conns - 1);
+    });
+})
+
+socket.on('close', () => {
+    const {conns, setValue} = useState('connections', 0);
+
     logger.info`client conencted`;
+    setValue(conns + 1);
 })
 
 socket.on('error', () => {

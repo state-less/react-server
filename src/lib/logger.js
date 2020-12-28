@@ -38,7 +38,7 @@ const setState = (v) => State = v;
  */
 const SHOW_ID = false;
 const isState = (obj) => obj instanceof State;
-const formatState = (obj) => `State[${obj.key}] ${SHOW_ID?`(${obj.id}) `:''}[${Array.isArray(obj.value)?obj.value.length:''}]`;
+const formatState = (obj) => `State[${obj.key}] ${SHOW_ID?`(${obj.id}) `:''}[${Array.isArray(obj.value)?obj.value.length:obj.value}]`;
 
 //Format web push subscriptions keys.
 const isSubscription = (obj) => obj && obj.endpoint && obj.keys && obj.keys.auth;
