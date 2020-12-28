@@ -15,7 +15,7 @@ store.onRequestState = () => true;
 io.on('connection', ConnectionHandler(broker, store));
 
 
-const socket = client('http://158.177.173.155:3000');
+const socket = client('http://3.21.165.34:3000');
 
 http.listen(3000, () => {
     console.log('listening on *:3000');
