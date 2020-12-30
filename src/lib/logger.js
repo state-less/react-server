@@ -150,4 +150,4 @@ module.exports = logger;
 
 
 
-// Logger.scope = /state-server.component/
+Logger.scope = /bar/

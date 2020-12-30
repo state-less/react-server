@@ -19,7 +19,7 @@ class SocketIOBroker extends Broker {
 
     getScope (socket, options) {
         let {scope = 'client'} = options;
-        return scope==='client'?socket:scope;
+        return scope==='client'?socket.id:scope;
     }
 
     emitError (socket, options, message) {
@@ -61,8 +61,25 @@ class Store {
         return this.map.has(...args);
     }
 
-    get (...args) {
+    get = (...args) => {
         return this.map.get(...args);
+    }
+
+    purge = () => {
+        logger.info`Purgin states. ${this.scopes}`;
+        this.map.forEach((state) => {
+            const [options = {}] = state.args || [];
+            if (options.ttl) {
+                logger.warning`State ${state} has a ttl ${options.ttl}`
+            }
+            if (options.ttl && +new Date - state.createdAt > options.ttl) {
+                logger.error`State ${state} expired. Removing from store`;
+                this.deleteState(state.key);
+            }
+        })
+        this.scopes.forEach((scope) => {
+            scope.purge();
+        })
     }
 
     scope (key, ...args) {
@@ -70,6 +87,14 @@ class Store {
             return this.scopes.get(key);
         }
 
+        logger.scope('state-server.handler').warning`Getting scope ${key}`
+        if (Array.isArray(key) && this.scopes.has(key[0])) {
+            return this.scopes.get(key[0]).scope(key.slice(1), ...args)
+        } else if (Array.isArray(key) && key.length === 0) {
+            logger.scope('state-server.handler').warning`Getting this store ${this}`
+
+            return this;
+        } 
         const {autoCreate, onRequestState} = this;
         const store = new Store({autoCreate, key, parent: this, onRequestState});
 
@@ -81,6 +106,10 @@ class Store {
         return store;
     }
 
+    path (...keys) {
+
+    }
+
     createState = (key, def, ...args) => {
         const state = new State(def , {args});
 
@@ -89,11 +118,16 @@ class Store {
             
         state.key = key;
         state.scope = this.key;
-
+        state.args = args;
         this.map.set(key, state);
 
         this.emit(EVENT_STATE_CREATE, this, state, key, ...args);
         return state;
+    }
+
+    deleteState = (key) => {
+        logger.error`Deleting state with key ${key}`
+        this.map.delete(key);
     }
 
     /**
@@ -183,7 +217,7 @@ class State {
 
         const id = State.genId();
 
-        const instanceVariables = {id, args, value: defaultValue,defaultValue, syncInitialState, brokers: []};
+        const instanceVariables = {createdAt: +new Date, id, args, value: defaultValue,defaultValue, syncInitialState, brokers: []};
         Object.assign(this, instanceVariables);    
         
         if (syncInitialState)

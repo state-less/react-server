@@ -4,7 +4,14 @@ const logger = _logger.scope('state-server.handler');
 
 const sendPing = (broker,socket) => broker.emit(socket, 'ping', +new Date);
 const getScope = (broker,socket, options) => broker.getScope(socket, options);
-const createScope = (store,key) => store.scope(key);
+const createScope = (store,key) => {
+    if (!Array.isArray(key))
+        key = [key];
+
+    return key.reduce((store, key) => {
+        return store.scope(key);
+    }, store)
+}
 
 const handleSetState = (broker, store, socket) => (data, options = {}) => {
     const {id, key = id , value} = data;
@@ -31,10 +38,12 @@ const ConnectionHandler = (broker, store = new Store) => (socket) => {
 
     socket.on('useState', (key, def, options = {}) => {
         const scope = broker.getScope(socket, options);
-        const {useState} = store.scope(scope, options, socket);
+        const scopedStore = store.scope(scope, options, socket);
+        const {useState} = scopedStore;
         const permitted = store.requestState(key, options, socket);
 
         logger.info`State ${key} requested. ${scope} Permitting: ${permitted}`
+        logger.debug`Store content ${store}`
         if (permitted) {
             let socketSet = states.get(socket);
             if (!socketSet) socketSet = states.set(socket, new Set).get(socket);   

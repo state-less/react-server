@@ -26,7 +26,7 @@ const {useState: usePublicState} = public;
 
 
 http.listen(3000, () => {
-    console.log('listening on *:3000');
+    logger.info('listening on *:3000');
 });
 
 io.on('connection', (socket) => {
@@ -45,20 +45,26 @@ io.on('connection', (socket) => {
 
 
 const Poll = Component((props, socket) => {
-    const {values} = props;
-    const [votes, setVotes] = Component.useState(values.map(v => 0), {flags: 'r'});
+    const {values, temp, key} = props;
+    const [votes, setVotes] = Component.useState(values.map(v => 0),!temp?'votes':null,{flags: 'r'});
     logger.info`State used. ${votes}`;
-    const [voted, setVoted] = Component.useState({});
-    const [hasVoted, setHasVoted] = Component.useState(false, {scope: socket.id});
+    const [voted, setVoted, state] = Component.useState({}, 'voted');
+    const [hasVoted, setHasVoted] = Component.useState(false,null, {scope: socket.id});
   
     Component.useEffect(() => {
-        setTimeout(() => {
+      logger.error`TEmp ${temp} effect`
+
+        const to = setTimeout(() => {
            votes[~~(Math.random()*4)]++;
+           logger.error`TEmp ${temp} setVotes`
            setVotes(votes);
-        }, 2000)
+        }, 2000);
+        return () => {
+          clearTimeout(to);
+        }
     });
 
-    const vote = (option) => {
+    const vote = (socket, option) => {
       if (!values[option]) {
         throw new Error(`Unsupported value. Supported values are ${values}`);
       }
@@ -66,9 +72,13 @@ const Poll = Component((props, socket) => {
       if (socket.id in voted) {
         throw new Error('Cannot vote twice');
       }
-  
+      
+      logger.error`VOTING ${socket.id} ${JSON.stringify(state)}`;
+      logger.scope('foo').error`vote ${socket}`
+
       votes[option]++;
       voted[socket.id] = true;
+      setVoted(voted);
       setVotes(votes);
     };
   
@@ -94,37 +104,57 @@ const poll = Poll({
     values: ['Great idea', 'Dont like it', 'Waste of time', 'Where can i get this?']
 }, 'poll');
 
+const temp = Poll({
+  values: ['Great idea', 'Dont like it', 'Waste of time', 'Where can i get this?'],
+  temp: true,
+}, 'poll.temp');
 
 io.on('connection', (socket) => {
     logger.warning`Client connected.`
-
+    const rendered = {}
     socket.on('useComponent', (key) => {
-        logger.info`Using component ${key}`;
-        const component = Component.map.get(key);
-        logger.info`Found component. Rendering ${component}`;
+      const component = Component.instances.get(key);
+      logger.info`Using component ${key}`;  
+      logger.info`Found component. Rendering ${component}`;
+      try {
         const result = component(socket);
-        logger.info`Result ${result}. Executing Action ${component.actions}`;
-
-        socket.emit(`useComponent:${key}`, result);
+        rendered[key] = result;
+        socket.once("disconnecting", () => {
+          logger.error(`Removing temp variables`);
+            result.cleanup();
+            // process.exit(0);
+          })
+          logger.scope('foo').error`useComponent ${socket}`
+          socket.emit(`useComponent:${key}`, {...result, actions: Object.keys(result.actions)});
+        } catch (e) {
+          socket.emit('error', key, 'component:render', e.message);
+        }
     })
 
     socket.on('executeAction', (componentKey, actionId, args) => {
-        const component = Component.map.get(componentKey);
-        const action = component.actions.get(actionId);
+      const component = Component.rendered.get(componentKey);
+        if (!component.actions) {
+          socket.emit('error', componentKey, actionId, "Component has not rendered. Cannot call action on unmounted component");
+          return
+        }
 
-        logger.info`Request to execute action from client ${socket}`;
+        const action = component.actions[actionId];
+        logger.error`Request to execute action ${actionId} from client ${socket}`;
+
         try {
-
-            action(...args);
+            action(socket, ...args);
         } catch (e) {
             socket.emit('error', componentKey, actionId, e.message);
         }
     })
 })
 
-// setInterval(() => {
-//     logger.info`Store: ${util.inspect(public.map)}`;
-// }, 3000)
+setInterval(() => {
+  store.purge();
+}, 1000);
+setInterval(() => {
+    logger.scope('foo').info`Store: ${util.inspect(public, false, true)}`;
+}, 3000)
 
 const socket = client('http://localhost:3000');
 
