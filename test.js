@@ -80,6 +80,7 @@ const Poll = Component((props, socket) => {
       voted[socket.id] = true;
       setVoted(voted);
       setVotes(votes);
+      setHasVoted(option)
     };
   
     return {
