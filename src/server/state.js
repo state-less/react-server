@@ -125,6 +125,10 @@ class Store {
     useState = (key, def, ...args) => {
         this.emit(EVENT_STATE_USE, key, def, ...args);
 
+        if (typeof key !== 'string') {
+            logger.warning`Key is not of type string. Are you sure you're passing a key?`;
+        }
+
         logger.info`Using state ${key}. Has state ${this.has(key)}. Id: ${this.get(key)?.id} Scope: ${this.key}`;
         if (this.has(key))
             return this.get(key);
@@ -179,7 +183,7 @@ class State {
 
         const id = State.genId();
 
-        const instanceVariables = {id, args, value: defaultValue, syncInitialState, brokers: []};
+        const instanceVariables = {id, args, value: defaultValue,defaultValue, syncInitialState, brokers: []};
         Object.assign(this, instanceVariables);    
         
         if (syncInitialState)
