@@ -1,4 +1,6 @@
 const { State, SocketIOBroker, Store } = require('./src/server/state');
+const {SocketTransport}= require('l0g/transports/SocketTransport');
+const { Format } = require('l0g/symbols');
 const { Component } = require('./src/server/component');
 
 const {ConnectionHandler} = require('./src/server/handler')
@@ -42,15 +44,17 @@ io.on('connection', (socket) => {
     });
 })
 
-
+logger.addTransport(
+  new SocketTransport(io, 'log')
+)
 
 const Poll = Component((props, socket) => {
     const {values, temp, key} = props;
-    const [votes, setVotes] = Component.useState(values.map(v => 0),!temp?'votes':null,{flags: 'r'});
+    const [votes, setVotes] = Component.useState(values.map(v => 0),!temp?'votes':null);
     logger.info`State used. ${votes}`;
-    const [voted, setVoted, state] = Component.useState({}, 'voted');
-    const [hasVoted, setHasVoted] = Component.useState(false,null, {scope: socket.id});
-  
+    const [voted, setVoted, onRequest] = Component.useState({}, 'voted');
+    const [hasVoted, setHasVoted] = Component.useClientState(false,null, {scope: socket.id});
+    
     Component.useEffect(() => {
       logger.error`TEmp ${temp} effect`
 
@@ -62,6 +66,18 @@ const Poll = Component((props, socket) => {
         return () => {
           clearTimeout(to);
         }
+    });
+
+    Component.useClientEffect(() => {
+      logger.scope('effect').error`Client Connected`
+      return () => {
+        logger.scope('effect').error`Client Disconnected ${util.inspect(socket)}`
+        
+      }
+    });
+
+    Component.useFunction((socket, ...args) => {
+      return "HELLO FUNCTION";
     });
 
     const vote = (socket, option) => {
@@ -81,6 +97,8 @@ const Poll = Component((props, socket) => {
       setVoted(voted);
       setVotes(votes);
       setHasVoted(option)
+
+      return "HEY CLIENT"
     };
   
     return {
@@ -96,7 +114,6 @@ const Poll = Component((props, socket) => {
     }
 }, public);
 
-
 //Handle connectioons using a connection handler, message broker and store. 
 //You can write your own handler, but most of the time t
 io.on('connection', ConnectionHandler(broker, store));
@@ -110,30 +127,40 @@ const temp = Poll({
   temp: true,
 }, 'poll.temp');
 
+poll();
+
 io.on('connection', (socket) => {
     logger.warning`Client connected.`
-    const rendered = {}
+    socket[Format] = (socket) => `Socket[${socket.id}]`;
+    socket.join(`state-server.client:${socket.id}`);
+
     socket.on('useComponent', (key) => {
+      socket.join(`state-server.component.${key}:${socket.id}`);
       const component = Component.instances.get(key);
       logger.info`Using component ${key}`;  
       logger.info`Found component. Rendering ${component}`;
       try {
         const result = component(socket);
-        rendered[key] = result;
+
+        logger.error`FUNCTIONS!!! ${result.functions}`;
+
         socket.once("disconnecting", () => {
           logger.error(`Removing temp variables`);
             result.cleanup();
             // process.exit(0);
           })
           logger.scope('foo').error`useComponent ${socket}`
+          logger.error`Actions ${result.actions.vote}`
           socket.emit(`useComponent:${key}`, {...result, actions: Object.keys(result.actions)});
         } catch (e) {
-          socket.emit('error', key, 'component:render', e.message);
+          socket.emit('error', key, 'socket:render', e.message);
+          throw e;
         }
     })
 
-    socket.on('executeAction', (componentKey, actionId, args) => {
+    socket.on('executeAction', (componentKey, actionId, id, args) => {
       const component = Component.rendered.get(componentKey);
+      logger.debug`Rendered components ${component}`
         if (!component.actions) {
           socket.emit('error', componentKey, actionId, "Component has not rendered. Cannot call action on unmounted component");
           return
@@ -143,7 +170,9 @@ io.on('connection', (socket) => {
         logger.error`Request to execute action ${actionId} from client ${socket}`;
 
         try {
-            action(socket, ...args);
+            const result = action(socket, ...args);
+            socket.emit('executeAction', componentKey, actionId, id, result);
+
         } catch (e) {
             socket.emit('error', componentKey, actionId, e.message);
         }

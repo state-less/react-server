@@ -1,7 +1,8 @@
-const { v4: uuidv4 } = require("uuid");
+const { v4: uuidv4, v4 } = require("uuid");
 const _logger = require("../lib/logger");
 
-const logger = _logger.scope('state-server.component');
+let __logger = _logger.scope('state-server.component');
+let lifecycle = _logger.scope('state-server.lifecycle');
 
 const { State, SocketIOBroker, Store } = require('./state');
 
@@ -10,35 +11,65 @@ const componentStore = new Store({autoCreate: true});
 
 componentStore.onRequestState = () => true;
 
+
+const isEqual = (arrA, arrB) => {
+    return arrA.reduce((acc, cur, i) => {
+        return acc && cur == arrB[i];
+    }, true);
+}
 const Component = (fn, baseStore) => {
-    logger.info`Creating component`;
+    let logger;
+    __logger.info`Creating component`;
 
     
 
     let effectIndex = 0;
+    let clientEffectIndex = 0;
     let stateIndex = 0;
+    let fnIndex = 0;
 
-    const component = (props, key, options, socket) => {
+    let functions = [[]];
+    const component = (props, key, options, socket = {id: 'server'}) => {
         let scopedUseEffect;
+        let scopedUseClientEffect;
         let scopedUseState;
+        let scopedUseClientState;
+        let scopedUseFunction;
+
         let effects = []
+        let clientEffects = [];
         let states = [];
+        // let functions = [[]];
+        let dependencies = [];
+
+        const cannotSetClientStateError = () => {
+            throw new Error('Cannot set access client state from server')
+        }
+        //Logger that sends anything to the client rendering the current component.
+        logger = __logger.scope(`${key}:${socket.id}`);
+        lifecycle = logger;
 
         const {ttl = Infinity, createdAt, store = baseStore.scope(key)} = options;
         const {useState, deleteState} = store;
         
         logger.info`Props ${props}`;
         const stateValues = new Map ();
-        scopedUseState = (initial, stateKey) => {
+        scopedUseState = (initial, stateKey, {deny, ...rest} = {}) => {
+            if (deny) {
+                return [null, () => {throw new Error('Attempt to set unauthenticated state')}];
+            }
+
             scopedKey = states[stateIndex]?.key || stateKey || uuidv4();
             logger.info`Component used state ${scopedKey} ${states[stateIndex]?.key} ${initial}`;
+            logger.info`Component used state ${scopedKey} ${states[stateIndex]?.key} ${initial}`;
             const state = states[stateIndex] || useState(scopedKey, initial, {temp: !stateKey});
+
             const {value, setValue, key: k} = state;
             logger.info`Passed state to store ${JSON.stringify(value)} ${k}`;
             stateValues.set(value, state.key);
             let mounted = true;
             
-            const boundSetValue = (value) => {
+            const boundSetValue = function (value) {
                 logger.error`Setting value. ${props.temp} ${scopedKey||"no"} Rerendering  ${mounted}`
                 if (mounted === false) {
                     throw new Error(`setState called on unmounted component. Be sure to remove all listeners and asynchronous function in the cleanup function of the effect.`)
@@ -46,10 +77,15 @@ const Component = (fn, baseStore) => {
                 setValue(value);
                 // const was = Component.useEffect;
                 Component.useEffect = scopedUseEffect;
+                Component.useClientEffect = scopedUseClientEffect;
                 Component.useState = scopedUseState;
+                Component.useClientState = scopedUseClientState;
+                Component.useFunction = scopedUseFunction;
+
                 try {
                     render();
                 } catch (e) {
+                    logger.error`Error rendering function ${e}`;
                     socket.emit('error', key, 'component:render', e.message);
                 }
                 // Component.useEffect = was;
@@ -63,27 +99,68 @@ const Component = (fn, baseStore) => {
             return [value, boundSetValue, state];
         }
 
-        scopedUseEffect = (fn, deps) => {
-            effects.forEach((cleanup) => {
-                logger.info`Cleaning up effects`;
-                if (cleanup && 'function' === typeof cleanup)
-                cleanup();
-            })
-            
-
-            logger.error`Running effects ${props.temp}`;
-            const cleanup = fn();
-
-            effects[effectIndex] = cleanup || (() => {});
-
-            effectIndex++;
-
+        scopedUseClientState = (...args) => {
+            logger.error`USE CLIENT STATE ${socket}`;
+            // process.exit(0);
+            if (Component.isServer(socket)) {
+                if (states[stateIndex]) {
+                    states[stateIndex] = states[stateIndex];
+                    stateIndex++;    
+                    return states[stateIndex];
+                }
+                return [null, cannotSetClientStateError]
+            }
+            return scopedUseState(...args);
         }
 
+        scopedUseEffect = (fn, deps = []) => {
+            logger.info`No socket connection returning`
+            if (!Component.isServer(socket)) return;
+            
+            const [lastDeps = [], cleanup] = effects[effectIndex] || [];
+            if (!isEqual(lastDeps, deps) || !lastDeps.length) {
+                lifecycle.warning`Cleaning up effects`;
+                if (cleanup && 'function' === typeof cleanup)
+                    cleanup();
+                logger.error`Running effects ${props.temp}`;
+                let nextCleanup = fn() || (() => {});
+                effects[effectIndex] = [deps, nextCleanup]
+            } else {
+                logger.error`Dpendencies match. NOT running effects`;
+            }
 
+
+            effectIndex++;
+        }
+
+        scopedUseClientEffect = (fn, deps = []) => {
+            if (Component.isServer(socket)) return;
+
+            const [lastDeps = [], cleanup] = clientEffects[clientEffectIndex] || [];
+            if (!isEqual(lastDeps, deps) || !lastDeps.length) {
+                lifecycle.warning`Cleaning up client effects`;
+               
+                if (cleanup && 'function' === typeof cleanup)
+                    cleanup();
+                logger.error`Running effects ${props.temp}`;
+                const nextCleanup = fn() || (() => {});
+                
+                clientEffects[clientEffectIndex] = [deps, nextCleanup];
+            } else {
+                logger.error`Dpendencies match. NOT running effects`;
+            }
+                
+            clientEffectIndex++;
+        }
         
+        scopedUseFunction = (fn) => {
+            const id = functions[fnIndex][0] || v4();
+            functions[fnIndex] = [id, fn];
+            fnIndex++
+        };
+
         let cleanup = () => {
-            logger.scope('bar').error`Destroying component`
+            lifecycle.error`Destroying component`
             states.forEach((state) => {
                 logger.warning`Destroying temporary state ${state.args}`
 
@@ -94,8 +171,13 @@ const Component = (fn, baseStore) => {
                 }
             })
 
+            clientEffects.forEach((cleanup) => {
+                lifecycle.warning`Cleaning up client effects`;
+                if (cleanup && 'function' === typeof cleanup)
+                cleanup();
+            })
             effects.forEach((cleanup) => {
-                logger.info`Cleaning up effects`;
+                lifecycle.warning`Cleaning up effects on destroy`;
                 if (cleanup && 'function' === typeof cleanup)
                 cleanup();
             })
@@ -104,55 +186,50 @@ const Component = (fn, baseStore) => {
         let render = () => {
             stateIndex = 0;
             effectIndex = 0;
+            fnIndex = 0;
 
             logger.error`Rendering. ${+new Date - createdAt} > ${ttl}`
             if (+new Date - createdAt > ttl) {
                 throw new Error('Component expired.');
             }
             const instance = fn(props, socket);
-            logger.scope('foo').error`set action ${JSON.stringify(instance)}`
 
             const result = {...instance};
             for (const key in instance.states) {
                 const stateValue = instance.states[key];
                 if (stateValues.has(stateValue)) {
                     const id = stateValues.get(stateValue);
-                    logger.info`State reference found in stateValues. Using id.`;
+                    logger.debug`State reference found in stateValues. Using id.`;
                     result.states[key] = id;
                 }
             }
 
-            // const boundComponent = componentMap.get(key);
-        //     for (const key in instance.actions) {
-        //         boundComponent.actions = boundComponent.actions || new Map();
-        //         boundComponent.actionIds = boundComponent.actionIds || new Map();
-        //         const id = boundComponent.actionIds.get(key) || uuidv4();
-        //         logger.error`Setting action for scoket ${socket}`
-        //         boundComponent.actions.set(id, instance.actions[key]);
-        //   logger.scope('foo').error`set action ${socket}`
-
-        //         boundComponent.actionIds.set(key, id);
-        //         result._actions = result._actions || new Map();
-        //         result._actions.set(id, instance.actions[key]);
-        //         result.actions[key] = key;
-        //     }
+            result.cleanup = cleanup;
+            result.functions = Object.fromEntries(functions);
 
             logger.info`Result ${result}`;
             mounted = true;
-            Component.rendered.set(key, {...result, cleanup})
+
+            if (Component.isServer(socket))
+                return result;
+            
+            Component.rendered.set(key, result)
 
             return Component.rendered.get(key);
         }
 
         Component.useEffect = scopedUseEffect;
+        Component.useClientEffect = scopedUseClientEffect;
         Component.useState = scopedUseState;
+        Component.useClientState = scopedUseClientState;
+        Component.useFunction = scopedUseFunction;
         return render();
     }
 
     return (props, key, options = {}) => {
         const createdAt = +new Date;
         let bound = component.bind(null, props, key, {...options, createdAt});
-        logger.warning`Setting component ${key}`;
+        __logger.warning`Setting component ${key}`;
         Component.instances.set(key, bound);
         return bound;
     }
@@ -161,5 +238,7 @@ const Component = (fn, baseStore) => {
 }
 Component.instances = new Map();
 Component.rendered = new Map();
-
+Component.isServer = (socket) => {
+    return socket.id === 'server'
+}
 module.exports = {Component};

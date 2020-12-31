@@ -3,11 +3,21 @@ const {Color} = require('l0g/formatters/Color');
 const {Inspect} = require('l0g/formatters/Inspect');
 const {ConsoleTransport, Table} = require('l0g/transports/ConsoleTransport');
 const {FileTransport}= require('l0g/transports/FileTransport');
+const {SocketTransport}= require('l0g/transports/SocketTransport');
+const {ReloadConfigFeature} = require('l0g/features/ReloadConfigFeature.js');
 
 const util = require('util');
 const chalk = require('chalk');
 
 const { LOG_LEVEL, LOG_LEVEL_HTTP } = require('./consts');
+
+
+
+const reloadConfigFeature = new ReloadConfigFeature();
+
+const features = [
+  reloadConfigFeature
+];
 
 ConsoleTransport.surpressed = false;
 ConsoleTransport.surpress();
@@ -137,17 +147,18 @@ const transports = [
     new FileTransport('main.log', {formatter: new Inspect}),
 ];
 
-const logger = new Logger(LOG_LEVEL, {transports});
+const logger = new Logger('debug', {transports, features});
 //Add a http level to the loglevel set. - This way we can control the log level of http logs individually. 
 logger.levels.http = LOG_LEVEL_HTTP;
 Color.colors.key.level.http = 'purple';
 
 //We need to provide the logging function ourselves. There's no setter on the levels object. Maybe i should add a addLogLevel method.
-logger.http = (...args) => logger.setLevel('http').log(...args);
+logger.http = (...args) => logger.setLe('http').log(...args);
 
 logger.setState = setState;
 module.exports = logger;
 
-
+logger.formatter = formatter;
 
 Logger.scope = /.*/
+Logger.filter = /FUNCTIONS!!!/

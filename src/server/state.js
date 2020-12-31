@@ -118,7 +118,9 @@ class Store {
             
         state.key = key;
         state.scope = this.key;
+        // state.options = options;
         state.args = args;
+
         this.map.set(key, state);
 
         this.emit(EVENT_STATE_CREATE, this, state, key, ...args);
@@ -156,13 +158,18 @@ class Store {
         return permitted;
     }
 
-    useState = (key, def, ...args) => {
+    useState = (key, def,  ...args) => {
         this.emit(EVENT_STATE_USE, key, def, ...args);
+
+        // const {scope, ...rest} = options;
 
         if (typeof key !== 'string') {
             logger.warning`Key is not of type string. Are you sure you're passing a key?`;
         }
 
+        // if (scope) {
+        //     return this.scope(scope).useState(key, def, {...rest}, ...args);
+        // }
         logger.info`Using state ${key}. Has state ${this.has(key)}. Id: ${this.get(key)?.id} Scope: ${this.key}`;
         if (this.has(key))
             return this.get(key);
