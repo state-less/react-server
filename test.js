@@ -152,12 +152,13 @@ io.on('connection', (socket) => {
 
 setInterval(() => {
   store.purge();
-}, 1000);
-setInterval(() => {
-    logger.scope('foo').info`Store: ${util.inspect(public, false, true)}`;
-}, 3000)
+}, 60000);
 
-const socket = client('http://localhost:3000');
+// setInterval(() => {
+//     logger.scope('foo').info`Store: ${util.inspect(public, false, true)}`;
+// }, 3000)
+
+// const socket = client('http://localhost:3000');
 
 // socket.emit('useComponent', 'poll')
 
