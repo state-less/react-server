@@ -53,13 +53,15 @@ const Component = (fn, baseStore) => {
         const {useState, deleteState} = store;
         
         logger.info`Props ${props}`;
+        const id = Math.random();
         const stateValues = new Map ();
         scopedUseState = (initial, stateKey, {deny, ...rest} = {}) => {
             if (deny) {
                 return [null, () => {throw new Error('Attempt to set unauthenticated state')}];
             }
+            logger.error`ID ${id}`
 
-            scopedKey = states[stateIndex]?.key || stateKey || uuidv4();
+            let scopedKey = states[stateIndex]?.key || stateKey || uuidv4();
             logger.info`Component used state ${scopedKey} ${states[stateIndex]?.key} ${initial}`;
             const state = states[stateIndex] || useState(scopedKey, initial, {temp: !stateKey});
 
@@ -72,6 +74,7 @@ const Component = (fn, baseStore) => {
             let mounted = true;
             
             const boundSetValue = function (value) {
+                logger.error`ID ${id}`
                 logger.error`Setting value. ${props.temp} ${scopedKey||"no"} Rerendering  ${mounted}`
                 if (mounted === false) {
                     throw new Error(`setState called on unmounted component. Be sure to remove all listeners and asynchronous function in the cleanup function of the effect.`)

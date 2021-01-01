@@ -54,7 +54,7 @@ const Poll = Component((props, socket) => {
     const [votes, setVotes] = Component.useState(values.map(v => 0),!temp?'votes':null);
     logger.info`State used. ${votes}`;
     const [voted, setVoted, onRequest] = Component.useState({}, 'voted');
-    const [authenticated, setAuthenticated] = Component.useState(false);
+    const [authenticated, setAuthenticated] = Component.useClientState(false, null, {scope: socket.id});
     const [secret] = Component.useState('Yo mama', 'secret',  {deny: authenticated == false});
     const [hasVoted, setHasVoted] = Component.useClientState(false,null, {scope: socket.id});
     
@@ -92,11 +92,12 @@ const Poll = Component((props, socket) => {
       }
     }
 
-    const vote = (socket, option) => {
+    const vote = ({socket}, option) => {
       if (!values[option]) {
         throw new Error(`Unsupported value. Supported values are ${values}`);
       }
   
+      logger.warning`VOTING ${socket.id}`;
       if (socket.id in voted) {
         throw new Error('Cannot vote twice');
       }
@@ -142,7 +143,7 @@ const temp = Poll({
   temp: true,
 }, 'poll.temp');
 
-poll();
+// poll();
 
 io.on('connection', (socket) => {
     logger.warning`Client connected. ${socket.id}`
