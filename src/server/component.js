@@ -74,7 +74,7 @@ const Component = (fn, baseStore) => {
                 value = Object(value);
 
             logger.info`Passed state to store ${JSON.stringify(value)}`;
-            stateValues.set(value, state.key);
+            stateValues.set(value, state);
             let mounted = true;
             
             const boundSetValue = function (value) {
@@ -92,7 +92,9 @@ const Component = (fn, baseStore) => {
                 Component.useFunction = scopedUseFunction;
 
                 try {
-                    render();
+                    setImmediate(() => {
+                        render();
+                    })
                 } catch (e) {
                     logger.error`Error rendering function ${e}`;
                     socket.emit('error', key, 'component:render', e.message);
@@ -206,13 +208,13 @@ const Component = (fn, baseStore) => {
             const instance = fn(props, socket);
 
             const result = {...instance};
-            for (const key in instance.states) {
-                const stateValue = instance.states[key];
+            for (const lookupReference in instance.states) {
+                const stateValue = instance.states[lookupReference];
                 if (stateValues.has(stateValue)) {
-                    const id = stateValues.get(stateValue);
+                    const {key:stateKey, scope} = stateValues.get(stateValue);
                     logger.debug`State reference found in stateValues. Using id.`;
-                    if (id)
-                        result.states[key] = id;
+                    if (lookupReference)
+                        result.states[lookupReference] = [stateKey, scope];
                 }
             }
 
@@ -229,9 +231,9 @@ const Component = (fn, baseStore) => {
             Component.scope.set(socket.id, scope)
             scope.set(key, result)
 
-            setResult(result);
+            setResult({...result, actions:Object.keys(result.actions)});
             let lastState = result;
-            return componentState
+            return [componentState, cleanup]
         }
 
         Component.useEffect = scopedUseEffect;

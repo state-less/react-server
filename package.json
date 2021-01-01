@@ -4,6 +4,8 @@
   "description": "A state server that uses sockets to provide two way data-binding between a PWA (react/vue) and a server.",
   "main": "index.js",
   "dependencies": {
+    "@babel/cli": "^7.12.10",
+    "@babel/core": "^7.12.10",
     "chalk": "^4.1.0",
     "event-emitter": "^0.3.5",
     "fast-deep-equal": "^3.1.3",

@@ -46,9 +46,9 @@ io.on('connection', (socket) => {
     });
 })
 
-logger.addTransport(
-  new SocketTransport(io, 'log')
-)
+// logger.addTransport(
+//   new SocketTransport(io, 'log')
+// )
 
 const Poll = Component((props, socket) => {
     const {values, temp, key} = props;
@@ -158,17 +158,18 @@ io.on('connection', (socket) => {
       logger.info`Using component ${key}`;  
       logger.info`Found component. Rendering ${component}`;
       try {
-        const result = component(socket);
+        const [result, cleanup] = component(socket);
 
+        const {key} = result;
         logger.error`COMPONENT STATE!!! ${result}`;
 
         socket.once("disconnecting", () => {
           logger.error(`Removing temp variables`);
-            result.cleanup();
+            cleanup();
             // process.exit(0);
           })
           logger.scope('foo').error`useComponent ${socket}`
-          socket.emit(`useComponent:${key}`, {id:r});
+          socket.emit(`useComponent:${key}`, {key});
         } catch (e) {
           socket.emit('error', key, 'socket:render', e.message);
           throw e;
