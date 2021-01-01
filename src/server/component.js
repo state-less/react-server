@@ -59,7 +59,7 @@ const Component = (fn, baseStore) => {
                 return [null, () => {throw new Error('Attempt to set unauthenticated state')}];
             }
 
-            let scopedKey = states[stateIndex]?.key || stateKey || uuidv4();
+            scopedKey = states[stateIndex]?.key || stateKey || uuidv4();
             logger.info`Component used state ${scopedKey} ${states[stateIndex]?.key} ${initial}`;
             const state = states[stateIndex] || useState(scopedKey, initial, {temp: !stateKey});
 

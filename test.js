@@ -142,10 +142,10 @@ const temp = Poll({
   temp: true,
 }, 'poll.temp');
 
-// poll();
+poll();
 
 io.on('connection', (socket) => {
-    logger.warning`Client connected.`
+    logger.warning`Client connected. ${socket.id}`
     socket[Format] = (socket) => `Socket[${socket.id}]`;
     socket.join(`state-server.client:${socket.id}`);
 
