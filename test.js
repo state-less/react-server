@@ -19,6 +19,7 @@ const public = store.scope('public');
       public.autoCreate = true;
 
 const broker = new SocketIOBroker();
+const jwt = require('jsonwebtoken');
 
 //Allow all requests. This is where you can implement authentication via jwt.
 store.onRequestState = () => true;
@@ -176,7 +177,8 @@ io.on('connection', (socket) => {
     })
 
     socket.on('executeAction', (componentKey, actionId, id, args) => {
-      const component = Component.rendered.get(componentKey);
+      const scope = Component.scope.get(socket.id);
+      const component = scope.get(componentKey);
       logger.debug`Rendered components ${component}`
         if (!component.actions) {
           socket.emit('error', componentKey, actionId, "Component has not rendered. Cannot call action on unmounted component");

@@ -42,6 +42,9 @@ const Component = (fn, baseStore) => {
         // let functions = [[]];
         let dependencies = [];
 
+        const componentState = useState({}, key);
+        const {value: lastResult, setValue: setResult} = componentState;
+
         const cannotSetClientStateError = () => {
             throw new Error('Cannot set access client state from server')
         }
@@ -220,9 +223,12 @@ const Component = (fn, baseStore) => {
 
             if (Component.isServer(socket))
                 return result;
-            
-            Component.rendered.set(key, result)
 
+            const scope = Component.scope.get(socket.id) || new Map;
+            Component.scope.set(socket.id, scope)
+            scope.set(key, result)
+
+            setResult(result);
             let lastState = result;
             return result
         }
@@ -247,6 +253,7 @@ const Component = (fn, baseStore) => {
 }
 Component.instances = new Map();
 Component.rendered = new Map();
+Component.scope = new Map();
 Component.isServer = (socket) => {
     return socket.id === 'server'
 }
