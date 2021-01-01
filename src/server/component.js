@@ -28,6 +28,7 @@ const Component = (fn, baseStore) => {
     let stateIndex = 0;
     let fnIndex = 0;
 
+    const {useState: useComponentState} = baseStore;
     let lastState;
     const component = (props, key, options, socket = {id: 'server'}) => {
         let scopedUseEffect;
@@ -42,7 +43,7 @@ const Component = (fn, baseStore) => {
         // let functions = [[]];
         let dependencies = [];
 
-        const componentState = useState({}, key);
+        const componentState = useComponentState(key, {});
         const {value: lastResult, setValue: setResult} = componentState;
 
         const cannotSetClientStateError = () => {
@@ -230,7 +231,7 @@ const Component = (fn, baseStore) => {
 
             setResult(result);
             let lastState = result;
-            return result
+            return componentState
         }
 
         Component.useEffect = scopedUseEffect;

@@ -160,7 +160,7 @@ io.on('connection', (socket) => {
       try {
         const result = component(socket);
 
-        logger.error`FUNCTIONS!!! ${result.functions}`;
+        logger.error`COMPONENT STATE!!! ${result}`;
 
         socket.once("disconnecting", () => {
           logger.error(`Removing temp variables`);
@@ -168,8 +168,7 @@ io.on('connection', (socket) => {
             // process.exit(0);
           })
           logger.scope('foo').error`useComponent ${socket}`
-          logger.error`Actions ${result.actions.vote}`
-          socket.emit(`useComponent:${key}`, {...result, actions: Object.keys(result.actions)});
+          socket.emit(`useComponent:${key}`, {id:r});
         } catch (e) {
           socket.emit('error', key, 'socket:render', e.message);
           throw e;
