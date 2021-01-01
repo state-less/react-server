@@ -48,7 +48,7 @@ const ConnectionHandler = (broker, store = new Store) => (socket) => {
             let socketSet = states.get(socket);
             if (!socketSet) socketSet = states.set(socket, new Set).get(socket);   
             
-            const state = useState(key, def, options, socket);
+            const state = useState(key, def, {options, socket});
             if (!socketSet.has(state)) {
                 socketSet.add(state);
                 state.sync(broker, socket);           

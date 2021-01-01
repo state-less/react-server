@@ -28,7 +28,7 @@ const Component = (fn, baseStore) => {
     let stateIndex = 0;
     let fnIndex = 0;
 
-    let functions = [[]];
+    let lastState;
     const component = (props, key, options, socket = {id: 'server'}) => {
         let scopedUseEffect;
         let scopedUseClientEffect;
@@ -59,13 +59,15 @@ const Component = (fn, baseStore) => {
                 return [null, () => {throw new Error('Attempt to set unauthenticated state')}];
             }
 
-            scopedKey = states[stateIndex]?.key || stateKey || uuidv4();
-            logger.info`Component used state ${scopedKey} ${states[stateIndex]?.key} ${initial}`;
+            let scopedKey = states[stateIndex]?.key || stateKey || uuidv4();
             logger.info`Component used state ${scopedKey} ${states[stateIndex]?.key} ${initial}`;
             const state = states[stateIndex] || useState(scopedKey, initial, {temp: !stateKey});
 
-            const {value, setValue, key: k} = state;
-            logger.info`Passed state to store ${JSON.stringify(value)} ${k}`;
+            let {value, setValue} = state;
+            if (!(value instanceof Object))
+                value = Object(value);
+
+            logger.info`Passed state to store ${JSON.stringify(value)}`;
             stateValues.set(value, state.key);
             let mounted = true;
             
@@ -108,12 +110,14 @@ const Component = (fn, baseStore) => {
                     stateIndex++;    
                     return states[stateIndex];
                 }
+                stateIndex++;    
+
                 return [null, cannotSetClientStateError]
             }
             return scopedUseState(...args);
         }
 
-        scopedUseEffect = (fn, deps = []) => {
+        scopedUseEffect = (fn, deps = [], notifyClient) => {
             logger.info`No socket connection returning`
             if (!Component.isServer(socket)) return;
             
@@ -164,8 +168,8 @@ const Component = (fn, baseStore) => {
             states.forEach((state) => {
                 logger.warning`Destroying temporary state ${state.args}`
 
-                const [options] = state.args;
-                if (options.temp) {
+                const {temp} = state.options;
+                if (temp) {
                     deleteState(state.key);
                     logger.warning`Destroying temporary state ${state.key}`
                 }
@@ -200,12 +204,13 @@ const Component = (fn, baseStore) => {
                 if (stateValues.has(stateValue)) {
                     const id = stateValues.get(stateValue);
                     logger.debug`State reference found in stateValues. Using id.`;
-                    result.states[key] = id;
+                    if (id)
+                        result.states[key] = id;
                 }
             }
 
             result.cleanup = cleanup;
-            result.functions = Object.fromEntries(functions);
+            // result.functions = Object.fromEntries(functions);
 
             logger.info`Result ${result}`;
             mounted = true;
@@ -215,7 +220,8 @@ const Component = (fn, baseStore) => {
             
             Component.rendered.set(key, result)
 
-            return Component.rendered.get(key);
+            let lastState = result;
+            return result
         }
 
         Component.useEffect = scopedUseEffect;

@@ -36,10 +36,10 @@ class SocketIOBroker extends Broker {
     }
 
     sync (state, socket) {
-        logger.info`Syncing state ${state} with socket ${socket.id}. ${state.args.clientId}`
-        const {id, args: {clientId}, value} = state;
+        logger.info`Syncing state ${state} with socket ${socket.id}.`
+        const {id, value} = state;
         socket.emit(EVENT_STATE_SET+':'+id, {
-            id, value, clientId
+            id, value
         })
         // socket.emit(EVENT_STATE_SET+':$'+clientId, {
         //     id, value, clientId
@@ -110,7 +110,7 @@ class Store {
 
     }
 
-    createState = (key, def, ...args) => {
+    createState = (key, def, options = {}, ...args) => {
         const state = new State(def , {args});
 
         if (!key) 
@@ -118,7 +118,7 @@ class Store {
             
         state.key = key;
         state.scope = this.key;
-        // state.options = options;
+        state.options = options;
         state.args = args;
 
         this.map.set(key, state);
@@ -158,7 +158,7 @@ class Store {
         return permitted;
     }
 
-    useState = (key, def,  ...args) => {
+    useState = (key, def, options = {}, ...args) => {
         this.emit(EVENT_STATE_USE, key, def, ...args);
 
         // const {scope, ...rest} = options;
@@ -175,7 +175,7 @@ class Store {
             return this.get(key);
         
         if (this.autoCreate)
-            return this.createState(key, def, ...args);
+            return this.createState(key, def, options, ...args);
 
         throw new Error (`Attempt to use non-existent state '${key}' failed.`);
     }

@@ -2,6 +2,7 @@ const { State, SocketIOBroker, Store } = require('./src/server/state');
 const {SocketTransport}= require('l0g/transports/SocketTransport');
 const { Format } = require('l0g/symbols');
 const { Component } = require('./src/server/component');
+const  equal = require('fast-deep-equal');
 
 const {ConnectionHandler} = require('./src/server/handler')
 var http = require('http').createServer();
@@ -53,8 +54,12 @@ const Poll = Component((props, socket) => {
     const [votes, setVotes] = Component.useState(values.map(v => 0),!temp?'votes':null);
     logger.info`State used. ${votes}`;
     const [voted, setVoted, onRequest] = Component.useState({}, 'voted');
+    const [authenticated, setAuthenticated] = Component.useState(false);
+    const [secret] = Component.useState('Yo mama', 'secret',  {deny: authenticated == false});
     const [hasVoted, setHasVoted] = Component.useClientState(false,null, {scope: socket.id});
     
+    // const [protected] = Component.useState(null, 'protected', {deny: !authenticated});
+
     Component.useEffect(() => {
       logger.error`TEmp ${temp} effect`
 
@@ -76,9 +81,16 @@ const Poll = Component((props, socket) => {
       }
     });
 
-    Component.useFunction((socket, ...args) => {
-      return "HELLO FUNCTION";
-    });
+    const authenticate = ({socket, respond}, password) => {
+      if (password === 'foobar') {
+        setAuthenticated(true)
+      } else {
+        setTimeout(() => {
+          respond('Hint, it is foobar');
+        }, 2000);
+        throw new Error('Wrong password.');
+      }
+    }
 
     const vote = (socket, option) => {
       if (!values[option]) {
@@ -89,7 +101,6 @@ const Poll = Component((props, socket) => {
         throw new Error('Cannot vote twice');
       }
       
-      logger.error`VOTING ${socket.id} ${JSON.stringify(state)}`;
       logger.scope('foo').error`vote ${socket}`
 
       votes[option]++;
@@ -105,11 +116,15 @@ const Poll = Component((props, socket) => {
       props,
       states: {
         votes,
+        authenticated,
         voted: hasVoted,
-        rendered: +new Date
+        rendered: +new Date,
+        secret
+        // protected
       },
       actions: {
-        vote
+        vote,
+        authenticate
       }
     }
 }, public);
@@ -127,7 +142,7 @@ const temp = Poll({
   temp: true,
 }, 'poll.temp');
 
-poll();
+// poll();
 
 io.on('connection', (socket) => {
     logger.warning`Client connected.`
@@ -135,6 +150,7 @@ io.on('connection', (socket) => {
     socket.join(`state-server.client:${socket.id}`);
 
     socket.on('useComponent', (key) => {
+      socket.join(`state-server.component.${key}`);
       socket.join(`state-server.component.${key}:${socket.id}`);
       const component = Component.instances.get(key);
       logger.info`Using component ${key}`;  
@@ -170,9 +186,13 @@ io.on('connection', (socket) => {
         logger.error`Request to execute action ${actionId} from client ${socket}`;
 
         try {
-            const result = action(socket, ...args);
-            socket.emit('executeAction', componentKey, actionId, id, result);
+            const respond = (...args) => {
+              socket.emit('executeAction:'+id, componentKey, actionId, id, ...args);
+            }
+            const result = action({socket, respond}, ...args);
 
+            // logger.error`RENDERED: ${}`
+            respond(result);
         } catch (e) {
             socket.emit('error', componentKey, actionId, e.message);
         }
