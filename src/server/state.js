@@ -37,13 +37,14 @@ class SocketIOBroker extends Broker {
 
     sync (state, socket) {
         logger.info`Syncing state ${state} with socket ${socket.id}.`
-        const {id, value} = state;
-        socket.emit(EVENT_STATE_SET+':'+id, {
+        const {id, value, error} = state;
+        const {message, stack} = error || {};
+        const syncObject = {
             id, value
-        })
-        // socket.emit(EVENT_STATE_SET+':$'+clientId, {
-        //     id, value, clientId
-        // })
+        };
+
+        syncObject.error = error?{message, stack}:null;
+        socket.emit(EVENT_STATE_SET+':'+id, syncObject)
     };
 }
 
@@ -167,11 +168,16 @@ class Store {
             logger.warning`Key is not of type string. Are you sure you're passing a key?`;
         }
 
+        if (def?.scope) {
+            logger.warning`You're passing a 'scope' property in the 'defaultValue' argument . Perhaps you meant to pass them to options instead?`;
+
+        }
         // if (scope) {
         //     return this.scope(scope).useState(key, def, {...rest}, ...args);
         // }
+        options.scope = options.scope || this.key;
         logger.info`Using state ${key}. Has state ${this.has(key)}. Id: ${this.get(key)?.id} Scope: ${this.key}`;
-        if (this.has(key))
+        if (this.has(key) && this.key === options.scope)
             return this.get(key);
         
         if (this.autoCreate)

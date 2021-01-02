@@ -47,7 +47,7 @@ const Component = (fn, baseStore) => {
         // let functions = [[]];
         let dependencies = [];
 
-        const componentState = useComponentState(key, {});
+        const componentState = useComponentState(key, {}, {scope: socket.id});
         const {value: lastResult, setValue: setResult} = componentState;
 
         const cannotSetClientStateError = () => {
@@ -212,6 +212,10 @@ const Component = (fn, baseStore) => {
             }
 
             const result = fn(props, socket);
+
+            if (!result) {
+                throw new Error('Nothing returned from render. This usually means you have forgotten to return anything from your component.')
+            }
             if (result.component === 'ClientComponent') {
                 for (const stateReferenceKey in result.props) {
                     const stateValue = result.props[stateReferenceKey];
@@ -222,6 +226,12 @@ const Component = (fn, baseStore) => {
                         result.props[stateReferenceKey] = {createdAt, scope, value, defaultValue, key, id};
                     }
                 }
+                const actions = result.props?.children?.filter((action) => {
+                    return action.component === 'Action';
+                }).forEach((action) => {
+                    action.props.boundHandler = action.props.handler
+                    action.props.handler = Object.keys(action.props.handler);
+                })
             } else {
                 for (const lookupReference in result.states) {
                     const stateValue = result.states[lookupReference];
@@ -245,7 +255,7 @@ const Component = (fn, baseStore) => {
 
             const scope = Component.scope.get(socket.id) || new Map;
             Component.scope.set(socket.id, scope)
-            scope.set(key, result)
+            scope.set(key, componentState)
 
             setResult(result);
             let lastState = result;
