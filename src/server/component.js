@@ -1,7 +1,7 @@
 const { v4: uuidv4, v4 } = require("uuid");
 const _logger = require("../lib/logger");
 
-let __logger = _logger.scope('state-server.component');
+let componentLogger = _logger.scope('state-server.component');
 let lifecycle = _logger.scope('state-server.lifecycle');
 
 const { State, SocketIOBroker, Store } = require('./state');
@@ -19,10 +19,14 @@ const isEqual = (arrA, arrB) => {
 }
 const Component = (fn, baseStore) => {
     let logger;
-    __logger.info`Creating component`;
+    componentLogger.info`Creating component`;
+
+    if (!baseStore) {
+        componentLogger.warning`Missing store. Using default component store. (You might want to pass a store instance)`;
+        baseStore = componentStore;
+    }
 
     
-
     let effectIndex = 0;
     let clientEffectIndex = 0;
     let stateIndex = 0;
@@ -30,7 +34,7 @@ const Component = (fn, baseStore) => {
 
     const {useState: useComponentState} = baseStore;
     let lastState;
-    const component = (props, key, options, socket = {id: 'server'}) => {
+    const component = (props = null, key, options, socket = {id: 'server'}) => {
         let scopedUseEffect;
         let scopedUseClientEffect;
         let scopedUseState;
@@ -50,7 +54,7 @@ const Component = (fn, baseStore) => {
             throw new Error('Cannot set access client state from server')
         }
         //Logger that sends anything to the client rendering the current component.
-        logger = __logger.scope(`${key}:${socket.id}`);
+        logger = componentLogger.scope(`${key}:${socket.id}`);
         lifecycle = logger;
 
         const {ttl = Infinity, createdAt, store = baseStore.scope(key)} = options;
@@ -79,7 +83,7 @@ const Component = (fn, baseStore) => {
             
             const boundSetValue = function (value) {
                 logger.error`ID ${id}`
-                logger.error`Setting value. ${props.temp} ${scopedKey||"no"} Rerendering  ${mounted}`
+                logger.error`Setting value. ${scopedKey||"no"} Rerendering  ${mounted}`
                 if (mounted === false) {
                     throw new Error(`setState called on unmounted component. Be sure to remove all listeners and asynchronous function in the cleanup function of the effect.`)
                 }
@@ -132,10 +136,11 @@ const Component = (fn, baseStore) => {
             
             const [lastDeps = [], cleanup] = effects[effectIndex] || [];
             if (!isEqual(lastDeps, deps) || !lastDeps.length) {
-                lifecycle.warning`Cleaning up effects`;
-                if (cleanup && 'function' === typeof cleanup)
+                if (cleanup && 'function' === typeof cleanup) {
+                    lifecycle.warning`Cleaning up effects`;
                     cleanup();
-                logger.error`Running effects ${props.temp}`;
+                }
+                lifecycle.debug`Running serverside effect ${effectIndex}.`;
                 let nextCleanup = fn() || (() => {});
                 effects[effectIndex] = [deps, nextCleanup]
             } else {
@@ -205,16 +210,27 @@ const Component = (fn, baseStore) => {
             if (+new Date - createdAt > ttl) {
                 throw new Error('Component expired.');
             }
-            const instance = fn(props, socket);
 
-            const result = {...instance};
-            for (const lookupReference in instance.states) {
-                const stateValue = instance.states[lookupReference];
-                if (stateValues.has(stateValue)) {
-                    const {key:stateKey, scope} = stateValues.get(stateValue);
-                    logger.debug`State reference found in stateValues. Using id.`;
-                    if (lookupReference)
+            const result = fn(props, socket);
+            if (result.component === 'ClientComponent') {
+                for (const stateReferenceKey in result.props) {
+                    const stateValue = result.props[stateReferenceKey];
+                    if (stateValues.has(stateValue)) {
+                        const {createdAt, scope, value, defaultValue, key, id} = stateValues.get(stateValue);
+                        logger.debug`State reference found in stateValues. Using id.`;
+                        if (id)
+                        result.props[stateReferenceKey] = {createdAt, scope, value, defaultValue, key, id};
+                    }
+                }
+            } else {
+                for (const lookupReference in result.states) {
+                    const stateValue = result.states[lookupReference];
+                    if (stateValues.has(stateValue)) {
+                        const {key:stateKey, scope} = stateValues.get(stateValue);
+                        logger.debug`State reference found in stateValues. Using id.`;
+                        if (lookupReference)
                         result.states[lookupReference] = [stateKey, scope];
+                    }
                 }
             }
 
@@ -231,7 +247,7 @@ const Component = (fn, baseStore) => {
             Component.scope.set(socket.id, scope)
             scope.set(key, result)
 
-            setResult({...result, actions:Object.keys(result.actions)});
+            setResult(result);
             let lastState = result;
             return [componentState, cleanup]
         }
@@ -247,7 +263,7 @@ const Component = (fn, baseStore) => {
     return (props, key, options = {}) => {
         const createdAt = +new Date;
         let bound = component.bind(null, props, key, {...options, createdAt});
-        __logger.warning`Setting component ${key}`;
+        componentLogger.warning`Setting component ${key}`;
         Component.instances.set(key, bound);
         return bound;
     }

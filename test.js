@@ -15,8 +15,8 @@ const util = require('util');
 const logger = _logger.scope('state-server.example')
 
 const store = new Store({autoCreate: true});
-const public = store.scope('public');
-      public.autoCreate = true;
+const publicStore = store.scope('public');
+      publicStore.autoCreate = true;
 
 const broker = new SocketIOBroker();
 const jwt = require('jsonwebtoken');
@@ -26,7 +26,7 @@ store.onRequestState = () => true;
 
 
 
-const {useState: usePublicState} = public;
+const {useState: usePublicState} = publicStore;
 
 
 http.listen(3000, () => {
@@ -55,9 +55,9 @@ const Poll = Component((props, socket) => {
     const [votes, setVotes] = Component.useState(values.map(v => 0),!temp?'votes':null);
     logger.info`State used. ${votes}`;
     const [voted, setVoted, onRequest] = Component.useState({}, 'voted');
-    const [authenticated, setAuthenticated] = Component.useClientState(false, null, {scope: socket.id});
+    const [authenticated, setAuthenticated] = Component.useClientState(false, "auth", {scope: socket.id});
     const [secret] = Component.useState('Yo mama', 'secret',  {deny: authenticated == false});
-    const [hasVoted, setHasVoted] = Component.useClientState(false,null, {scope: socket.id});
+    const [hasVoted, setHasVoted] = Component.useClientState(false,"hasVoted", {scope: socket.id});
     
     // const [protected] = Component.useState(null, 'protected', {deny: !authenticated});
 
@@ -129,7 +129,7 @@ const Poll = Component((props, socket) => {
         authenticate
       }
     }
-}, public);
+}, publicStore);
 
 //Handle connectioons using a connection handler, message broker and store. 
 //You can write your own handler, but most of the time t
