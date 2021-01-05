@@ -1,26 +1,27 @@
+
 const {Logger} = require('l0g');
-const {Color} = require('l0g/formatters/Color');
+// const {Color} = require('l0g/formatters/Color');
 const {Inspect} = require('l0g/formatters/Inspect');
 const {ConsoleTransport, Table} = require('l0g/transports/ConsoleTransport');
-const {FileTransport}= require('l0g/transports/FileTransport');
-const {SocketTransport}= require('l0g/transports/SocketTransport');
-const {ReloadConfigFeature} = require('l0g/features/ReloadConfigFeature.js');
+// const {FileTransport}= require('l0g/transports/FileTransport');
+// const {SocketTransport}= require('l0g/transports/SocketTransport');
+// const {ReloadConfigFeature} = require('l0g/features/ReloadConfigFeature.js');
 
-const util = require('util');
-const chalk = require('chalk');
+// const util = require('util');
+// const chalk = require('chalk');
 
 const { LOG_LEVEL, LOG_LEVEL_HTTP } = require('./consts');
 
 
 
-const reloadConfigFeature = new ReloadConfigFeature();
+// const reloadConfigFeature = new ReloadConfigFeature();
 
 const features = [
-  reloadConfigFeature
+//   reloadConfigFeature
 ];
 
-ConsoleTransport.surpressed = false;
-ConsoleTransport.surpress();
+// ConsoleTransport.surpressed = false;
+// ConsoleTransport.surpress();
 
 let State;
 const setState = (v) => State = v;
@@ -106,9 +107,9 @@ const formatResponseTime = (obj) => {
  * The Color formatter colorizes objects by default.
  * Adds a call to util.inspect before the default format functions
  */
-if (LOG_LEVEL === 'debug') {
-    Color.formatMap.get(Color.isObject).unshift((v) => util.inspect(v, false, 1, true));
-}
+// if (LOG_LEVEL === 'debug') {
+//     Color.formatMap.get(Color.isObject).unshift((v) => util.inspect(v, false, 1, true));
+// }
 
 
 //The Color formatter of the logger uses Maps to map functions to functions. 
@@ -119,23 +120,23 @@ if (LOG_LEVEL === 'debug') {
 /**
  * Extend the default formatMap, to keep default coloring behaviour for strings and numbers.
  */
-const formatMap = new Map([
-    [isResponseTime, formatResponseTime],
-    [isState, formatState],
-    [isSubscription, formatSubscription],
-    [isCandle, formatCandle],
-    [isSocket, formatSocket],
-    ...Color.formatMap
-]);
-const formatter = new Color((options) => {
-    const {ts, level, scope, message} = options;
-    return `${ts} ${scope} ${level}: ${message}`
-}, {
-    //The format map used to format log messages on a per object basis
-    formatMap, 
-    //The chalk color level. 1 = 256
-    chalkLevel: 3
-});
+// const formatMap = new Map([
+//     [isResponseTime, formatResponseTime],
+//     [isState, formatState],
+//     [isSubscription, formatSubscription],
+//     [isCandle, formatCandle],
+//     [isSocket, formatSocket],
+//     ...Color.formatMap
+// ]);
+// const formatter = new Color((options) => {
+//     const {ts, level, scope, message} = options;
+//     return `${ts} ${scope} ${level}: ${message}`
+// }, {
+//     //The format map used to format log messages on a per object basis
+//     formatMap, 
+//     //The chalk color level. 1 = 256
+//     chalkLevel: 3
+// });
 
 /**
  * The logger supports transports. We'll use two transports.
@@ -143,14 +144,14 @@ const formatter = new Color((options) => {
  * FileTransport to log to a file. - Unfortunately I didn't have the time to add log rotation/timestamps.
  */
 const transports = [
-    new ConsoleTransport({formatter}),
-    new FileTransport('main.log', {formatter: new Inspect}),
+    new ConsoleTransport({formatter: new Inspect}),
+    // new FileTransport('main.log', {formatter: new Inspect}),
 ];
 
 const logger = new Logger('debug', {transports, features});
 //Add a http level to the loglevel set. - This way we can control the log level of http logs individually. 
 logger.levels.http = LOG_LEVEL_HTTP;
-Color.colors.key.level.http = 'purple';
+// Color.colors.key.level.http = 'purple';
 
 //We need to provide the logging function ourselves. There's no setter on the levels object. Maybe i should add a addLogLevel method.
 logger.http = (...args) => logger.setLe('http').log(...args);
@@ -158,7 +159,6 @@ logger.http = (...args) => logger.setLe('http').log(...args);
 logger.setState = setState;
 module.exports = logger;
 
-logger.formatter = formatter;
+// logger.formatter = formatter;
 
 Logger.scope = /.*/
-Logger.filter = /FUNCTIONS!!!/

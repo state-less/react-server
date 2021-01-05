@@ -4,12 +4,12 @@ const _logger = require("../lib/logger");
 let componentLogger = _logger.scope('state-server.component');
 let lifecycle = _logger.scope('state-server.lifecycle');
 
-const { State, SocketIOBroker, Store } = require('./state');
+// const { State, SocketIOBroker, Store } = require('./state');
 
-const componentStore = new Store({autoCreate: true});
+// const componentStore = new Store({autoCreate: true});
 
 
-componentStore.onRequestState = () => true;
+// componentStore.onRequestState = () => true;
 
 
 const isEqual = (arrA, arrB) => {
@@ -23,9 +23,9 @@ const Component = (fn, baseStore) => {
 
     if (!baseStore) {
         componentLogger.warning`Missing store. Using default component store. (You might want to pass a store instance)`;
-        baseStore = componentStore;
+        throw new Error('Missing store')
+        // baseStore = componentStore;
     }
-
     
     let effectIndex = 0;
     let clientEffectIndex = 0;
@@ -34,7 +34,7 @@ const Component = (fn, baseStore) => {
 
     const {useState: useComponentState} = baseStore;
     let lastState;
-    const component = (props = null, key, options, socket = {id: 'server'}) => {
+    const component = async (props = null, key, options, socket = {id: 'server'}) => {
         let scopedUseEffect;
         let scopedUseClientEffect;
         let scopedUseState;
@@ -63,16 +63,15 @@ const Component = (fn, baseStore) => {
         logger.info`Props ${props}`;
         const id = Math.random();
         const stateValues = new Map ();
-        scopedUseState = (initial, stateKey, {deny, ...rest} = {}) => {
+        scopedUseState = async (initial, stateKey, {deny, ...rest} = {}) => {
             if (deny) {
                 return [null, () => {throw new Error('Attempt to set unauthenticated state')}];
             }
             logger.error`ID ${id}`
 
             let scopedKey = states[stateIndex]?.key || stateKey || uuidv4();
-            logger.info`Component used state ${scopedKey} ${states[stateIndex]?.key} ${initial}`;
-            const state = states[stateIndex] || useState(scopedKey, initial, {temp: !stateKey});
-
+            logger.info`Component used state ${scopedKey} ${rest} ${states[stateIndex]?.key} ${initial}`;
+            const state = states[stateIndex] || await useState(scopedKey, initial, {temp: !stateKey, ...rest});
             let {value, setValue} = state;
             if (!(value instanceof Object))
                 value = Object(value);
@@ -81,13 +80,13 @@ const Component = (fn, baseStore) => {
             stateValues.set(value, state);
             let mounted = true;
             
-            const boundSetValue = function (value) {
+            const boundSetValue = async function (value) {
                 logger.error`ID ${id}`
                 logger.error`Setting value. ${scopedKey||"no"} Rerendering  ${mounted}`
                 if (mounted === false) {
                     throw new Error(`setState called on unmounted component. Be sure to remove all listeners and asynchronous function in the cleanup function of the effect.`)
                 }
-                setValue(value);
+                await setValue(value);
                 // const was = Component.useEffect;
                 Component.useEffect = scopedUseEffect;
                 Component.useClientEffect = scopedUseClientEffect;
@@ -96,9 +95,9 @@ const Component = (fn, baseStore) => {
                 Component.useFunction = scopedUseFunction;
 
                 try {
-                    setImmediate(() => {
-                        render();
-                    })
+                    // setImmediate(() => {
+                        await render();
+                    // })
                 } catch (e) {
                     logger.error`Error rendering function ${e}`;
                     socket.emit('error', key, 'component:render', e.message);
@@ -201,7 +200,7 @@ const Component = (fn, baseStore) => {
             })
         }
 
-        let render = () => {
+        let render = async () => {
             stateIndex = 0;
             effectIndex = 0;
             fnIndex = 0;
@@ -211,7 +210,7 @@ const Component = (fn, baseStore) => {
                 throw new Error('Component expired.');
             }
 
-            const result = fn(props, socket);
+            const result = await fn(props, socket);
 
             if (!result) {
                 throw new Error('Nothing returned from render. This usually means you have forgotten to return anything from your component.')
@@ -235,20 +234,19 @@ const Component = (fn, baseStore) => {
             } else {
                 for (const lookupReference in result.states) {
                     const stateValue = result.states[lookupReference];
+
                     if (stateValues.has(stateValue)) {
                         const {key:stateKey, scope} = stateValues.get(stateValue);
+                        console.log ("result",baseStore)
+
                         logger.debug`State reference found in stateValues. Using id.`;
                         if (lookupReference)
-                        result.states[lookupReference] = [stateKey, scope];
+                            result.states[lookupReference] = [stateKey, scope];
                     }
                 }
             }
 
-            result.cleanup = cleanup;
-            // result.functions = Object.fromEntries(functions);
-
             logger.info`Result ${result}`;
-            mounted = true;
 
             if (Component.isServer(socket))
                 return result;
@@ -258,7 +256,6 @@ const Component = (fn, baseStore) => {
             scope.set(key, componentState)
 
             setResult(result);
-            let lastState = result;
             return [componentState, cleanup]
         }
 

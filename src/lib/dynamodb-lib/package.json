@@ -1,0 +1,27 @@
+{
+  "name": "dynamodb-helper",
+  "version": "0.0.1",
+  "description": "A collection of dynamodb related functions",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/C5H8NNaO4/dynamodb-helper.git"
+  },
+  "keywords": [
+    "dynamodb",
+    "serverless"
+  ],
+  "author": "moritz.roessler@gmail.com",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/C5H8NNaO4/dynamodb-helper/issues"
+  },
+  "homepage": "https://github.com/C5H8NNaO4/dynamodb-helper#readme",
+  "dependencies": {
+    "aws-sdk": "^2.493.0",
+    "node-tag-log": "git+https://github.com/C5H8NNaO4/node-tag-log.git"
+  }
+}
