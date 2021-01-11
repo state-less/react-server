@@ -1,5 +1,5 @@
 const AWS = require('aws-sdk');
-const {tryGetAllFromTable} = require('../../lib/dynamodb-lib');
+const {tryGetAllFromTable, del} = require('../../lib/dynamodb-lib');
 const {TableNameWebsocketIDs} = require('./config');
 
 const Event = {
@@ -22,17 +22,7 @@ async function broadcast (Data) {
     console.log ("connections", connections)
     let {Items} = connections;
     for (let connection of Items) {
-        let {id: ConnectionId, endpoint} = connection;
-        let client = new AWS.ApiGatewayManagementApi({
-            apiVersion: '2018-11-29',
-            endpoint
-        });
-
-        let promise = client.postToConnection({
-            ConnectionId,
-            Data
-        }).promise();
-
+        const promise = emit(connection, Data);
         promises.push (promise);
     }
     await Promise.all (promises);
@@ -53,7 +43,13 @@ async function emit (connection, Data) {
     }).promise();
 
     promises.push (promise);
-    await Promise.all (promises);
+    try {
+        return await Promise.all (promises);
+    } catch (e) {
+        console.log ("Deleting dangling connection.", e)
+        await del({id:connection.id}, TableNameWebsocketIDs)
+        throw e;
+    }
     console.log ("Broadcasted message");
 }
 

@@ -8,6 +8,8 @@ const jsxs = (Component, props) => {
 }
 const jsx = (Component, props) => {
     logger.error`JSX RUNTINE`
+    // if (props.children && !Array.isArray(props.children))
+    //     props.children = [props.children];
     return Component(props);
     return {}
 }

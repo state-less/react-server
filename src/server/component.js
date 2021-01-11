@@ -34,27 +34,30 @@ const Component = (fn, baseStore) => {
 
     const {useState: useComponentState} = baseStore;
     let lastState;
-    const component = async (props = null, key, options, socket = {id: 'server'}) => {
+    const component = async (props = null, key, options, socket = {id: 'base'}) => {
         let scopedUseEffect;
         let scopedUseClientEffect;
         let scopedUseState;
         let scopedUseClientState;
         let scopedUseFunction;
+        let scopedTimeout;
 
         let effects = []
         let clientEffects = [];
         let states = [];
+        let promises = [];
         // let functions = [[]];
         let dependencies = [];
+        logger = componentLogger.scope(`${key}:${socket.id}`);
 
-        const componentState = useComponentState(key, {}, {scope: socket.id});
+        const componentState = await useComponentState(key, {}, {scope: socket.id});
+        componentLogger.info`Component state is ${componentState}`
         const {value: lastResult, setValue: setResult} = componentState;
 
         const cannotSetClientStateError = () => {
             throw new Error('Cannot set access client state from server')
         }
         //Logger that sends anything to the client rendering the current component.
-        logger = componentLogger.scope(`${key}:${socket.id}`);
         lifecycle = logger;
 
         const {ttl = Infinity, createdAt, store = baseStore.scope(key)} = options;
@@ -130,6 +133,7 @@ const Component = (fn, baseStore) => {
         }
 
         scopedUseEffect = (fn, deps = [], notifyClient) => {
+            logger.error`Effect called.! ${Component.isServer(socket)}`
             logger.info`No socket connection returning`
             if (!Component.isServer(socket)) return;
             
@@ -175,6 +179,19 @@ const Component = (fn, baseStore) => {
             functions[fnIndex] = [id, fn];
             fnIndex++
         };
+
+        scopedTimeout = (fn, timeout, ...args) => {
+            let to = Math.random();
+            logger.error`Adding timeout ${timeout}`
+            promises.push(
+                new Promise((resolve, reject) => {
+                    setTimeout(() => {
+                        resolve(fn(...args));
+                    }, timeout, ...args);
+                })
+            )
+            return to;
+        }   
 
         let cleanup = () => {
             lifecycle.error`Destroying component`
@@ -225,6 +242,10 @@ const Component = (fn, baseStore) => {
                         result.props[stateReferenceKey] = {createdAt, scope, value, defaultValue, key, id};
                     }
                 }
+                logger.warning`Parsing actions ${result.props}`
+                if (result.props?.children && !Array.isArray(result.props?.children)) {
+                    result.props.children = [result.props.children];
+                }
                 const actions = result.props?.children?.filter((action) => {
                     return action.component === 'Action';
                 }).forEach((action) => {
@@ -248,17 +269,29 @@ const Component = (fn, baseStore) => {
 
             logger.info`Result ${result}`;
 
-            if (Component.isServer(socket))
-                return result;
 
             const scope = Component.scope.get(socket.id) || new Map;
             Component.scope.set(socket.id, scope)
             scope.set(key, componentState)
 
-            setResult(result);
-            return [componentState, cleanup]
+            logger.error`Setting state result ${result}`;
+            
+            if (Object.keys(lastResult.props).length !== Object.keys(result.props).length) {
+                const res = await setResult(result);
+                logger.error`Updated state result ${res}`;
+            }
+
+            await Promise.all(promises);
+
+            
+            // if (Component.isServer(socket))
+            //     return result;
+
+            return result;
+            // return [componentState, cleanup]
         }
 
+        Component.setTimeout = scopedTimeout;
         Component.useEffect = scopedUseEffect;
         Component.useClientEffect = scopedUseClientEffect;
         Component.useState = scopedUseState;
@@ -281,6 +314,6 @@ Component.instances = new Map();
 Component.rendered = new Map();
 Component.scope = new Map();
 Component.isServer = (socket) => {
-    return socket.id === 'server'
+    return socket.id === 'base'
 }
 module.exports = {Component};

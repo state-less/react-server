@@ -1,32 +1,27 @@
 const AWS = require("aws-sdk");
-const exprts = require("l0g");
-const {ScanTableParams, PutParams, GetParams, QueryByKeysParams, DeleteParams, UpdateParams} = require('./params')
+const {ScanTableParams, PutParams, GetParams, DeleteParams, QueryParams, UpdateParams} = require('./params')
 
 const ACTIONS = {
     GET: 'get',
     DELETE: 'delete',
+    UPDATE: 'update',
     PUT: 'put',
     SCAN: 'scan',
-    UPDATE: 'update',
+    QUERY: 'query',
     BATCH_WRITE: 'batchWrite'
 }
 
 async function call(action, params) {
-    const dynamoDb = new AWS.DynamoDB.DocumentClient();
-    try {
-
+        const dynamoDb = new AWS.DynamoDB.DocumentClient();
         return await dynamoDb[action](params).promise();
-    } catch (e) {
-        throw new Error(`Malformed query ${action} ${JSON.stringify(params)}. Error ${e}` )
-        process.exit(0);
-    }
 }
 
 async function tryCall (action, params) {
     try {
         return call (action, params);
     } catch (e) {
-
+        throw new Error ("wtf")
+        process.exit(0);
     } 
 }
 
@@ -34,16 +29,20 @@ async function put (data, TableName) {
     return await  tryCall (ACTIONS.PUT, PutParams(data, TableName))
 }
 
-async function update (key, expr, TableName) {
-    return await  tryCall (ACTIONS.UPDATE, UpdateParams(key,expr, TableName))
-}
-
-async function get (key, TableName) {
-    return await  tryCall (ACTIONS.GET, GetParams(key, TableName))
+async function get (data, TableName) {
+    return await  tryCall (ACTIONS.GET, GetParams(data, TableName))
 }
 
 async function del (data, TableName) {
     return await  tryCall (ACTIONS.DELETE, DeleteParams(data, TableName))
+}
+
+async function query (key, TableName) {
+    return await  tryCall (ACTIONS.QUERY, QueryParams(key, TableName))
+}
+
+async function update (key, expr, TableName) {
+    return await  tryCall (ACTIONS.UPDATE, UpdateParams(key,expr, TableName))
 }
 
 async function scan (params) {
@@ -54,7 +53,7 @@ async function getAllFromTable (TableName) {
     return await scan(ScanTableParams(TableName));
 }
 
-async function tryGetAllFromTable (TableName) {
+async function tryGetAllFromTable (TableName) { 
     try {
         return getAllFromTable (TableName);
     } catch (e) {
@@ -62,5 +61,5 @@ async function tryGetAllFromTable (TableName) {
 }
 
 module.exports = {
-    put, del, get, update,  tryGetAllFromTable
+    put, del, get,  tryGetAllFromTable, query, update
 }

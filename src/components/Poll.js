@@ -15,22 +15,22 @@ const Poll = Component(async (props, socket) => {
     
     // const [protected] = Component.useState(null, 'protected', {deny: !authenticated});
 
-    Component.useEffect(() => {
+    // Component.useEffect(() => {
 
-        logger.error`TEmp ${temp} effect`
+    //     logger.error`TEmp ${temp} effect`
         
-        const to = setTimeout(async () => {
-          const _votes = [...votes];
-          const ind = ~~(Math.random()*values.length)
-         logger.debug`About to set dynamodb state in component ${votes} -> ${ind}+1`
-         _votes[ind] = (_votes[ind] + 1) || 3 ;
-          logger.error`TEmp ${temp} setVotes ${votes} ${_votes}`
-          await setVotes(_votes);
-        }, 2000);
-        return () => {
-          clearTimeout(to);
-        }
-    });
+    //     const to = Component.setTimeout(async () => {
+    //       const _votes = [...votes];
+    //       const ind = ~~(Math.random()*values.length)
+    //      logger.debug`About to set dynamodb state in component ${votes} -> ${ind}+1`
+    //      _votes[ind] = (_votes[ind] + 1) || 3 ;
+    //       logger.error`TEmp ${temp} setVotes ${votes} ${_votes}`
+    //       await setVotes(_votes);
+    //     }, 2000);
+    //     return () => {
+    //       clearTimeout(to);
+    //     }
+    // });
 
     // Component.useClientEffect(() => {
     //   logger.scope('effect').error`Client Connected`
@@ -52,33 +52,35 @@ const Poll = Component(async (props, socket) => {
       setAuthenticated(false);
     }
 
-    // const vote = ({socket}, option) => {
-    //   if (!values[option]) {
-    //     throw new Error(`Unsupported value. Supported values are ${values}`);
-    //   }
+    const vote = async ({socket}, option) => {
+      if (!values[option]) {
+        throw new Error(`Unsupported value. Supported values are ${values}`);
+      }
   
-    //   logger.warning`VOTING ${socket.id}`;
-    //   if (socket.id in voted) {
-    //     throw new Error('Cannot vote twice');
-    //   }
+      logger.warning`VOTING ${socket.id}`;
+      // if (socket.id in voted) {
+      //   throw new Error('Cannot vote twice');
+      // }
       
-    //   logger.scope('foo').error`vote ${socket}`
+      logger.scope('foo').error`vote ${socket}`
 
-    //   votes[option]++;
-    //   voted[socket.id] = true;
-    //   setVoted(voted);
-    //   setVotes(votes);
-    //   setHasVoted(option)
+      let _votes = [...votes];
+      _votes[option]++;
+      // voted[socket.id] = true;
+      // setVoted(voted);
+      await setVotes(_votes);
+      // setHasVoted(option)
 
-    //   return "HEY CLIENT"
-    // };
+      return {success: true}
+    };
   
     return <ClientComponent 
-    // values={values} authenticated={authenticated} voted={hasVoted} 
-    votes={votes}>
-        {/* <Action onClick={vote}>vote</Action>
-        <Action onClick={authenticate}>authenticate</Action>
-        <Action onBeforeUnload={logout} /> */}
+      values={values} 
+      //authenticated={authenticated} voted={hasVoted} 
+      votes={votes}>
+      <Action onClick={vote}>vote</Action>
+      {/* <Action onClick={authenticate}>authenticate</Action>
+      <Action onBeforeUnload={logout} /> */}
     </ClientComponent>
 
 }, publicStore);
