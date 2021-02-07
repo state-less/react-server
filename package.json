@@ -1,5 +1,5 @@
 {
-  "name": "server-state",
+  "name": "react-server",
   "version": "0.0.1",
   "description": "A state server that uses sockets to provide two way data-binding between a PWA (react/vue) and a server.",
   "main": "index.js",
