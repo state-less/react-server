@@ -1,22 +1,21 @@
 const { v4: uuidv4, v4 } = require("uuid");
+const { EVENT_STATE_SET } = require("../consts");
 const _logger = require("../lib/logger");
 
 let componentLogger = _logger.scope('state-server.component');
 let lifecycle = _logger.scope('state-server.lifecycle');
 
-// const { State, SocketIOBroker, Store } = require('./state');
-
-// const componentStore = new Store({autoCreate: true});
-
-
-// componentStore.onRequestState = () => true;
-
+const CACHE_FIRST = 'CACHE_FIRST';
+const NETWORK_FIRST = 'NETWORK_FIRST';
+const SERVER_ID = 'base';
 
 const isEqual = (arrA, arrB) => {
     return arrA.reduce((acc, cur, i) => {
         return acc && cur == arrB[i];
     }, true);
 }
+
+
 const Component = (fn, baseStore) => {
     let logger;
     componentLogger.info`Creating component`;
@@ -34,7 +33,7 @@ const Component = (fn, baseStore) => {
 
     const {useState: useComponentState} = baseStore;
     let lastState;
-    const component = async (props = null, key, options, socket = {id: 'base'}) => {
+    const component = async (props = null, key, options, socket = {id: SERVER_ID}) => {
         let scopedUseEffect;
         let scopedUseClientEffect;
         let scopedUseState;
@@ -74,7 +73,8 @@ const Component = (fn, baseStore) => {
 
             let scopedKey = states[stateIndex]?.key || stateKey || uuidv4();
             logger.info`Component used state ${scopedKey} ${rest} ${states[stateIndex]?.key} ${initial}`;
-            const state = states[stateIndex] || await useState(scopedKey, initial, {temp: !stateKey, ...rest});
+            const state = states[stateIndex] || await useState(scopedKey, initial, {temp: !stateKey, cache:Component.defaultCacheBehaviour, ...rest});
+            console.log("Got state", new Error().stack)
             let {value, setValue} = state;
             if (!(value instanceof Object))
                 value = Object(value);
@@ -83,6 +83,10 @@ const Component = (fn, baseStore) => {
             stateValues.set(value, state);
             let mounted = true;
             
+            // state.on(`${EVENT_STATE_SET}:${state.id}`, () => {
+            //     logger.warning`State changed. Rerendering.`
+            //     process.exit(0);
+            // })
             const boundSetValue = async function (value) {
                 logger.error`ID ${id}`
                 logger.error`Setting value. ${scopedKey||"no"} Rerendering  ${mounted}`
@@ -276,7 +280,10 @@ const Component = (fn, baseStore) => {
 
             logger.error`Setting state result ${result}`;
             
-            if (Object.keys(lastResult.props).length !== Object.keys(result.props).length) {
+            //Implement publish mechanism based on configuration/environment.
+            //Render server publishes on render. That updates the cache of the fallback renderer running serverless. (that's what happens right now)
+            //Lambd can subscribe to state updates from render server to keep cache up to date. MAybe listeners stay alive in warm containers. Otherwise the cache can't be invalidated and needs to be fetched from the database if cache has expired.
+            if (!lastResult || !lastResult.props || Object.keys(lastResult.props).length !== Object.keys(result.props).length) {
                 const res = await setResult(result);
                 logger.error`Updated state result ${res}`;
             }
@@ -286,7 +293,9 @@ const Component = (fn, baseStore) => {
             
             // if (Component.isServer(socket))
             //     return result;
+            logger.warning`DBGACTION: Render: ${JSON.stringify(result)}`;
 
+            process.env.ssrProps = JSON.stringify(result);
             return result;
             // return [componentState, cleanup]
         }
@@ -305,6 +314,7 @@ const Component = (fn, baseStore) => {
         let bound = component.bind(null, props, key, {...options, createdAt});
         componentLogger.warning`Setting component ${key}`;
         Component.instances.set(key, bound);
+        bound.server = true;
         return bound;
     }
 
@@ -314,6 +324,8 @@ Component.instances = new Map();
 Component.rendered = new Map();
 Component.scope = new Map();
 Component.isServer = (socket) => {
-    return socket.id === 'base'
+    return socket.id === SERVER_ID
 }
+Component.defaultCacheBehaviour = CACHE_FIRST;
+
 module.exports = {Component};

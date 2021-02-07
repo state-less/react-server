@@ -6,19 +6,20 @@ const _logger = require('../../lib/logger');
 const logger = _logger.scope('state-server.aws.handler');
 
 const ConnectionHandler = (broker, store, eventType) => async (connectionInfo , data = {}) => {
-  const {key = "votes", defaultValue = null, options = {
-    key: 'base'
+  const {key = "votes", scope, defaultValue = null, options = {
   }} = data;
   logger.warning`Handling connections ${broker} ${store} ${connectionInfo}`;
-  const scopedStore = getScopedStore(broker, store, options, connectionInfo);
+  const scopedStore = getScopedStore(broker, store, data, connectionInfo);
   logger.warning`Scoped store ${store}`;
 
-  const authorized = getAuthorization(scopedStore, key, options, connectionInfo);
+  const authorized = getAuthorization(scopedStore, key, data, connectionInfo);
   logger.warning`Authorized  ${authorized}`;
 
   const state = await useAsyncState(scopedStore, key, defaultValue, {
+    cache: 'NETWORK_FIRST',
     ...options,
-    connectionInfo
+    connectionInfo,
+    throwIfNotAvailable: true
   });
   
   if (eventType === 'DISCONNECT') {

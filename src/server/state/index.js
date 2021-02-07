@@ -45,6 +45,7 @@ class SocketIOBroker extends Broker {
         };
 
         syncObject.error = error?{message, stack}:null;
+
         socket.emit(EVENT_STATE_SET+':'+id, syncObject)
     };
 }
@@ -95,6 +96,12 @@ class Store {
             return this.scopes.get(key);
         }
 
+        if (/\./.test(key)) {
+            key = key.split('.');
+            if (key [0] === this.key)
+            return this.scope(key.slice(1), ...args);
+        }
+        
         logger.scope('state-server.handler').warning`Getting scope ${key}`
         if (Array.isArray(key) && this.scopes.has(key[0])) {
             return this.scopes.get(key[0]).scope(key.slice(1), ...args)
@@ -105,7 +112,7 @@ class Store {
         } 
         const {autoCreate, onRequestState} = this;
         logger.debug`Creating new store ${StateConstructor}`
-        const store = this.clone({autoCreate, key, parent: this, onRequestState, StateConstructor, ...rest});
+        const store = this.clone({...rest, autoCreate: true, onRequestState, StateConstructor,key: `${this.key}.${key}`, parent: this});
 
         this.scopes.set(key, store);
 
@@ -185,9 +192,10 @@ class Store {
         // if (scope) {
         //     return this.scope(scope).useState(key, def, {...rest}, ...args);
         // }
-        logger.info`Using state ${key}. Has state ${this.has(key)}. Id: ${this.get(key)?.id} Scope: ${this.key}`;
+        logger.info`Using state ${key}. Has state ${this.has(key)}. Scope: ${this.key}`;
         options.scope = options.scope || this.key;
     }
+
     useState (key, def, options = {}, ...args) {
         this.validateUseStateArgs(key, def, options, ...args);
 
@@ -196,8 +204,6 @@ class Store {
         
         if (this.autoCreate)
             return this.createState(key, def, options, ...args);
-
-        
     }
 
     throwNotAvailble (key) {
@@ -232,6 +238,7 @@ class Store {
         setImmediate(() => {
             Store.prototype.emit.call(this, ...args);
         })
+        this.parent && this.parent.emit(...args);
     }
 
     

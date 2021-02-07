@@ -56,7 +56,7 @@ const Poll = Component(async (props, socket) => {
       if (!values[option]) {
         throw new Error(`Unsupported value. Supported values are ${values}`);
       }
-  
+      logger.warning`DBGACTION: Called vote: ${votes}`;
       logger.warning`VOTING ${socket.id}`;
       // if (socket.id in voted) {
       //   throw new Error('Cannot vote twice');

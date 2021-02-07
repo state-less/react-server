@@ -5,6 +5,7 @@ const ClientComponent = (props) => {
         props
     }
 }
+ClientComponent.server = true;
 
 const Action = (props) => {
     const {children: name, ...rest} = props;
@@ -16,6 +17,7 @@ const Action = (props) => {
         }
     }
 }
+Action.server = true;
 
 module.exports = {
     ClientComponent,
