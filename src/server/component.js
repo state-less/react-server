@@ -233,10 +233,10 @@ const Component = (fn, baseStore) => {
 
             const result = await fn(props, socket);
 
-            if (!result) {
+            if (!result && result !== null) {
                 throw new Error('Nothing returned from render. This usually means you have forgotten to return anything from your component.')
             }
-            if (result.component === 'ClientComponent') {
+            if ( result && result.component === 'ClientComponent') {
                 for (const stateReferenceKey in result.props) {
                     const stateValue = result.props[stateReferenceKey];
                     if (stateValues.has(stateValue)) {
@@ -256,7 +256,7 @@ const Component = (fn, baseStore) => {
                     action.props.boundHandler = action.props.handler
                     action.props.handler = Object.keys(action.props.handler);
                 })
-            } else {
+            } else if (result) {
                 for (const lookupReference in result.states) {
                     const stateValue = result.states[lookupReference];
 
@@ -282,7 +282,6 @@ const Component = (fn, baseStore) => {
             
             //Implement publish mechanism based on configuration/environment.
             //Render server publishes on render. That updates the cache of the fallback renderer running serverless. (that's what happens right now)
-            //Lambd can subscribe to state updates from render server to keep cache up to date. MAybe listeners stay alive in warm containers. Otherwise the cache can't be invalidated and needs to be fetched from the database if cache has expired.
             if (!lastResult || !lastResult.props || Object.keys(lastResult.props).length !== Object.keys(result.props).length) {
                 const res = await setResult(result);
                 logger.error`Updated state result ${res}`;
@@ -318,7 +317,6 @@ const Component = (fn, baseStore) => {
         return bound;
     }
 
-    return result;
 }
 Component.instances = new Map();
 Component.rendered = new Map();

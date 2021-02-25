@@ -258,7 +258,7 @@ class State {
         const id = State.genId();
 
         logger.debug`Creating state with default value ${defaultValue}`
-        const instanceVariables = {createdAt: +new Date, id, args, value: defaultValue,defaultValue, syncInitialState, brokers: {}, ...rest};
+        const instanceVariables = {createdAt: +new Date, id, args, value: defaultValue,defaultValue, syncInitialState, brokers: [], ...rest};
         Object.assign(this, instanceVariables);    
         
         if (syncInitialState)
@@ -308,7 +308,7 @@ class State {
 }
 
 State.sync = (instance) => {
-    logger.warning`Runnin Sync of normal State`
+    logger.warning`Running Sync of normal State`
     instance.brokers.forEach((entry, i) => {
         const [broker, args] = entry;
         logger.debug`Syncing with broker ${i} ${broker}.`

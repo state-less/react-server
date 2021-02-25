@@ -2,7 +2,7 @@
   "name": "react-server",
   "version": "0.0.1",
   "description": "A state server that uses sockets to provide two way data-binding between a PWA (react/vue) and a server.",
-  "main": "index.js",
+  "main": "dist/index.js",
   "dependencies": {
     "@babel/cli": "^7.12.10",
     "@babel/core": "^7.12.10",
@@ -25,7 +25,9 @@
     "socket.io-client": "^3.0.3",
     "uuid": "^8.3.1"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "cz-conventional-changelog": "^3.3.0"
+  },
   "peerDependencies": {
     "react": "^17.0.1"
   },
