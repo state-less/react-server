@@ -2,7 +2,7 @@
   "name": "react-server",
   "version": "0.0.1",
   "description": "A state server that uses sockets to provide two way data-binding between a PWA (react/vue) and a server.",
-  "main": "dist/index.js",
+  "main": "release/index.js",
   "dependencies": {
     "@babel/cli": "^7.12.10",
     "@babel/core": "^7.12.10",
@@ -34,6 +34,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "cd dist && git checkout HEAD~1 && git checkout master && cd .. && babel ./src --out-dir ./dist && cd ./dist && git add . && git commit -m 'build'",
+    "build:release": "babel ./src --out-dir ./release",
     "build:components": "babel ./components --out-dir ./dist",
     "start": "babel ./test.jsx.js --out-file test.c.js && node test.c.js"
   },
