@@ -52,13 +52,13 @@ class SocketIOBroker extends Broker {
 
 class Store {
     constructor (options = {}) {
-        const {key = 'base', parent = null, autoCreate = false, onRequestState, StateConstructor = State} = options;
+        const {key = 'base', parent = null, autoCreate = false, onRequestState, StateConstructor = State, broker} = options;
         this.map = new Map;
         this.actions = new Map;
         this.scopes = new Map;
         this.StateConstructor = StateConstructor;
         logger.info`State constructor ${this.StateConstructor }`
-        Object.assign(this, {key, parent, autoCreate, onRequestState});
+        Object.assign(this, {key, parent, autoCreate, onRequestState, broker});
         this.useState = this.useState.bind(this);
     }
     
@@ -109,7 +109,10 @@ class Store {
             logger.scope('state-server.handler').warning`Getting this store ${this}`
 
             return this;
-        } 
+        } else if (key === this.key) {
+            return this;
+        }
+
         const {autoCreate, onRequestState} = this;
         logger.debug`Creating new store ${StateConstructor}`
         const store = this.clone({...rest, autoCreate: true, onRequestState, StateConstructor,key: `${this.key}.${key}`, parent: this});
@@ -128,7 +131,7 @@ class Store {
 
     createState = (key, def, options = {}, ...args) => {
         const {StateConstructor} = this;
-        const state = new StateConstructor(def , options, ...args);
+        const state = new StateConstructor(def , {...options, broker: this.broker}, ...args);
 
         if (!key) 
             key = state.id;
@@ -306,6 +309,7 @@ class State {
 
 
 }
+ee(State.prototype);
 
 State.sync = (instance) => {
     logger.warning`Running Sync of normal State`

@@ -10,7 +10,7 @@
     "@babel/plugin-transform-modules-commonjs": "^7.12.1",
     "@babel/plugin-transform-react-jsx": "^7.12.12",
     "@babel/preset-env": "^7.12.11",
-    "@state-less/atomic": "file:../atomic",
+    "@state-less/atomic": "github:state-less/atomic",
     "bcrypt": "^5.0.0",
     "chalk": "^4.1.0",
     "event-emitter": "^0.3.5",

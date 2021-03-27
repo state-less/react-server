@@ -1,4 +1,8 @@
+const logger = require('../../lib/logger');
+const { success } = require('../../lib/response-lib/websocket');
 const {Broker} = require('../state');
+
+const EVENT_STATE_SET = 'setState';
 
 class WebsocketBroker extends Broker {   
     constructor (options = {}) {
@@ -35,7 +39,10 @@ class WebsocketBroker extends Broker {
         };
 
         syncObject.error = error?{message, stack}:null;
-        socket.emit(EVENT_STATE_SET+':'+id, syncObject)
+
+        const data = success(syncObject, {action: 'setValue', requestId: null});
+        
+        socket.send(data)
     };
 }
 

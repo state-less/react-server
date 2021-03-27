@@ -115,12 +115,18 @@ class DynamoDBState extends AtomicState {
         }
         logger.debug`Updated state in Dynamodb.`
 
+        this.emit('setValue', this);
         return await DynamoDBState.sync(this, new LambdaBroker);
+
     }
 
     async sync(broker, connectionInfo, requestId) {
         logger.error`Dynamodb state sync request for broker ${broker}. Endpoint ${connectionInfo}`;
         const {key, scope} = this;
+        super.sync(broker, connectionInfo, requestId);
+        // console.log (this);
+        // process.exit(0)
+
         try {
 
             let res = await put({id: connectionInfo.id, key: `${scope}:${key}`, connectionInfo},'dev2-subscriptions')
@@ -168,8 +174,7 @@ class DynamoDBState extends AtomicState {
             logger.error`Error Updating connections in state failed ${e}`
             throw e;
         }
-        logger.warning`Deleted connection info ${connectionInfo} ${res}`;
-        // DynamoDBState.sync(this, broker);
+
     }
     async getValue (key) {
         logger.debug`Getting state from Dynamodb. ${{key:this.key, scope: this.scope}}`
@@ -189,8 +194,8 @@ class DynamoDBState extends AtomicState {
             } else {
                 this.value = state.Item.value;
             }
-            const {id, defaultValue} = state.Item;
-            Object.assign(this, {id, defaultValue});
+            const {id, defaultValue, atomic, isAtomic} = state.Item;
+            Object.assign(this, {id, defaultValue, atomic, isAtomic});
             logger.warning`Resolved dynamodb state ${this.value} ${Array.isArray(state.Item)} ${this.value.length}`;
             return true;
         } else {
@@ -203,6 +208,8 @@ DynamoDBState.sync = async (instance, broker, requestId) => {
     const {scope, key} = instance;
     logger.error`Syncing dynamodb state ASD ${{id: `${scope}:${key}`}}`;
     
+    State.sync(instance);
+
     const result = await query({id: `${scope}:${key}`}, 'dev2-subscriptions')
     logger.error`Syncing dynamodb state connections :${result.Items}`;
 
@@ -230,9 +237,9 @@ DynamoDBState.sync = async (instance, broker, requestId) => {
 
 class DynamodbStore extends Store {
     constructor (options = {}) {
-        const {key = 'base', parent = null, autoCreate = false, onRequestState, StateConstructor = DynamoDBState, TableName} = options;
+        const {key = 'base', parent = null, autoCreate = false, onRequestState, StateConstructor = DynamoDBState, TableName, broker} = options;
         logger.warning`TableName ${TableName}`
-        super ({key, parent, autoCreate, onRequestState, StateConstructor})
+        super ({key, parent, autoCreate, onRequestState, StateConstructor, broker})
         Object.assign(this, {TableName})
         this.useState = this.useState.bind(this);
     }
@@ -256,8 +263,15 @@ class DynamodbStore extends Store {
         logger.info`STATE QWE getValue ${key} ${options}`
         const {cache = "CACHE_FIRST"} = options;
 
-        if (super.has(key) && cache !== 'NETWORK_FIRST')
-            return super.get(key);
+        if (super.has(key)) {
+            const state = super.get(key);
+            if (cache !== 'NETWORK_FIRST') {
+                return state;
+            } else {
+                await state.getValue();
+                return state;
+            }
+        }
 
 
         const state = this.createState(key, def, options, ...args);

@@ -15,6 +15,7 @@ const render = async (server) => {
         cmp = await cmp();
         logger.warning`COMPONENT ${cmp}`
         if (cmp && cmp.component) {
+            if (cmp.component === 'ClientComponent') break;
             throw new Error("client")
         }
         if (Array.isArray(cmp)) {
@@ -23,20 +24,20 @@ const render = async (server) => {
         if (typeof cmp !== 'function')
             cmp = stack.shift();
     } while (typeof cmp === 'function');
-
-    logger.warning`Rendering server ${server}`;
-    const {port} = server;
-    let {props: {children}} = server;
+    return cmp;
+    // logger.warning`Rendering server ${server}`;
+    // const {port} = server;
+    // let {props: {children}} = server;
  
-    if (!Array.isArray(children)) children = [children];
+    // if (!Array.isArray(children)) children = [children];
 
-    const components = children.filter(filterComponents);
-    const renderer = children.find(filterRenderer);
+    // const components = children.filter(filterComponents);
+    // const renderer = children.find(filterRenderer);
 
-    const componentLkp = components.reduce(reduceComponents, {});
+    // const componentLkp = components.reduce(reduceComponents, {});
 
-    logger.warning`Rendering server ${componentLkp}`;
-    renderer.handler(componentLkp)
+    // logger.warning`Rendering server ${componentLkp}`;
+    // renderer.handler(componentLkp)
 }
 
 

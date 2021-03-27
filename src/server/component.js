@@ -315,7 +315,7 @@ const Component = (fn, baseStore) => {
         Component.instances.set(key, bound);
         bound.server = true;
         return bound;
-    }
+    } 
 
 }
 Component.instances = new Map();
