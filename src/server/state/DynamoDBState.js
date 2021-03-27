@@ -1,13 +1,12 @@
 const {State, Store, Broker} = require('./');
 const {Atomic: AtomicState} = require('./Atomic');
 const {compile} = require('@state-less/atomic/DynamoDB');
-const {broadcast} = require('./util');
+const {broadcast, emit} = require('./util');
 const {success} = require('../../lib/response-lib/websocket');
 
 const {put, get, update, del, query} = require('../../lib/dynamodb-lib');
 const logger = require('../../lib/logger');
 const { Pinpoint } = require('aws-sdk');
-const { emit } = require('../../../dist/server/state/util');
 const { v4 } = require('uuid');
 const { encryptValue } = require('../pipes/Crypt');
 class LambdaBroker extends Broker {
