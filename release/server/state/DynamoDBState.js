@@ -15,7 +15,8 @@ const {
 } = require('@state-less/atomic/DynamoDB');
 
 const {
-  broadcast
+  broadcast,
+  emit
 } = require('./util');
 
 const {
@@ -35,10 +36,6 @@ const logger = require('../../lib/logger');
 const {
   Pinpoint
 } = require('aws-sdk');
-
-const {
-  emit
-} = require('../../../dist/server/state/util');
 
 const {
   v4
