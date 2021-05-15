@@ -22,12 +22,9 @@ class Atomic extends State {
       key,
       ...rest
     });
-    logger.log`Instantiating atomic state with options ${JSON.stringify(options)}`;
 
     if (atomic) {
-      logger.log`State is atomic`;
       const updateEquation = genAtomic(atomic);
-      logger.log`Update equation is ${updateEquation(0, 1)}`;
       this.updateEquation = updateEquation;
     }
 

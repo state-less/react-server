@@ -16,7 +16,8 @@ const {
   EVENT_STATE_CREATE,
   EVENT_STATE_REQUEST,
   EVENT_SCOPE_CREATE,
-  EVENT_STATE_DECLINE
+  EVENT_STATE_DECLINE,
+  SERVER_ID
 } = require('../../consts');
 
 const logger = require('../../lib/logger');
@@ -46,7 +47,6 @@ class SocketIOBroker extends Broker {
   }
 
   emitError(socket, options, message) {
-    logger.warning`Emitting error event (${EVENT_STATE_ERROR + ':' + options.clientId}) ${message} to client ${socket.id}`;
     socket.emit(EVENT_STATE_ERROR + ':' + options.clientId, {
       error: message,
       ...options
@@ -70,7 +70,6 @@ class SocketIOBroker extends Broker {
   }
 
   sync(state, socket) {
-    logger.info`Syncing state ${state} with socket ${socket.id}.`;
     const {
       id,
       value,
@@ -96,16 +95,12 @@ class SocketIOBroker extends Broker {
 class Store {
   constructor(_options = {}) {
     _defineProperty(this, "purge", () => {
-      logger.info`Purgin states. ${this.scopes}`;
       this.map.forEach(state => {
         const [options = {}] = state.args || [];
 
-        if (options.ttl) {
-          logger.warning`State ${state} has a ttl ${options.ttl}`;
-        }
+        if (options.ttl) {}
 
         if (options.ttl && +new Date() - state.createdAt > options.ttl) {
-          logger.error`State ${state} expired. Removing from store`;
           this.deleteState(state.key);
         }
       });
@@ -121,10 +116,24 @@ class Store {
       const state = new StateConstructor(def, { ...options,
         broker: this.broker
       }, ...args);
+      const {
+        scope = this.key
+      } = options;
       if (!key) key = state.id;
       state.key = key;
+      /** I'm not sure whether the store should handle creating subscopes or the component controller */
+
+      /** TODO: Think of a better scoping mechanism  */
+
+      /** TODO: infinite loop when no scope passed */
+
+      if (scope && scope !== this.key && scope !== this.key.split('.').pop()) {
+        return this.scope(scope).createState(key, def, options, ...args);
+      }
+      /** The states scope should be the key of the store it was created in */
+
+
       state.scope = this.key;
-      logger.log`Creating state with options ${options} ${def}`;
       state.options = options;
       state.args = args;
       this.map.set(key, state);
@@ -133,7 +142,6 @@ class Store {
     });
 
     _defineProperty(this, "deleteState", key => {
-      logger.error`Deleting state with key ${key}`;
       this.map.delete(key);
     });
 
@@ -164,7 +172,6 @@ class Store {
         throw new Error('Attemp to call action ${key} failed. Action is not of type function');
       }
 
-      logger.debug`Calling action ${key} with arguments ${args}.`;
       const result = action(...args);
       return result;
     });
@@ -178,7 +185,7 @@ class Store {
     });
 
     const {
-      key: _key = 'base',
+      key: _key = SERVER_ID,
       parent = null,
       autoCreate = false,
       onRequestState,
@@ -189,7 +196,6 @@ class Store {
     this.actions = new Map();
     this.scopes = new Map();
     this.StateConstructor = _StateConstructor;
-    logger.info`State constructor ${this.StateConstructor}`;
     Object.assign(this, {
       key: _key,
       parent,
@@ -227,12 +233,9 @@ class Store {
       if (key[0] === this.key) return this.scope(key.slice(1), ...args);
     }
 
-    logger.scope('state-server.handler').warning`Getting scope ${key}`;
-
     if (Array.isArray(key) && this.scopes.has(key[0])) {
       return this.scopes.get(key[0]).scope(key.slice(1), ...args);
     } else if (Array.isArray(key) && key.length === 0) {
-      logger.scope('state-server.handler').warning`Getting this store ${this}`;
       return this;
     } else if (key === this.key) {
       return this;
@@ -242,7 +245,6 @@ class Store {
       autoCreate,
       onRequestState
     } = this;
-    logger.debug`Creating new store ${StateConstructor}`;
     const store = this.clone({ ...rest,
       autoCreate: true,
       onRequestState,
@@ -261,18 +263,13 @@ class Store {
   validateUseStateArgs(key, def, options = {}, ...args) {
     this.emit(EVENT_STATE_USE, key, def, ...args); // const {scope, ...rest} = options;
 
-    if (typeof key !== 'string') {
-      logger.warning`Key is not of type string. Are you sure you're passing a key?`;
-    }
+    if (typeof key !== 'string') {}
 
-    if (def !== null && def !== void 0 && def.scope) {
-      logger.warning`You're passing a 'scope' property in the 'defaultValue' argument . Perhaps you meant to pass them to options instead?`;
-    } // if (scope) {
+    if (def !== null && def !== void 0 && def.scope) {} // if (scope) {
     //     return this.scope(scope).useState(key, def, {...rest}, ...args);
     // }
 
 
-    logger.info`Using state ${key}. Has state ${this.has(key)}. Scope: ${this.key}`;
     options.scope = options.scope || this.key;
   }
 
@@ -288,7 +285,6 @@ class Store {
 
   action(key, callback) {
     if ('function' !== typeof callback) throw new Error('Expected callback to be of type function.');
-    logger.debug`Registering action ${key}.`;
     this.actions.set(key, callback);
   }
 
@@ -304,7 +300,6 @@ class State {
 
   constructor(defaultValue, options = {}) {
     _defineProperty(this, "setError", error => {
-      logger.warning`Setting error of ${this}.`;
       this.error = error;
       State.sync(this);
     });
@@ -315,7 +310,6 @@ class State {
       ...rest
     } = options;
     const id = State.genId();
-    logger.debug`Creating state with default value ${defaultValue}`;
     const instanceVariables = {
       createdAt: +new Date(),
       id,
@@ -334,7 +328,6 @@ class State {
   }
 
   setValue(value) {
-    logger.debug`Setting value of ${this}.`;
     this.value = value;
     return this.constructor.sync(this);
   }
@@ -343,23 +336,23 @@ class State {
     return this.value;
   }
 
-  sync(broker, ...args) {
-    logger.debug`Syncing ${this} over ${broker}`;
-    this.brokers.push([broker, args]);
+  publish() {
     State.sync(this);
+  }
+
+  sync(broker, ...args) {
+    this.brokers.push([broker, args]); // State.sync(this);
+
     return this;
   }
 
   unsync(broker, filterFn) {
-    logger.debug`Unsyncing ${this.brokers}`;
     const index = this.brokers.findIndex(entry => {
       const [_broker, _args] = entry;
       const match = filterFn(_args);
-      logger.debug`Unsyncing ${broker} ${_broker}. Filtered ${_broker !== broker && !match}`;
       return match; //_broker == broker //&& !match;
     });
     this.brokers.splice(index, 1);
-    logger.debug`Unsynced ${this.brokers}`;
   }
 
 }
@@ -367,10 +360,8 @@ class State {
 ee(State.prototype);
 
 State.sync = instance => {
-  logger.warning`Running Sync of normal State`;
   instance.brokers.forEach((entry, i) => {
     const [broker, args] = entry;
-    logger.debug`Syncing with broker ${i} ${broker}.`;
 
     if (typeof broker === 'function') {
       broker(instance, ...args);

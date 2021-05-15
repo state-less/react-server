@@ -5,13 +5,9 @@ class Atomic extends State {
     constructor (defaultValue, options = {}) {
         const { key, atomic, ...rest} = options;
         super(defaultValue, {key,...rest});
-        logger.log`Instantiating atomic state with options ${JSON.stringify(options)}`
 
         if (atomic) {
-            logger.log`State is atomic`
             const updateEquation = genAtomic(atomic);
-            logger.log`Update equation is ${updateEquation(0,1)}`
-            
             this.updateEquation = updateEquation
         }
 

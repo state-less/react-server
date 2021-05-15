@@ -7,8 +7,8 @@ const EVENT_STATE_SET = 'setState';
 class WebsocketBroker extends Broker {   
     constructor (options = {}) {
         super(options);
-        const {getScope = this.getScope} = options;
-        Object.assign(this, {getScope});
+        const {getScope = this.getScope, activeConnections = {}} = options;
+        Object.assign(this, {getScope, activeConnections});
     }
 
 
@@ -18,7 +18,6 @@ class WebsocketBroker extends Broker {
     }
 
     emitError (socket, options, message) {
-        logger.warning`Emitting error event (${EVENT_STATE_ERROR+':'+options.clientId}) ${message} to client ${socket.id}`
         socket.emit(EVENT_STATE_ERROR+':'+options.clientId, {error: message, ...options});
     }
 
@@ -30,18 +29,25 @@ class WebsocketBroker extends Broker {
         socket.emit(EVENT_STATE_CREATE+':'+options.clientId, {id, value, ...options});
     }
 
-    sync (state, socket) {
-        logger.info`Syncing state ${state} with socket ${socket.id}.`
+    sync (state, connectionInfo) {
+        const { activeConnections } = this;
+        const {id: clientId, requestId, requestType} = connectionInfo;
         const {id, value, error} = state;
         const {message, stack} = error || {};
         const syncObject = {
             id, value
         };
-
-        syncObject.error = error?{message, stack}:null;
-
-        const data = success(syncObject, {action: 'setValue', requestId: null});
         
+        syncObject.error = error?{message, stack}:null;
+        
+        const data = success(syncObject, {action: 'setValue', requestId});
+        const socket = activeConnections[clientId];
+
+        if (!socket) {
+            throw new Error(`Invalid sync attempt with non existent socket '${clientId}'`);
+        }
+        
+        /** Skip initial emit for subscribe requests */
         socket.send(data)
     };
 }

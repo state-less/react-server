@@ -11,7 +11,7 @@ const success = (data, meta) => {
   });
 };
 
-const failure = (data, meta) => {
+const failure = (data, meta, status) => {
   return JSON.stringify({ ...failureHTTP(data, false),
     ...meta
   });

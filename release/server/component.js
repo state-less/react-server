@@ -6,20 +6,28 @@ const {
 } = require("uuid");
 
 const {
-  EVENT_STATE_SET
+  EVENT_STATE_SET,
+  NETWORK_FIRST,
+  SERVER_ID,
+  CACHE_FIRST
 } = require("../consts");
 
 const _logger = require("../lib/logger");
 
+const {
+  assertIsValid
+} = require("../util");
+
 let componentLogger = _logger.scope('state-server.component');
 
-let lifecycle = _logger.scope('state-server.lifecycle');
+let lifecycle = _logger.scope('state-server.lifecycle'); // const CACHE_FIRST = 'CACHE_FIRST';
+// const NETWORK_FIRST = 'NETWORK_FIRST';
+// const SERVER_ID = 'base';
 
-const CACHE_FIRST = 'CACHE_FIRST';
-const NETWORK_FIRST = 'NETWORK_FIRST';
-const SERVER_ID = 'base';
 
 const isEqual = (arrA, arrB) => {
+  if (!Array.isArray(arrA) && Array.isArray(arrB)) return false;
+  if (!Array.isArray(arrB) && Array.isArray(arrA)) return false;
   return arrA.reduce((acc, cur, i) => {
     return acc && cur == arrB[i];
   }, true);
@@ -27,11 +35,10 @@ const isEqual = (arrA, arrB) => {
 
 const Component = (fn, baseStore) => {
   let logger;
-  componentLogger.info`Creating component`;
 
   if (!baseStore) {
     componentLogger.warning`Missing store. Using default component store. (You might want to pass a store instance)`;
-    throw new Error('Missing store'); // baseStore = componentStore;
+    throw new Error('Missing store'); // Store = componentStore;
   }
 
   let effectIndex = 0;
@@ -43,7 +50,7 @@ const Component = (fn, baseStore) => {
   } = baseStore;
   let lastState;
 
-  const component = async (props = null, key, options, socket = {
+  const component = async (props = null, key, options, clientProps, socket = {
     id: SERVER_ID
   }) => {
     let scopedUseEffect;
@@ -59,10 +66,10 @@ const Component = (fn, baseStore) => {
 
     let dependencies = [];
     logger = componentLogger.scope(`${key}:${socket.id}`);
-    const componentState = await useComponentState(key, {}, {
-      scope: socket.id
-    });
-    componentLogger.info`Component state is ${componentState}`;
+    /** TODO: Think of a way to provide a component state scope */
+    // const componentState = await useComponentState(key, {}, {scope: socket.id});
+
+    const componentState = await useComponentState(key, {});
     const {
       value: lastResult,
       setValue: setResult
@@ -74,16 +81,11 @@ const Component = (fn, baseStore) => {
 
 
     lifecycle = logger;
-    const {
+    let {
       ttl = Infinity,
       createdAt,
       store = baseStore.scope(key)
     } = options;
-    const {
-      useState,
-      deleteState
-    } = store;
-    logger.info`Props ${props}`;
     const id = Math.random();
     const stateValues = new Map();
 
@@ -91,7 +93,7 @@ const Component = (fn, baseStore) => {
       deny,
       ...rest
     } = {}) => {
-      var _states$stateIndex, _states$stateIndex2;
+      var _states$stateIndex;
 
       if (deny) {
         return [null, () => {
@@ -99,31 +101,29 @@ const Component = (fn, baseStore) => {
         }];
       }
 
-      logger.error`ID ${id}`;
+      if (rest.scope) {
+        store = store.scope(rest.scope);
+      }
+
+      const {
+        useState,
+        deleteState
+      } = store;
       let scopedKey = ((_states$stateIndex = states[stateIndex]) === null || _states$stateIndex === void 0 ? void 0 : _states$stateIndex.key) || stateKey || uuidv4();
-      logger.info`Component used state ${scopedKey} ${rest} ${(_states$stateIndex2 = states[stateIndex]) === null || _states$stateIndex2 === void 0 ? void 0 : _states$stateIndex2.key} ${initial}`;
       const state = states[stateIndex] || (await useState(scopedKey, initial, {
         temp: !stateKey,
         cache: Component.defaultCacheBehaviour,
         ...rest
       }));
-      console.log("Got state", new Error().stack);
       let {
         value,
         setValue
       } = state;
       if (!(value instanceof Object)) value = Object(value);
-      logger.info`Passed state to store ${JSON.stringify(value)}`;
       stateValues.set(value, state);
-      let mounted = true; // state.on(`${EVENT_STATE_SET}:${state.id}`, () => {
-      //     logger.warning`State changed. Rerendering.`
-      //     process.exit(0);
-      // })
+      let mounted = true;
 
       const boundSetValue = async function (value) {
-        logger.error`ID ${id}`;
-        logger.error`Setting value. ${scopedKey || "no"} Rerendering  ${mounted}`;
-
         if (mounted === false) {
           throw new Error(`setState called on unmounted component. Be sure to remove all listeners and asynchronous function in the cleanup function of the effect.`);
         }
@@ -140,7 +140,6 @@ const Component = (fn, baseStore) => {
           // setImmediate(() => {
           await render(); // })
         } catch (e) {
-          logger.error`Error rendering function ${e}`;
           socket.emit('error', key, 'component:render', e.message);
         } // Component.useEffect = was;
 
@@ -154,8 +153,6 @@ const Component = (fn, baseStore) => {
     };
 
     scopedUseClientState = (...args) => {
-      logger.error`USE CLIENT STATE ${socket}`; // process.exit(0);
-
       if (Component.isServer(socket)) {
         if (states[stateIndex]) {
           states[stateIndex] = states[stateIndex];
@@ -171,44 +168,33 @@ const Component = (fn, baseStore) => {
     };
 
     scopedUseEffect = (fn, deps = [], notifyClient) => {
-      logger.error`Effect called.! ${Component.isServer(socket)}`;
-      logger.info`No socket connection returning`;
       if (!Component.isServer(socket)) return;
       const [lastDeps = [], cleanup] = effects[effectIndex] || [];
 
       if (!isEqual(lastDeps, deps) || !lastDeps.length) {
         if (cleanup && 'function' === typeof cleanup) {
-          lifecycle.warning`Cleaning up effects`;
           cleanup();
         }
-
-        lifecycle.debug`Running serverside effect ${effectIndex}.`;
 
         let nextCleanup = fn() || (() => {});
 
         effects[effectIndex] = [deps, nextCleanup];
-      } else {
-        logger.error`Dpendencies match. NOT running effects`;
-      }
+      } else {}
 
       effectIndex++;
     };
 
-    scopedUseClientEffect = (fn, deps = []) => {
+    scopedUseClientEffect = (fn, deps) => {
       if (Component.isServer(socket)) return;
-      const [lastDeps = [], cleanup] = clientEffects[clientEffectIndex] || [];
+      const [lastDeps, cleanup] = clientEffects[clientEffectIndex - 1] || [];
 
-      if (!isEqual(lastDeps, deps) || !lastDeps.length) {
-        lifecycle.warning`Cleaning up client effects`;
+      if (!deps || !isEqual(lastDeps, deps)) {
         if (cleanup && 'function' === typeof cleanup) cleanup();
-        logger.error`Running effects ${props.temp}`;
 
         const nextCleanup = fn() || (() => {});
 
         clientEffects[clientEffectIndex] = [deps, nextCleanup];
-      } else {
-        logger.error`Dpendencies match. NOT running effects`;
-      }
+      } else {}
 
       clientEffectIndex++;
     };
@@ -221,7 +207,6 @@ const Component = (fn, baseStore) => {
 
     scopedTimeout = (fn, timeout, ...args) => {
       let to = Math.random();
-      logger.error`Adding timeout ${timeout}`;
       promises.push(new Promise((resolve, reject) => {
         setTimeout(() => {
           resolve(fn(...args));
@@ -231,24 +216,19 @@ const Component = (fn, baseStore) => {
     };
 
     let cleanup = () => {
-      lifecycle.error`Destroying component`;
       states.forEach(state => {
-        logger.warning`Destroying temporary state ${state.args}`;
         const {
           temp
         } = state.options;
 
         if (temp) {
           deleteState(state.key);
-          logger.warning`Destroying temporary state ${state.key}`;
         }
       });
       clientEffects.forEach(cleanup => {
-        lifecycle.warning`Cleaning up client effects`;
         if (cleanup && 'function' === typeof cleanup) cleanup();
       });
       effects.forEach(cleanup => {
-        lifecycle.warning`Cleaning up effects on destroy`;
         if (cleanup && 'function' === typeof cleanup) cleanup();
       });
     };
@@ -257,13 +237,12 @@ const Component = (fn, baseStore) => {
       stateIndex = 0;
       effectIndex = 0;
       fnIndex = 0;
-      logger.error`Rendering. ${+new Date() - createdAt} > ${ttl}`;
 
       if (+new Date() - createdAt > ttl) {
         throw new Error('Component expired.');
       }
 
-      const result = await fn(props, socket);
+      const result = await fn(props, clientProps, socket);
 
       if (!result && result !== null) {
         throw new Error('Nothing returned from render. This usually means you have forgotten to return anything from your component.');
@@ -284,7 +263,6 @@ const Component = (fn, baseStore) => {
               key,
               id
             } = stateValues.get(stateValue);
-            logger.debug`State reference found in stateValues. Using id.`;
             if (id) result.props[stateReferenceKey] = {
               createdAt,
               scope,
@@ -295,8 +273,6 @@ const Component = (fn, baseStore) => {
             };
           }
         }
-
-        logger.warning`Parsing actions ${result.props}`;
 
         if ((_result$props = result.props) !== null && _result$props !== void 0 && _result$props.children && !Array.isArray((_result$props2 = result.props) === null || _result$props2 === void 0 ? void 0 : _result$props2.children)) {
           result.props.children = [result.props.children];
@@ -317,31 +293,22 @@ const Component = (fn, baseStore) => {
               key: stateKey,
               scope
             } = stateValues.get(stateValue);
-            console.log("result", baseStore);
-            logger.debug`State reference found in stateValues. Using id.`;
             if (lookupReference) result.states[lookupReference] = [stateKey, scope];
           }
         }
       }
 
-      logger.info`Result ${result}`;
       const scope = Component.scope.get(socket.id) || new Map();
       Component.scope.set(socket.id, scope);
-      scope.set(key, componentState);
-      logger.error`Setting state result ${result}`; //Implement publish mechanism based on configuration/environment.
+      scope.set(key, componentState); //Implement publish mechanism based on configuration/environment.
       //Render server publishes on render. That updates the cache of the fallback renderer running serverless. (that's what happens right now)
 
       if (!lastResult || !lastResult.props || Object.keys(lastResult.props).length !== Object.keys(result.props).length) {
         const res = await setResult(result);
-        logger.error`Updated state result ${res}`;
       }
 
-      await Promise.all(promises); // if (Component.isServer(socket))
-      //     return result;
-
-      logger.warning`DBGACTION: Render: ${JSON.stringify(result)}`;
-      process.env.ssrProps = JSON.stringify(result);
-      return result; // return [componentState, cleanup]
+      await Promise.all(promises);
+      return result;
     };
 
     Component.setTimeout = scopedTimeout;

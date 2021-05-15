@@ -16,10 +16,12 @@ class WebsocketBroker extends Broker {
   constructor(options = {}) {
     super(options);
     const {
-      getScope = this.getScope
+      getScope = this.getScope,
+      activeConnections = {}
     } = options;
     Object.assign(this, {
-      getScope
+      getScope,
+      activeConnections
     });
   }
 
@@ -31,7 +33,6 @@ class WebsocketBroker extends Broker {
   }
 
   emitError(socket, options, message) {
-    logger.warning`Emitting error event (${EVENT_STATE_ERROR + ':' + options.clientId}) ${message} to client ${socket.id}`;
     socket.emit(EVENT_STATE_ERROR + ':' + options.clientId, {
       error: message,
       ...options
@@ -54,8 +55,15 @@ class WebsocketBroker extends Broker {
     });
   }
 
-  sync(state, socket) {
-    logger.info`Syncing state ${state} with socket ${socket.id}.`;
+  sync(state, connectionInfo) {
+    const {
+      activeConnections
+    } = this;
+    const {
+      id: clientId,
+      requestId,
+      requestType
+    } = connectionInfo;
     const {
       id,
       value,
@@ -75,8 +83,16 @@ class WebsocketBroker extends Broker {
     } : null;
     const data = success(syncObject, {
       action: 'setValue',
-      requestId: null
+      requestId
     });
+    const socket = activeConnections[clientId];
+
+    if (!socket) {
+      throw new Error(`Invalid sync attempt with non existent socket '${clientId}'`);
+    }
+    /** Skip initial emit for subscribe requests */
+
+
     socket.send(data);
   }
 

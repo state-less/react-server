@@ -53,7 +53,6 @@ const Route = Component(props => {
     return null;
   }
 
-  logger.error`Rendering Route ${target} <-> ${Router.context.target}`;
   return props.children;
 }, internal);
 

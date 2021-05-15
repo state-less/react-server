@@ -35,7 +35,6 @@ const Route = Component((props) => {
         logger.notice`Not rendering route. Target '${target}' doesn't match Router target '${Router.context}'`
         return null;
     }
-    logger.error`Rendering Route ${target} <-> ${Router.context.target}`;
 
     return props.children;
 }, internal);

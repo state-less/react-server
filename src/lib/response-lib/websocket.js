@@ -4,7 +4,7 @@ const success = (data, meta) => {
     return JSON.stringify({...successHTTP(data, false), ...meta})
 }
 
-const failure = (data, meta) => {
+const failure = (data, meta, status) => {
     return JSON.stringify({...failureHTTP(data, false), ...meta})
 }
 
