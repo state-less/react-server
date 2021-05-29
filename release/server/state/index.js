@@ -126,18 +126,27 @@ class Store {
       /** TODO: Think of a better scoping mechanism  */
 
       /** TODO: infinite loop when no scope passed */
+      // if (scope && scope !== this.key && scope !== this.key.split('.').pop()) {
+      //     return this.scope(scope).createState(key, def, {
+      //         ...options,
+      //         scope: scope.split('.').slice(1).join('.')
+      //     }, ...args);
+      // }
 
-      if (scope && scope !== this.key && scope !== this.key.split('.').pop()) {
-        return this.scope(scope).createState(key, def, options, ...args);
-      }
       /** The states scope should be the key of the store it was created in */
 
-
+      console.l;
       state.scope = this.key;
       state.options = options;
       state.args = args;
       this.map.set(key, state);
-      this.emit(EVENT_STATE_CREATE, this, state, key, ...args);
+      let parent = this;
+      ;
+
+      do {
+        parent.emit(EVENT_STATE_CREATE, this, state, key, ...args);
+      } while (parent = parent.parent);
+
       return state;
     });
 
@@ -186,7 +195,7 @@ class Store {
 
     const {
       key: _key = SERVER_ID,
-      parent = null,
+      parent: _parent = null,
       autoCreate = false,
       onRequestState,
       StateConstructor: _StateConstructor = State,
@@ -198,7 +207,7 @@ class Store {
     this.StateConstructor = _StateConstructor;
     Object.assign(this, {
       key: _key,
-      parent,
+      parent: _parent,
       autoCreate,
       onRequestState,
       broker
@@ -329,6 +338,7 @@ class State {
 
   setValue(value) {
     this.value = value;
+    this.emit('setValue', value);
     return this.constructor.sync(this);
   }
 

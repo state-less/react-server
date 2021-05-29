@@ -91,6 +91,7 @@ const Component = (fn, baseStore) => {
 
     scopedUseState = async (initial, stateKey, {
       deny,
+      scope,
       ...rest
     } = {}) => {
       var _states$stateIndex;
@@ -101,14 +102,18 @@ const Component = (fn, baseStore) => {
         }];
       }
 
-      if (rest.scope) {
-        store = store.scope(rest.scope);
+      let scopedStore;
+
+      if (scope) {
+        scopedStore = store.scope(scope);
+      } else {
+        scopedStore = store;
       }
 
       const {
         useState,
         deleteState
-      } = store;
+      } = scopedStore;
       let scopedKey = ((_states$stateIndex = states[stateIndex]) === null || _states$stateIndex === void 0 ? void 0 : _states$stateIndex.key) || stateKey || uuidv4();
       const state = states[stateIndex] || (await useState(scopedKey, initial, {
         temp: !stateKey,
@@ -317,7 +322,9 @@ const Component = (fn, baseStore) => {
     Component.useState = scopedUseState;
     Component.useClientState = scopedUseClientState;
     Component.useFunction = scopedUseFunction;
-    return render();
+    const rendered = await render();
+    rendered.key = key;
+    return rendered;
   };
 
   return (props, key, options = {}) => {

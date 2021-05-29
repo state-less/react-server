@@ -1,9 +1,9 @@
-const {Server, Router, Route} = require('./components');
+const {Server, Router, Route, Stream} = require('./components');
 const {WebSocketRenderer} = require('./components/WebSocketRenderer');
 const {render} = require('./runtime');
 const { DynamoDBState, DynamodbStore } = require('./server/state/DynamoDBState');
-
+const { WebsocketStream } = require('./Stream');
 
 module.exports = {
-    DynamoDBState, DynamodbStore, Server, Router, Route, WebSocketRenderer, render
+    WebsocketStream, DynamoDBState, DynamodbStore,Stream, Server, Router, Route, WebSocketRenderer, render
 } 

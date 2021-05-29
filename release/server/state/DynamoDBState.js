@@ -69,6 +69,7 @@ class LambdaBroker extends Broker {
 
 
   async sync(state, connection, requestId) {
+    if (connection.endpoint === 'localhost') return;
     const {
       id,
       value,
@@ -145,7 +146,8 @@ class DynamoDBState extends AtomicState {
 
   async setValue(value, initial) {
     if (Array.isArray(value) && initial) {
-      const fakeArray = { ...this.value
+      const fakeArray = { ...this.value,
+        $$isArray: true
       };
       fakeArray.length = this.value.length;
       await put({ ...this,
@@ -183,7 +185,16 @@ class DynamoDBState extends AtomicState {
     }
 
     this.emit('setValue', this);
-    return await DynamoDBState.sync(this, new LambdaBroker());
+    /** 
+     * Execute the sync after the callstack completed
+     * otherwise it can happen that the client
+     * tries to render a component which doesn't yet 
+     * exist on the serverside
+     */
+
+    setTimeout(() => {
+      DynamoDBState.sync(this, new LambdaBroker());
+    }, 10);
   }
 
   async publish(broker, connectionInfo, requestId) {
@@ -245,7 +256,9 @@ class DynamoDBState extends AtomicState {
     } catch (e) {}
 
     if (state.Item) {
-      if (!Array.isArray(state.Item.value) && state.Item.value.length) {
+      var _state$Item$value;
+
+      if (!Array.isArray(state.Item.value) && (_state$Item$value = state.Item.value) !== null && _state$Item$value !== void 0 && _state$Item$value.$$isArray) {
         this.value = Array.from(state.Item.value);
       } else {
         this.value = state.Item.value;

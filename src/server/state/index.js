@@ -133,10 +133,14 @@ class Store {
         /** I'm not sure whether the store should handle creating subscopes or the component controller */
         /** TODO: Think of a better scoping mechanism  */
         /** TODO: infinite loop when no scope passed */
-        if (scope && scope !== this.key && scope !== this.key.split('.').pop()) {
-            return this.scope(scope).createState(key, def, options, ...args);
-        }
+        // if (scope && scope !== this.key && scope !== this.key.split('.').pop()) {
+        //     return this.scope(scope).createState(key, def, {
+        //         ...options,
+        //         scope: scope.split('.').slice(1).join('.')
+        //     }, ...args);
+        // }
         /** The states scope should be the key of the store it was created in */
+        console.l
         state.scope = this.key;
         
         state.options = options;
@@ -144,7 +148,11 @@ class Store {
 
         this.map.set(key, state);
 
-        this.emit(EVENT_STATE_CREATE, this, state, key, ...args);
+        
+        let parent = this;;
+        do {
+            parent.emit(EVENT_STATE_CREATE, this, state, key, ...args);
+        } while (parent = parent.parent) 
         return state;
     }
 
@@ -264,7 +272,7 @@ class State {
 
     setValue (value) {
         this.value = value;
-        
+        this.emit('setValue', value)
         return this.constructor.sync(this);
     }
 

@@ -29,6 +29,22 @@ const {
   Component
 } = require("../server/component");
 
+const crypto = require('crypto');
+
+const jwt = require('jsonwebtoken');
+
+const {
+  recover
+} = require('../lib/web3-util');
+
+const {
+  Streams
+} = require("../Stream");
+
+const {
+  Stream
+} = require('../components');
+
 const activeConnections = {};
 const broker = new WebsocketBroker({
   activeConnections
@@ -46,15 +62,17 @@ const flatLkp = (arr, key) => flatReduce(arr, reduce.Lookup(key), {});
 
 const WebSocketRenderer = async props => {
   const {
-    children: Server,
-    store
+    children,
+    store,
+    secret
   } = props;
-  const components = flatLkp([Server.props.children], 'key');
+  const Server = [children].flat().find(c => c.component === 'Server'); // const components = flatLkp([Server.props.children], 'key');
+
   const server = WebSocketServer(props);
-  handleRender(server, components, store);
+  handleRender(server, secret, null, store);
   return {
     server,
-    handler: (...args) => handleRender(server, ...args)
+    handler: (...args) => handleRender(server, secret, ...args)
   };
 };
 
@@ -62,7 +80,8 @@ WebSocketRenderer.server = true;
 
 const WebSocketServer = props => {
   const {
-    port = 8080
+    port = 8080,
+    children
   } = props;
   const extend = {
     port
@@ -103,8 +122,9 @@ const emit = (socket, data) => {
 
 const componentCache = {};
 
-const handleRender = (wss, components, store) => {
+const handleRender = (wss, secret, streams, store) => {
   wss.on('connection', (socket, req) => {
+    let challenge;
     const clientId = req.headers['sec-websocket-key'];
     const connectionInfo = {
       endpoint: 'localhost',
@@ -123,24 +143,92 @@ const handleRender = (wss, components, store) => {
         scope,
         props = {},
         options,
+        headers,
         requestType
       } = json;
 
       if (action === ACTION_RENDER) {
-        if (!componentCache[key]) {
-          componentCache[key] = components[key];
-        }
-
-        const comp = componentCache[key];
+        const comp = Component.instances.get(key);
 
         try {
-          const res = await render(comp, props, connectionInfo);
+          const res = await render(comp, props, { ...connectionInfo,
+            headers
+          });
           socket.send(success(res, {
             action: ACTION_RENDER,
             routeKey: ACTION_RENDER,
             key
           }));
-        } catch (e) {}
+        } catch (e) {
+          const {
+            message,
+            stack
+          } = e;
+          socket.send(failure({
+            message,
+            stack
+          }, {
+            action: ACTION_RENDER,
+            routeKey: ACTION_RENDER,
+            type: 'error'
+          }));
+        }
+      }
+
+      if (action === 'stream') {
+        const {
+          name,
+          id
+        } = json;
+        const stream = Stream.instances.get(name);
+        stream.stream.addSocket(socket, {
+          id
+        });
+        stream.stream.write({
+          foo: 'bar'
+        }, {
+          id
+        });
+        console.log("STREAM", stream);
+      }
+
+      if (action === 'auth') {
+        const {
+          id,
+          phase
+        } = json;
+        if (phase === 'challenge') crypto.randomBytes(8, function (err, buffer) {
+          const token = buffer.toString('hex');
+          challenge = `Please sign this message to prove your identity: ${token}`;
+          socket.send(success(challenge, {
+            action: 'auth',
+            phase: 'challenge',
+            routeKey: 'auth',
+            type: 'response',
+            id
+          }));
+        });
+
+        if (phase === 'response') {
+          const {
+            challenge,
+            response
+          } = json;
+          const address = recover(challenge, response);
+          const token = jwt.sign({
+            exp: Math.floor(Date.now() / 1000) + 60 * 60,
+            iat: Date.now() / 1000,
+            address
+          }, secret);
+          socket.send(success(token, {
+            action: 'auth',
+            phase: 'response',
+            routeKey: 'auth',
+            type: 'response',
+            address,
+            id
+          }));
+        }
       }
 
       if (action === 'call') {
@@ -151,9 +239,30 @@ const handleRender = (wss, components, store) => {
           name,
           id
         } = json;
-        const comp = components[componentKey];
-        const comp2 = Component.instances.get(componentKey);
-        const res = await render(comp2, props, connectionInfo);
+        const comp = Component.instances.get(componentKey);
+        let res;
+
+        try {
+          res = await render(comp, props, { ...connectionInfo,
+            headers
+          });
+        } catch (e) {
+          const {
+            message,
+            stack
+          } = e;
+          socket.send(failure({
+            message,
+            stack
+          }, {
+            action: 'call',
+            routeKey: 'call',
+            phase: 'render',
+            type: 'error',
+            id
+          }));
+        }
+
         const action = res.props.children.find(action => {
           var _action$props;
 
@@ -169,8 +278,18 @@ const handleRender = (wss, components, store) => {
         console.log("Invoking handler ", action.props.boundHandler[handler]);
 
         try {
+          if (action.props.boundHandler.use && typeof action.props.boundHandler.use === 'function') {
+            const useRes = await action.props.boundHandler.use({
+              socket,
+              connectionInfo,
+              data: json
+            }, ...args);
+            console.log("USE RES", useRes);
+          }
+
           const res = await action.props.boundHandler[handler]({
-            socket: connectionInfo
+            socket,
+            connectionInfo
           }, ...args);
           socket.send(success(res, {
             action: 'call',
@@ -203,7 +322,7 @@ const handleRender = (wss, components, store) => {
           props,
           options
         } = json;
-        const comp = components[key];
+        const comp = Component.instances.get(key);
         const handler = ConnectionHandler(broker, store, 'USE_STATE');
         /** TODO: verify why socket is being passed instaed of connectioninfo */
         // const state = await handler(socket, {key, scope, requestId, props, options})

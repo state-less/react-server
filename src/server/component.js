@@ -67,15 +67,19 @@ const Component = (fn, baseStore) => {
 
         const id = Math.random();
         const stateValues = new Map();
-        scopedUseState = async (initial, stateKey, { deny, ...rest } = {}) => {
+        scopedUseState = async (initial, stateKey, { deny, scope, ...rest } = {}) => {
             if (deny) {
                 return [null, () => { throw new Error('Attempt to set unauthenticated state') }];
             }
-            if (rest.scope) {
-                store = store.scope(rest.scope)
+
+            let scopedStore;
+            if (scope) {
+                scopedStore = store.scope(scope)
+            } else {
+                scopedStore = store;
             }
 
-            const { useState, deleteState } = store;
+            const { useState, deleteState } = scopedStore;
 
             let scopedKey = states[stateIndex]?.key || stateKey || uuidv4();
 
@@ -269,7 +273,10 @@ const Component = (fn, baseStore) => {
         Component.useState = scopedUseState;
         Component.useClientState = scopedUseClientState;
         Component.useFunction = scopedUseFunction;
-        return render();
+        
+        const rendered = await render();
+        rendered.key = key;
+        return rendered;
     }
 
     return (props, key, options = {}) => {

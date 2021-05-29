@@ -1,5 +1,9 @@
 "use strict";
 
+const {
+  WebsocketStream
+} = require('../Stream');
+
 const logger = require('../lib/logger');
 
 const {
@@ -79,9 +83,23 @@ const Action = props => {
   };
 };
 
+const Stream = (props, key) => {
+  const instance = {
+    component: 'Stream',
+    stream: new WebsocketStream(),
+    props: {
+      key
+    }
+  };
+  Stream.instances.set(key, instance);
+  return instance;
+};
+
+Stream.instances = new Map();
 Action.server = true;
 module.exports = {
   ClientComponent,
+  Stream,
   Server,
   Router,
   Route,
