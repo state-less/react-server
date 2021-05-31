@@ -10,6 +10,7 @@ const { Pinpoint } = require('aws-sdk');
 const { v4 } = require('uuid');
 const { encryptValue } = require('../pipes/Crypt');
 const { SERVER_ID } = require('../../consts');
+
 class LambdaBroker extends Broker {
     constructor(io, options = {}) {
         super(options);
@@ -126,6 +127,7 @@ class DynamoDBState extends AtomicState {
         }
 
     }
+
     async unsync(broker, connectionInfo) {
         const { key, scope } = this;
         try {
@@ -138,6 +140,7 @@ class DynamoDBState extends AtomicState {
         }
 
     }
+
     async getValue(key) {
         let state;
         try {
@@ -186,6 +189,7 @@ class DynamodbStore extends Store {
         super({ key, parent, autoCreate, onRequestState, StateConstructor, broker })
         Object.assign(this, { TableName })
         this.useState = this.useState.bind(this);
+        this.deleteState = this.deleteState.bind(this);
     }
 
     async has(stateKey, scope = "base") {
@@ -243,6 +247,10 @@ class DynamodbStore extends Store {
             this.throwNotAvailble(key);
         }
 
+    }
+
+    async deleteState(key) {
+        await del(copyStateVariables(this));
     }
 }
 module.exports = {
