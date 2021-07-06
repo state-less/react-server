@@ -61,5 +61,5 @@ async function tryGetAllFromTable (TableName) {
 }
 
 module.exports = {
-    put, del, get,  tryGetAllFromTable, query, update
+    put, del, get, scan, tryGetAllFromTable, query, update
 }

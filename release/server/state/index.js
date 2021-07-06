@@ -226,6 +226,13 @@ class Store {
   clone(...args) {
     return new Store(...args);
   }
+  /**
+   * 
+   * @param {String} key - The key of the subscope
+   * @param  {...any} args - Additional args passed to the store constructor.
+   * @returns {Store} - A new store instance
+   */
+
 
   scope(key, ...args) {
     const {
@@ -248,6 +255,24 @@ class Store {
       return this;
     } else if (key === this.key) {
       return this;
+    }
+
+    if (Array.isArray(key) && !this.scopes.has(key[0])) {
+      const {
+        autoCreate,
+        onRequestState
+      } = this;
+      const store = this.clone({ ...rest,
+        autoCreate: true,
+        onRequestState,
+        StateConstructor,
+        key: `${this.key}.${key[0]}`,
+        parent: this
+      });
+      this.scopes.set(key, store);
+      store.actions = this.actions;
+      this.emit(EVENT_SCOPE_CREATE, store, key, ...args);
+      return store.scope(key.slice(1));
     }
 
     const {

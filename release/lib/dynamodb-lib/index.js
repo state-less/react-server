@@ -73,6 +73,7 @@ module.exports = {
   put,
   del,
   get,
+  scan,
   tryGetAllFromTable,
   query,
   update

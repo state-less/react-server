@@ -4,7 +4,7 @@ const { compile } = require('@state-less/atomic/DynamoDB');
 const { broadcast, emit } = require('./util');
 const { success } = require('../../lib/response-lib/websocket');
 
-const { put, get, update, del, query } = require('../../lib/dynamodb-lib');
+const { put, get, update, del, query, scan } = require('../../lib/dynamodb-lib');
 const logger = require('../../lib/logger');
 const { Pinpoint } = require('aws-sdk');
 const { v4 } = require('uuid');
@@ -91,8 +91,13 @@ class DynamoDBState extends AtomicState {
         } else {
             // const encrypted = JSON.stringify(encryptValue(value));
             const { key, scope, id } = { ...this };
-            const response = await put({ key, scope, id, value }, 'dev2-states');
-            this.value = value;
+            try {
+                await put({ key, scope, id, value }, 'dev2-states');
+            } catch (e) {
+                //this.error = e.message;
+            } finally {
+                this.value = value;
+            }
         }
 
         this.emit('setValue', this);
@@ -189,7 +194,7 @@ class DynamodbStore extends Store {
         super({ key, parent, autoCreate, onRequestState, StateConstructor, broker })
         Object.assign(this, { TableName })
         this.useState = this.useState.bind(this);
-        this.deleteState = this.deleteState.bind(this);
+        this.deleteState = this._deleteState.bind(this);
     }
 
     async has(stateKey, scope = "base") {
@@ -224,6 +229,49 @@ class DynamodbStore extends Store {
         return state;
 
     }
+
+    async scanStates (stateKey, scope = this.key) {
+        const params = {
+            TableName : 'dev2-states',
+            FilterExpression : '#key = :state AND begins_with(#scope, :scope)',
+            ExpressionAttributeValues : {
+                ':state' : stateKey,
+                ':scope' : scope
+            },
+            ExpressionAttributeNames : {
+                '#key' : 'key',
+                '#scope': 'scope'
+            }
+          };
+
+        const states = await scan(params);
+        return await Promise.all(states.Items.map(s => this.useState(stateKey, s.value, {scope: s.scope})));
+    }
+
+    async scanScopes (scope = this.key) {
+        const params = {
+            TableName : 'dev2-states',
+            FilterExpression : 'begins_with(#scope, :scope)',
+            ExpressionAttributeValues : {
+                // ':state' : stateKey,
+                ':scope' : scope
+            },
+            ExpressionAttributeNames : {
+                // '#key' : 'key',
+                '#scope': 'scope'
+            }
+          };
+
+        const states = await scan(params);
+        console.log ("SCAN RESULT", states)
+
+        return states.Items;
+        for (var i=0; i< states.length; i++) {
+            const s = states[i];
+            states[i] = await this.useState(s.key, s.value, {scope: s.scope});
+        }
+    }
+
     clone(...args) {
         return new DynamodbStore(...args);
     }
@@ -249,8 +297,8 @@ class DynamodbStore extends Store {
 
     }
 
-    async deleteState(key) {
-        await del(copyStateVariables(this));
+    async _deleteState(key) {
+        await del({key, scope:this.key}, 'dev2-states');
     }
 }
 module.exports = {
