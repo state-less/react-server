@@ -19,7 +19,7 @@ const {
 
 const {
   ConnectionHandler
-} = require("../server/handler/Websocket");
+} = require("../server/handler/WebSocket");
 
 const {
   ACTION_RENDER
