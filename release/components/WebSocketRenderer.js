@@ -19,7 +19,7 @@ const {
 
 const {
   ConnectionHandler
-} = require("../server/handler/Websocket");
+} = require("../server/handler/WebSocket");
 
 const {
   ACTION_RENDER
@@ -197,17 +197,32 @@ const handleRender = (wss, secret, streams, store) => {
           id,
           phase
         } = json;
-        if (phase === 'challenge') crypto.randomBytes(8, function (err, buffer) {
-          const token = buffer.toString('hex');
-          challenge = `Please sign this message to prove your identity: ${token}`;
-          socket.send(success(challenge, {
-            action: 'auth',
-            phase: 'challenge',
-            routeKey: 'auth',
-            type: 'response',
-            id
-          }));
-        });
+
+        if (phase === 'challenge') {
+          if (headers.Authorization) {
+            const token = jwt.verify(headers.Authorization, secret);
+            socket.send(success(token, {
+              action: 'auth',
+              phase: 'response',
+              routeKey: 'auth',
+              type: 'response',
+              address,
+              id
+            }));
+          } else {
+            crypto.randomBytes(8, function (err, buffer) {
+              const token = buffer.toString('hex');
+              challenge = `Please sign this message to prove your identity: ${token}`;
+              socket.send(success(challenge, {
+                action: 'auth',
+                phase: 'challenge',
+                routeKey: 'auth',
+                type: 'response',
+                id
+              }));
+            });
+          }
+        }
 
         if (phase === 'response') {
           const {

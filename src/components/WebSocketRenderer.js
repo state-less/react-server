@@ -122,18 +122,31 @@ const handleRender = (wss, secret, streams, store) => {
 
             if (action === 'auth') {
                 const { id, phase } = json;
-                if (phase === 'challenge')
-                    crypto.randomBytes(8, function (err, buffer) {
-                        const token = buffer.toString('hex');
-                        challenge = `Please sign this message to prove your identity: ${token}`
-                        socket.send(success(challenge, {
+                if (phase === 'challenge') {
+                    if (headers.Authorization) {
+                        const token = jwt.verify(headers.Authorization, secret);
+                        socket.send(success(token, {
                             action: 'auth',
-                            phase: 'challenge',
+                            phase: 'response',
                             routeKey: 'auth',
                             type: 'response',
+                            address,
                             id
                         }));
-                    });
+                    } else {
+                        crypto.randomBytes(8, function (err, buffer) {
+                            const token = buffer.toString('hex');
+                            challenge = `Please sign this message to prove your identity: ${token}`
+                            socket.send(success(challenge, {
+                                action: 'auth',
+                                phase: 'challenge',
+                                routeKey: 'auth',
+                                type: 'response',
+                                id
+                            }));
+                        });
+                    }
+                }
                 if (phase === 'response') {
                     const { challenge, response } = json;
                     const address = recover(challenge, response)
@@ -161,6 +174,7 @@ const handleRender = (wss, secret, streams, store) => {
                 let res;
                 try {
                     res = await render(comp, props, { ...connectionInfo, headers });
+
                 } catch (e) {
                     const { message, stack } = e;
                     socket.send(failure({ message, stack }, {
