@@ -14,7 +14,7 @@
     "aws-sdk": "^2.887.0",
     "bcrypt": "^5.0.0",
     "chalk": "^4.1.0",
-    "ethereumjs-util": "^7.0.10",
+    "ethereumjs-util": "^7.1.0",
     "event-emitter": "^0.3.5",
     "express": "^4.17.1",
     "fast-deep-equal": "^3.1.3",
