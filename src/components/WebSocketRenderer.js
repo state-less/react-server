@@ -123,7 +123,7 @@ const handleRender = (wss, secret, streams, store) => {
             if (action === 'auth') {
                 const { id, phase } = json;
                 if (phase === 'challenge') {
-                    if (headers.Authorization) {
+                    if (headers?.Authorization) {
                         let token;
                         try {
                           token = jwt.verify(headers.Authorization.split(' ')[1], secret);

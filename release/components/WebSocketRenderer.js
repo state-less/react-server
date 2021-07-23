@@ -199,7 +199,7 @@ const handleRender = (wss, secret, streams, store) => {
         } = json;
 
         if (phase === 'challenge') {
-          if (headers.Authorization) {
+          if (headers !== null && headers !== void 0 && headers.Authorization) {
             let token;
 
             try {
