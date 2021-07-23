@@ -199,6 +199,8 @@ const handleRender = (wss, secret, streams, store) => {
         } = json;
 
         if (phase === 'challenge') {
+          debugger;
+
           if (headers.Authorization) {
             const token = jwt.verify(headers.Authorization, secret);
             socket.send(success(token, {
@@ -339,9 +341,6 @@ const handleRender = (wss, secret, streams, store) => {
         } = json;
         const comp = Component.instances.get(key);
         const handler = ConnectionHandler(broker, store, 'USE_STATE');
-        /** TODO: verify why socket is being passed instaed of connectioninfo */
-        // const state = await handler(socket, {key, scope, requestId, props, options})
-
         const state = await handler(connectionInfo, {
           key,
           scope,
@@ -350,12 +349,7 @@ const handleRender = (wss, secret, streams, store) => {
           options,
           requestType
         });
-        /** TODO: why is this being emitted a second time */
-        // const {id, createdAt} = state;
-        // await emit(socket, success({id, createdAt}, {action:'setValue', routeKey: 'useState', requestId}));
-        // process.exit(0);
-      } // const state = connHandler({id:key, endpoint: 'http://localhost:8080'}, {key, scope, options});
-
+      }
     });
   });
 };
