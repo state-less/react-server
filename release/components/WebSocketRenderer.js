@@ -199,18 +199,29 @@ const handleRender = (wss, secret, streams, store) => {
         } = json;
 
         if (phase === 'challenge') {
-          debugger;
-
           if (headers.Authorization) {
-            const token = jwt.verify(headers.Authorization, secret);
-            socket.send(success(token, {
-              action: 'auth',
-              phase: 'response',
-              routeKey: 'auth',
-              type: 'response',
-              address,
-              id
-            }));
+            let token;
+
+            try {
+              token = jwt.verify(headers.Authorization.split(' ')[1], secret);
+              socket.send(success(token, {
+                action: 'auth',
+                phase: 'response',
+                routeKey: 'auth',
+                type: 'response',
+                address,
+                id
+              }));
+            } catch (e) {
+              console.log("Error e", e);
+              socket.send(success(token, {
+                action: 'invalidate',
+                phase: 'response',
+                routeKey: 'auth',
+                type: 'response',
+                id
+              }));
+            }
           } else {
             crypto.randomBytes(8, function (err, buffer) {
               const token = buffer.toString('hex');
