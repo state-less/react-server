@@ -253,6 +253,7 @@ const Component = (fn, baseStore) => {
                 lastStates = states;
 
                 if (!result && result !== null) {
+                    logger.log`Rendered function ${fn.toString()}`;
                     throw new Error('Nothing returned from render. This usually means you have forgotten to return anything from your component.')
                 }
 
