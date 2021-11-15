@@ -206,7 +206,6 @@ const Component = (fn, baseStore) => {
             }
 
             scopedDestroy = async () => {
-                console.log ("DESTROYING COMPONENT");
                 const {deleteState} = lastStoreRef;
                 const promises = lastStates.map((state) => {
                     const {key} = state;
@@ -314,7 +313,12 @@ const Component = (fn, baseStore) => {
             Component.useFunction = scopedUseFunction;
 
             const rendered = await render();
-            rendered.key = key;
+
+            if (rendered) {
+                rendered.key = key;
+            } else {
+                logger.warning`Nothing rendered at: ${(new Error).stack}`
+            }
             return rendered;
         }
     })()
