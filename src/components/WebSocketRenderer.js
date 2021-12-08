@@ -14,6 +14,8 @@ const { recover } = require('../lib/web3-util');
 const { Streams } = require("../Stream");
 const { Stream } = require('../components')
 
+const strategies = require('../strategies');
+
 const activeConnections = {}
 const broker = new WebsocketBroker({ activeConnections });
 
@@ -126,24 +128,24 @@ const handleRender = (wss, secret, streams, store) => {
                     if (headers?.Authorization) {
                         let token;
                         try {
-                          token = jwt.verify(headers.Authorization.split(' ')[1], secret);
-                          socket.send(success(token, {
-                            action: 'auth',
-                            phase: 'response',
-                            routeKey: 'auth',
-                            type: 'response',
-                            address,
-                            id
-                          }));
+                            token = jwt.verify(headers.Authorization.split(' ')[1], secret);
+                            socket.send(success(token, {
+                                action: 'auth',
+                                phase: 'response',
+                                routeKey: 'auth',
+                                type: 'response',
+                                address,
+                                id
+                            }));
                         } catch (e) {
-                          console.log ("Error e", e);
-                          socket.send(success(token, {
-                            action: 'invalidate',
-                            phase: 'response',
-                            routeKey: 'auth',
-                            type: 'response',
-                            id
-                          }));              
+                            console.log("Error e", e);
+                            socket.send(success(token, {
+                                action: 'invalidate',
+                                phase: 'response',
+                                routeKey: 'auth',
+                                type: 'response',
+                                id
+                            }));
                         }
                     } else {
                         crypto.randomBytes(8, function (err, buffer) {
@@ -160,22 +162,35 @@ const handleRender = (wss, secret, streams, store) => {
                     }
                 }
                 if (phase === 'response') {
-                    const { challenge, response } = json;
-                    const address = recover(challenge, response)
-                    const token = jwt.sign({
-                        exp: Math.floor(Date.now() / 1000) + (60 * 60),
-                        iat: Date.now() / 1000,
-                        address
-                    }, secret);
+                    const { challenge, response, strategy } = json;
 
-                    socket.send(success(token, {
-                        action: 'auth',
-                        phase: 'response',
-                        routeKey: 'auth',
-                        type: 'response',
-                        address,
-                        id
-                    }));
+                    if (!strategy || !strategies[strategy]) {
+                        socket.send(failure({ message: 'Invalid strategy: "'+strategy+'"' }, {
+                            action: 'invalidate',
+                            routeKey: 'auth',
+                            phase: 'response',
+                            type: 'error',
+                            id
+                        }));
+                    } else {
+
+                        const strategy = strategies[strategy]
+                        const address = strategy.recover(challenge, response)
+                        const token = jwt.sign({
+                            exp: Math.floor(Date.now() / 1000) + (60 * 60),
+                            iat: Date.now() / 1000,
+                            address
+                        }, secret);
+
+                        socket.send(success(token, {
+                            action: 'auth',
+                            phase: 'response',
+                            routeKey: 'auth',
+                            type: 'response',
+                            address,
+                            id
+                        }));
+                    }
                 }
             }
 
@@ -238,8 +253,8 @@ const handleRender = (wss, secret, streams, store) => {
 
                 const handler = ConnectionHandler(broker, store, 'USE_STATE');
                 const state = await handler(connectionInfo, { key, scope, requestId, props, options, requestType })
-             }
-         })
+            }
+        })
     })
 }
 module.exports = {
