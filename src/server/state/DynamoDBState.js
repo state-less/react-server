@@ -62,6 +62,10 @@ class DynamoDBState extends AtomicState {
     compileExpression(nextValue) {
         const {key, value, updateEquation} = this;
         logger.info`Compiling expression ${value} ${nextValue}`
+
+        /**
+         * Compiles an array of numbers to atomic update expressions.
+         */
         if (value.length) {
             if (value.length !== nextValue.length) {
                 throw new Error(`Atomic arrays need to be of same length! Reveived ${value} ${nextValue}`)
@@ -72,6 +76,13 @@ class DynamoDBState extends AtomicState {
             const updateEq = this.compile(trees)
             logger.info`Tree is ${updateEq}`
             return updateEq
+        }
+
+        /**
+         * Compiles a single number into a atomic update expression.
+         */
+        if (typeof value === 'number') {
+            return this.compile(updateEquation(value, nextValue))
         }
     }
 
@@ -94,10 +105,13 @@ class DynamoDBState extends AtomicState {
             
             await put({...this, value: fakeArray}, 'dev2-states')
             console.log (`Created state in dynamodb ${this.value}`)
-            // if (initial)
-            // process.exit(0);
             this.value = value;
-        } else if (!initial && this.isAtomic) {
+
+            /**
+             * TODO: for some reason this.isAtomic is not set correctly even though options.atomic is filled. 
+             * analyse.
+             */
+        } else if (!initial && (this.isAtomic || this.options.atomic)) {
             const expr = this.compileExpression(value);
             logger.debug`Dynamodb update expression. ${expr}`
             const {key, scope} = this;

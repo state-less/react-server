@@ -1,7 +1,7 @@
 {
   "name": "react-server",
   "version": "0.0.1",
-  "description": "A state server that uses sockets to provide two way data-binding between a PWA (react/vue) and a server.",
+  "description": "A state server that uses sockets to provide two way data-binding between a PWA (react) and a server.",
   "main": "release/index.js",
   "dependencies": {
     "@babel/cli": "^7.12.10",
