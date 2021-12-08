@@ -174,8 +174,8 @@ const handleRender = (wss, secret, streams, store) => {
                         }));
                     } else {
 
-                        const strategy = strategies[strategy]
-                        const address = strategy.recover(challenge, response)
+                        const strat = strategies[strategy]
+                        const address = strat.recover(challenge, response)
                         const token = jwt.sign({
                             exp: Math.floor(Date.now() / 1000) + (60 * 60),
                             iat: Date.now() / 1000,
