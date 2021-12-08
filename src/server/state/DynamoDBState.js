@@ -27,7 +27,7 @@ class LambdaBroker extends Broker {
     async sync(state, connection, requestId) {
         if (connection.endpoint === 'localhost')
             return;
-            
+
         const { id, value, error } = state;
         // const {message, stack} = error || {};
         const syncObject = {
@@ -55,7 +55,7 @@ class DynamoDBState extends AtomicState {
     }
 
     compileExpression(nextValue) {
-        const {key, value, updateEquation} = this;
+        const { key, value, updateEquation } = this;
         logger.info`Compiling expression ${value} ${nextValue}`
 
         /**
@@ -90,7 +90,7 @@ class DynamoDBState extends AtomicState {
 
     async setValue(value, initial) {
         if (Array.isArray(value) && initial) {
-            const fakeArray = { ...this.value, $$isArray: true};
+            const fakeArray = { ...this.value, $$isArray: true };
             fakeArray.length = this.value.length;
 
             await put({ ...this, value: fakeArray }, 'dev2-states')
@@ -103,8 +103,14 @@ class DynamoDBState extends AtomicState {
         } else if (!initial && (this.isAtomic || this.options.atomic)) {
             const expr = this.compileExpression(value);
             const { key, scope, id } = this;
-            await update({ key, scope, id }, expr, 'dev2-states');
-            this.value = value;
+
+            try {
+                const res = await update({key,scope,}, expr, 'dev2-states');
+                this.value = res.Attributes.value;
+            } catch (e) {
+                
+            }
+
         } else {
             // const encrypted = JSON.stringify(encryptValue(value));
             const { key, scope, id } = { ...this };
@@ -126,7 +132,7 @@ class DynamoDBState extends AtomicState {
          * exist on the serverside
          */
         setTimeout(() => {
-          DynamoDBState.sync(this, new LambdaBroker);
+            DynamoDBState.sync(this, new LambdaBroker);
         }, 10)
 
     }
@@ -247,45 +253,45 @@ class DynamodbStore extends Store {
 
     }
 
-    async scanStates (stateKey, scope = this.key) {
+    async scanStates(stateKey, scope = this.key) {
         const params = {
-            TableName : 'dev2-states',
-            FilterExpression : '#key = :state AND begins_with(#scope, :scope)',
-            ExpressionAttributeValues : {
-                ':state' : stateKey,
-                ':scope' : scope
+            TableName: 'dev2-states',
+            FilterExpression: '#key = :state AND begins_with(#scope, :scope)',
+            ExpressionAttributeValues: {
+                ':state': stateKey,
+                ':scope': scope
             },
-            ExpressionAttributeNames : {
-                '#key' : 'key',
+            ExpressionAttributeNames: {
+                '#key': 'key',
                 '#scope': 'scope'
             }
-          };
+        };
 
         const states = await scan(params);
-        return await Promise.all(states.Items.map(s => this.useState(stateKey, s.value, {scope: s.scope})));
+        return await Promise.all(states.Items.map(s => this.useState(stateKey, s.value, { scope: s.scope })));
     }
 
-    async scanScopes (scope = this.key) {
+    async scanScopes(scope = this.key) {
         const params = {
-            TableName : 'dev2-states',
-            FilterExpression : 'begins_with(#scope, :scope)',
-            ExpressionAttributeValues : {
+            TableName: 'dev2-states',
+            FilterExpression: 'begins_with(#scope, :scope)',
+            ExpressionAttributeValues: {
                 // ':state' : stateKey,
-                ':scope' : scope
+                ':scope': scope
             },
-            ExpressionAttributeNames : {
+            ExpressionAttributeNames: {
                 // '#key' : 'key',
                 '#scope': 'scope'
             }
-          };
+        };
 
         const states = await scan(params);
-        console.log ("SCAN RESULT", states)
+        console.log("SCAN RESULT", states)
 
         return states.Items;
-        for (var i=0; i< states.length; i++) {
+        for (var i = 0; i < states.length; i++) {
             const s = states[i];
-            states[i] = await this.useState(s.key, s.value, {scope: s.scope});
+            states[i] = await this.useState(s.key, s.value, { scope: s.scope });
         }
     }
 
@@ -315,7 +321,7 @@ class DynamodbStore extends Store {
     }
 
     async _deleteState(key) {
-        await del({key, scope:this.key}, 'dev2-states');
+        await del({ key, scope: this.key }, 'dev2-states');
     }
 }
 module.exports = {

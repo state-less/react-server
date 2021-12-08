@@ -178,12 +178,14 @@ class DynamoDBState extends AtomicState {
         scope,
         id
       } = this;
-      await update({
-        key,
-        scope,
-        id
-      }, expr, 'dev2-states');
-      this.value = value;
+
+      try {
+        const res = await update({
+          key,
+          scope
+        }, expr, 'dev2-states');
+        this.value = res.Attributes.value;
+      } catch (e) {}
     } else {
       // const encrypted = JSON.stringify(encryptValue(value));
       const {
