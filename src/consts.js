@@ -13,7 +13,11 @@ const CACHE_FIRST = 'CACHE_FIRST';
 const NETWORK_FIRST = 'NETWORK_FIRST';
 const SERVER_ID = 'server';
 
-const ACTION_RENDER = 'render';
+export const ACTION_RENDER = 'render';
+export const ACTION_STREAM = 'stream';
+export const ACTION_AUTH = 'auth';
+export const ACTION_CALL = 'call';
+export const ACTION_USE_STATE = 'useState';
 
 const SCOPE_CLIENT = '$client';
 const SCOPE_SERVER = '$server';
@@ -24,8 +28,7 @@ const DESC_MISSING_KEY = `A key is required to be able to map the client compone
 module.exports = {
     EVENT_STATE_ERROR, EVENT_STATE_DECLINE, EVENT_STATE_PERMIT, EVENT_STATE_SET, EVENT_STATE_USE,EVENT_STATE_CREATE, EVENT_STATE_REQUEST, EVENT_SCOPE_CREATE,
     CACHE_FIRST, NETWORK_FIRST, SERVER_ID,
-    ACTION_RENDER,
-    SCOPE_CLIENT, SCOPE_SERVER, SCOPE_COMPONENT,
+     SCOPE_CLIENT, SCOPE_SERVER, SCOPE_COMPONENT,
     ERR_MISSING_KEY,
     DESC_MISSING_KEY,
 }

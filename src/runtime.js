@@ -7,10 +7,19 @@ const reduceComponents = (lkp, cmp) => {
     return lkp;
 };
 
-const render = async (server, props, connectionInfo) => {
-
-    let cmp = server;
+/**
+ * The JSX runtime. This renders the component tree.
+ * @param {function} component - The root component that shall be rendered
+ * @param {*} props - The props that shall be passed to the component
+ * @param {*} connectionInfo - The connectionInfo (e.g. socket connection, http headers)
+ * @returns 
+ */
+const render = async (component, props, connectionInfo) => {
+    /** The current component that gets rendered */
+    let cmp = component;
+    /** Maintains a stack of components to be rendered */
     let stack = [];
+
     do {
         cmp = await cmp(props, connectionInfo);
 

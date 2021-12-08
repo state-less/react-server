@@ -335,6 +335,16 @@ const Component = (fn, baseStore) => {
 
 }
 
+/**
+ * @typedef ReactServerComponent
+ * @type {Object}
+ * @property {string} key - The components key
+ */
+
+/**
+ * Maintains a map of component instances.
+ * @type {Map<string,ReactServerComponent>}
+ */
 Component.instances = new Map();
 Component.rendered = new Map();
 Component.scope = new Map();

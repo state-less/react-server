@@ -13,6 +13,9 @@ const {
 const EVENT_STATE_SET = 'setState';
 
 class WebsocketBroker extends Broker {
+  /**
+   * WebsocketBroker brokering states between server and client
+   */
   constructor(options = {}) {
     super(options);
     const {
