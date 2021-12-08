@@ -1,5 +1,12 @@
 "use strict";
 
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.Component = void 0;
+
+var _interfaces = require("../interfaces");
+
 const {
   v4: uuidv4,
   v4
@@ -69,8 +76,8 @@ const Component = (fn, baseStore) => {
       let states = [];
       let effects = [];
       let clientEffects = [];
-      let promises = []; // let functions = [[]];
-
+      let promises = [];
+      let functions = [[]];
       let dependencies = [];
       logger = componentLogger.scope(`${key}:${socket.id}`);
       /** TODO: Think of a way to provide a component state scope */
@@ -97,8 +104,8 @@ const Component = (fn, baseStore) => {
       const stateValues = new Map();
 
       scopedUseState = async (initial, stateKey, {
-        deny,
-        scope,
+        deny = false,
+        scope = void 0,
         ...rest
       } = {}) => {
         var _states$stateIndex;
@@ -162,7 +169,10 @@ const Component = (fn, baseStore) => {
             // setImmediate(() => {
             await render(); // })
           } catch (e) {
-            socket.emit('error', key, 'component:render', e.message);
+            //Investigate what the socket object is
+            // This doesnt' make too much sense
+            // socket.emit('error', key, 'component:render', e.message);
+            throw e;
           } // Component.useEffect = was;
 
 
@@ -219,13 +229,12 @@ const Component = (fn, baseStore) => {
         } else {}
 
         clientEffectIndex++;
-      };
+      }; // scopedUseFunction = (fn) => {
+      //     const id = functions[fnIndex][0] || v4();
+      //     functions[fnIndex] = [id, fn];
+      //     fnIndex++
+      // };
 
-      scopedUseFunction = fn => {
-        const id = functions[fnIndex][0] || v4();
-        functions[fnIndex] = [id, fn];
-        fnIndex++;
-      };
 
       scopedTimeout = (fn, timeout, ...args) => {
         let to = Math.random();
@@ -391,6 +400,15 @@ const Component = (fn, baseStore) => {
     return bound;
   };
 };
+
+exports.Component = Component;
+Component.useState = null;
+Component.useEffect = null;
+Component.useClientEffect = null;
+Component.useFunction = null;
+Component.useClientState = null;
+Component.setTimeout = null;
+Component.destroy = null;
 /**
  * @typedef ReactServerComponent
  * @type {Object}
@@ -402,7 +420,6 @@ const Component = (fn, baseStore) => {
  * @type {Map<string,ReactServerComponent>}
  */
 
-
 Component.instances = new Map();
 Component.rendered = new Map();
 Component.scope = new Map();
@@ -411,7 +428,4 @@ Component.isServer = socket => {
   return socket.id === SERVER_ID;
 };
 
-Component.defaultCacheBehaviour = CACHE_FIRST;
-module.exports = {
-  Component
-};
+Component.defaultCacheBehaviour = _interfaces.CacheBehaviour.CACHE_FIRST;

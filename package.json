@@ -9,6 +9,7 @@
     "@babel/plugin-proposal-optional-chaining": "^7.12.7",
     "@babel/plugin-transform-modules-commonjs": "^7.12.1",
     "@babel/plugin-transform-react-jsx": "^7.12.12",
+    "@babel/plugin-transform-typescript": "^7.16.1",
     "@babel/preset-env": "^7.12.11",
     "@state-less/atomic": "github:state-less/atomic",
     "aws-sdk": "^2.887.0",
@@ -30,16 +31,15 @@
     "uuid": "^8.3.2"
   },
   "devDependencies": {
-    "cz-conventional-changelog": "^3.3.0"
+    "cz-conventional-changelog": "^3.3.0",
+    "typescript": "^4.5.2"
   },
   "peerDependencies": {
     "react": "^17.0.1"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "cd dist && git checkout HEAD~1 && git checkout master && cd .. && babel ./src --out-dir ./dist && cd ./dist && git add . && git commit -m 'build'",
-    "build:release": "babel ./src --out-dir ./release",
-    "build:components": "babel ./components --out-dir ./dist",
+    "build": "babel -x \".ts\" -x \".tsx\" -x \".js\" ./src --out-dir ./release && tsc",
     "start": "babel ./test.jsx.js --out-file test.c.js && node test.c.js"
   },
   "repository": {

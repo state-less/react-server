@@ -9,6 +9,12 @@
         }
       ],
       [
+        "@babel/plugin-transform-typescript",
+        {
+          "isTSX": true
+        }
+      ],
+      [
         "@babel/plugin-proposal-class-properties"
       ],
       [

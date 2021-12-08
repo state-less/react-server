@@ -1,5 +1,8 @@
+import { Lifecycle, CacheBehaviour } from "../interfaces";
+
 const { v4: uuidv4, v4 } = require("uuid");
 const { EVENT_STATE_SET, NETWORK_FIRST, SERVER_ID, CACHE_FIRST } = require("../consts");
+
 const _logger = require("../lib/logger");
 const { assertIsValid } = require("../util");
 
@@ -19,7 +22,8 @@ const isEqual = (arrA, arrB) => {
 }
 
 
-const Component = (fn, baseStore) => {
+
+const Component : Lifecycle = (fn, baseStore) => {
     let logger;
 
     if (!baseStore) {
@@ -55,7 +59,7 @@ const Component = (fn, baseStore) => {
             let effects = []
             let clientEffects = [];
             let promises = [];
-            // let functions = [[]];
+            let functions = [[]];
             let dependencies = [];
             logger = componentLogger.scope(`${key}:${socket.id}`);
 
@@ -75,7 +79,7 @@ const Component = (fn, baseStore) => {
 
             const id = Math.random();
             const stateValues = new Map();
-            scopedUseState = async (initial, stateKey, { deny, scope, ...rest } = {}) => {
+            scopedUseState = async (initial, stateKey, { deny = false, scope = void 0, ...rest } = {}) => {
                 if (deny) {
                     return [null, () => { throw new Error('Attempt to set unauthenticated state') }];
                 }
@@ -127,7 +131,10 @@ const Component = (fn, baseStore) => {
                         await render();
                         // })
                     } catch (e) {
-                        socket.emit('error', key, 'component:render', e.message);
+                        //Investigate what the socket object is
+                        // This doesnt' make too much sense
+                        // socket.emit('error', key, 'component:render', e.message);
+                        throw e;
                     }
                     // Component.useEffect = was;
                     mounted = false;
@@ -187,11 +194,11 @@ const Component = (fn, baseStore) => {
                 clientEffectIndex++;
             }
 
-            scopedUseFunction = (fn) => {
-                const id = functions[fnIndex][0] || v4();
-                functions[fnIndex] = [id, fn];
-                fnIndex++
-            };
+            // scopedUseFunction = (fn) => {
+            //     const id = functions[fnIndex][0] || v4();
+            //     functions[fnIndex] = [id, fn];
+            //     fnIndex++
+            // };
 
             scopedTimeout = (fn, timeout, ...args) => {
                 let to = Math.random();
@@ -335,6 +342,13 @@ const Component = (fn, baseStore) => {
 
 }
 
+Component.useState = null;
+Component.useEffect = null;
+Component.useClientEffect = null;
+Component.useFunction = null;
+Component.useClientState = null;
+Component.setTimeout = null;
+Component.destroy = null;
 /**
  * @typedef ReactServerComponent
  * @type {Object}
@@ -351,6 +365,6 @@ Component.scope = new Map();
 Component.isServer = (socket) => {
     return socket.id === SERVER_ID
 }
-Component.defaultCacheBehaviour = CACHE_FIRST;
+Component.defaultCacheBehaviour = CacheBehaviour.CACHE_FIRST;
 
-module.exports = { Component };
+export {Component};
