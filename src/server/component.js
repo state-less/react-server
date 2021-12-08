@@ -249,7 +249,7 @@ const Component = (fn, baseStore) => {
                 }
 
                 // await cleanup()
-                const result = await fn(props, clientProps, socket);
+                const result = await fn({...props, key}, clientProps, socket);
                 lastStates = states;
 
                 if (!result && result !== null) {
