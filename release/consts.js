@@ -8,6 +8,15 @@ const EVENT_STATE_CREATE = 'createState';
 const EVENT_STATE_REQUEST = 'requestState';
 const EVENT_STATE_ERROR = 'error';
 const EVENT_SCOPE_CREATE = 'createScope';
+const CACHE_FIRST = 'CACHE_FIRST';
+const NETWORK_FIRST = 'NETWORK_FIRST';
+const SERVER_ID = 'server';
+const ACTION_RENDER = 'render';
+const SCOPE_CLIENT = '$client';
+const SCOPE_SERVER = '$server';
+const SCOPE_COMPONENT = '$component';
+const ERR_MISSING_KEY = `Missing property 'key' in component props.`;
+const DESC_MISSING_KEY = `A key is required to be able to map the client component to a Server component.`;
 module.exports = {
   EVENT_STATE_ERROR,
   EVENT_STATE_DECLINE,
@@ -16,5 +25,14 @@ module.exports = {
   EVENT_STATE_USE,
   EVENT_STATE_CREATE,
   EVENT_STATE_REQUEST,
-  EVENT_SCOPE_CREATE
+  EVENT_SCOPE_CREATE,
+  CACHE_FIRST,
+  NETWORK_FIRST,
+  SERVER_ID,
+  ACTION_RENDER,
+  SCOPE_CLIENT,
+  SCOPE_SERVER,
+  SCOPE_COMPONENT,
+  ERR_MISSING_KEY,
+  DESC_MISSING_KEY
 };

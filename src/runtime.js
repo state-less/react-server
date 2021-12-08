@@ -7,15 +7,28 @@ const reduceComponents = (lkp, cmp) => {
     return lkp;
 };
 
-const render = async (server) => {
+const render = async (server, props, connectionInfo) => {
 
     let cmp = server;
     let stack = [];
     do {
-        cmp = await cmp();
-        logger.warning`COMPONENT ${cmp}`
+        cmp = await cmp(props, connectionInfo);
+
+        if (cmp && cmp?.props?.children) {
+            for (var i = 0; i < cmp?.props?.children.length; i++) {
+                const child = cmp?.props?.children[i];
+                if (Array.isArray(child)) {
+                    for (var j = 0; j < child.length; j++) {
+                        cmp.props.children[i][j] = await render(child[j], props, connectionInfo)
+                    }
+                }
+                if (child && typeof child !== 'function')
+                    continue;
+                cmp.props.children[i] = await render(child, props, connectionInfo);
+            }
+        }
         if (cmp && cmp.component) {
-            if (cmp.component === 'ClientComponent') break;
+            if (cmp.component === 'ClientComponent') continue;
             throw new Error("client")
         }
         if (Array.isArray(cmp)) {
@@ -25,19 +38,6 @@ const render = async (server) => {
             cmp = stack.shift();
     } while (typeof cmp === 'function');
     return cmp;
-    // logger.warning`Rendering server ${server}`;
-    // const {port} = server;
-    // let {props: {children}} = server;
- 
-    // if (!Array.isArray(children)) children = [children];
-
-    // const components = children.filter(filterComponents);
-    // const renderer = children.find(filterRenderer);
-
-    // const componentLkp = components.reduce(reduceComponents, {});
-
-    // logger.warning`Rendering server ${componentLkp}`;
-    // renderer.handler(componentLkp)
 }
 
 

@@ -1,3 +1,4 @@
+const { WebsocketStream } = require('../Stream');
 const logger = require('../lib/logger');
 const { Component } = require('../server/component');
 const { Store } = require('../server/state');
@@ -35,7 +36,6 @@ const Route = Component((props) => {
         logger.notice`Not rendering route. Target '${target}' doesn't match Router target '${Router.context}'`
         return null;
     }
-    logger.error`Rendering Route ${target} <-> ${Router.context.target}`;
 
     return props.children;
 }, internal);
@@ -58,10 +58,24 @@ const Action = (props) => {
         }
     }
 }
+
+const Stream = (props, key) => {
+    const instance = {
+        component: 'Stream',
+        stream: new WebsocketStream,
+        props: {
+            key
+        }
+    }
+    Stream.instances.set(key, instance);
+    return instance;
+}
+Stream.instances = new Map;
 Action.server = true;
 
 module.exports = {
     ClientComponent,
+    Stream,
     Server,
     Router,
     Route,

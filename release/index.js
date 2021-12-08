@@ -3,7 +3,8 @@
 const {
   Server,
   Router,
-  Route
+  Route,
+  Stream
 } = require('./components');
 
 const {
@@ -19,9 +20,15 @@ const {
   DynamodbStore
 } = require('./server/state/DynamoDBState');
 
+const {
+  WebsocketStream
+} = require('./Stream');
+
 module.exports = {
+  WebsocketStream,
   DynamoDBState,
   DynamodbStore,
+  Stream,
   Server,
   Router,
   Route,

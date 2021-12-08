@@ -28,7 +28,8 @@ const {
   get,
   update,
   del,
-  query
+  query,
+  scan
 } = require('../../lib/dynamodb-lib');
 
 const logger = require('../../lib/logger');
@@ -44,6 +45,10 @@ const {
 const {
   encryptValue
 } = require('../pipes/Crypt');
+
+const {
+  SERVER_ID
+} = require('../../consts');
 
 class LambdaBroker extends Broker {
   constructor(io, options = {}) {
@@ -65,7 +70,7 @@ class LambdaBroker extends Broker {
 
 
   async sync(state, connection, requestId) {
-    logger.info`Syncing state ${state} with connection ${connection}.`;
+    if (connection.endpoint === 'localhost') return;
     const {
       id,
       value,
@@ -75,37 +80,39 @@ class LambdaBroker extends Broker {
     const syncObject = {
       id,
       value
-    }; // syncObject.error = error?{message, stack}:null;
-
-    logger.error`Building response data ${syncObject}`;
+    };
     const data = success(syncObject, {
       action: 'setValue',
       requestId
     });
-    logger.error`Sending data ${data}`;
 
     try {
       return await emit(connection, data);
       ;
     } catch (e) {
-      logger.error`Connection gone, Unsyncing state. Clearing error.`;
-      await state.unsync(this, connection); // throw e;
+      await state.unsync(this, connection);
     }
   }
 
-  async consume(state) {
-    logger.info`Subscribing to state ${state}`;
-  }
+  async consume(state) {}
 
 }
 
 ;
 
+const copyStateVariables = ({
+  key,
+  scope,
+  id
+}) => ({
+  key,
+  scope,
+  id
+});
+
 class DynamoDBState extends AtomicState {
   constructor(def, options) {
-    logger.info`Creating in memory dynamodb state with options ${options}`;
     super(def, options);
-    logger.info`Freezing value of atomic state`;
     Object.freeze(this.value);
     this.setValue = this.setValue.bind(this);
   }
@@ -116,7 +123,6 @@ class DynamoDBState extends AtomicState {
       value,
       updateEquation
     } = this;
-    logger.info`Compiling expression ${value} ${nextValue}`;
 
     if (value.length) {
       if (value.length !== nextValue.length) {
@@ -127,13 +133,11 @@ class DynamoDBState extends AtomicState {
         return updateEquation(val, nextValue[i]);
       });
       const updateEq = this.compile(trees);
-      logger.info`Tree is ${updateEq}`;
       return updateEq;
     }
   }
 
   compile(...trees) {
-    logger.info`Compiling atomic update expression ${trees}`;
     return compile(...trees);
   }
 
@@ -142,56 +146,74 @@ class DynamoDBState extends AtomicState {
   }
 
   async setValue(value, initial) {
-    logger.debug`About to set dynamodb state. ${this.key} ${this.value} -> ${value}`;
-
     if (Array.isArray(value) && initial) {
-      console.log(`Setting value ${this.value}`);
-      const fakeArray = { ...this.value
+      const fakeArray = { ...this.value,
+        $$isArray: true
       };
       fakeArray.length = this.value.length;
       await put({ ...this,
         value: fakeArray
       }, 'dev2-states');
-      console.log(`Created state in dynamodb ${this.value}`); // if (initial)
-      // process.exit(0);
-
       this.value = value;
     } else if (!initial && this.isAtomic) {
       const expr = this.compileExpression(value);
-      logger.debug`Dynamodb update expression. ${expr}`;
       const {
         key,
-        scope
+        scope,
+        id
       } = this;
       await update({
         key,
-        scope
+        scope,
+        id
       }, expr, 'dev2-states');
       this.value = value;
     } else {
-      logger.debug`Setting initial value ${value}`; // const encrypted = JSON.stringify(encryptValue(value));
-      // this.value = encrypted;
+      // const encrypted = JSON.stringify(encryptValue(value));
+      const {
+        key,
+        scope,
+        id
+      } = { ...this
+      };
 
-      const response = await put({ ...this,
-        value
-      }, 'dev2-states');
-      this.value = value;
-      logger.debug`Updated dynamodb state ${response}`;
+      try {
+        await put({
+          key,
+          scope,
+          id,
+          value
+        }, 'dev2-states');
+      } catch (e) {//this.error = e.message;
+      } finally {
+        this.value = value;
+      }
     }
 
-    logger.debug`Updated state in Dynamodb.`;
     this.emit('setValue', this);
-    return await DynamoDBState.sync(this, new LambdaBroker());
+    /** 
+     * Execute the sync after the callstack completed
+     * otherwise it can happen that the client
+     * tries to render a component which doesn't yet 
+     * exist on the serverside
+     */
+
+    setTimeout(() => {
+      DynamoDBState.sync(this, new LambdaBroker());
+    }, 10);
+  }
+
+  async publish(broker, connectionInfo, requestId) {
+    super.publish();
+    return await DynamoDBState.sync(this, broker, requestId);
   }
 
   async sync(broker, connectionInfo, requestId) {
-    logger.error`Dynamodb state sync request for broker ${broker}. Endpoint ${connectionInfo}`;
     const {
       key,
       scope
     } = this;
-    super.sync(broker, connectionInfo, requestId); // console.log (this);
-    // process.exit(0)
+    super.sync(broker, connectionInfo, requestId);
 
     try {
       let res = await put({
@@ -203,29 +225,12 @@ class DynamoDBState extends AtomicState {
         id: `${scope}:${key}`,
         key: connectionInfo.id,
         connectionInfo
-      }, 'dev2-subscriptions'); // const res = await update({key, scope}, {
-      //     UpdateExpression: 'SET #key.#connection = :value',
-      //     ExpressionAttributeValues:{
-      //         ":value": connectionInfo,
-      //     },
-      //     ExpressionAttributeNames: {
-      //         "#key":'brokers',
-      //         "#connection": connectionInfo.id,
-      //     },
-      //     ReturnValues:"UPDATED_NEW"
-      // }, 'dev2-subscriptions');
-
-      logger.error`Updated connections ${res}`;
-      logger.warning`Added connection info ${connectionInfo} ${res}`;
-      if (this.syncInitialState) return await DynamoDBState.sync(this, broker, requestId);
+      }, 'dev2-subscriptions');
       return void 0;
-    } catch (e) {
-      logger.error`Error Updating connections in state failed ${e}`;
-    }
+    } catch (e) {}
   }
 
   async unsync(broker, connectionInfo) {
-    logger.error`Dynamodb state unsync request for broker ${broker}. Endpoint ${connectionInfo}`;
     const {
       key,
       scope
@@ -239,28 +244,14 @@ class DynamoDBState extends AtomicState {
       res = await del({
         key: connectionInfo.id,
         id: `${scope}:${key}`
-      }, 'dev2-subscriptions'); // const res = await update({key, scope}, {
-      //     UpdateExpression: 'REMOVE #key.#connection',
-      //     ExpressionAttributeNames: {
-      //         "#key":'brokers',
-      //         "#connection": connectionInfo.id,
-      //     },
-      //     ReturnValues:"ALL_NEW"
-      // }, 'dev2-subscriptions');
-
-      logger.error`Removed subscription connections ${res}`;
+      }, 'dev2-subscriptions');
       return res;
     } catch (e) {
-      logger.error`Error Updating connections in state failed ${e}`;
       throw e;
     }
   }
 
   async getValue(key) {
-    logger.debug`Getting state from Dynamodb. ${{
-      key: this.key,
-      scope: this.scope
-    }}`;
     let state;
 
     try {
@@ -268,17 +259,12 @@ class DynamoDBState extends AtomicState {
         key: this.key,
         scope: this.scope
       }, 'dev2-states');
-    } catch (e) {
-      logger.errror`Error getting state from dynamod ${state}`;
-    }
+    } catch (e) {}
 
     if (state.Item) {
-      logger.warning`Dynamodb state ${{
-        key: this.key,
-        scope: this.scope
-      }} ${state}`;
+      var _state$Item$value;
 
-      if (!Array.isArray(state.Item.value) && state.Item.value.length) {
+      if (!Array.isArray(state.Item.value) && (_state$Item$value = state.Item.value) !== null && _state$Item$value !== void 0 && _state$Item$value.$$isArray) {
         this.value = Array.from(state.Item.value);
       } else {
         this.value = state.Item.value;
@@ -296,10 +282,8 @@ class DynamoDBState extends AtomicState {
         atomic,
         isAtomic
       });
-      logger.warning`Resolved dynamodb state ${this.value} ${Array.isArray(state.Item)} ${this.value.length}`;
       return true;
     } else {
-      logger.warning`State D ${this.key} doesn't exist`;
       return null;
     }
   }
@@ -311,14 +295,10 @@ DynamoDBState.sync = async (instance, broker, requestId) => {
     scope,
     key
   } = instance;
-  logger.error`Syncing dynamodb state ASD ${{
-    id: `${scope}:${key}`
-  }}`;
   State.sync(instance);
   const result = await query({
     id: `${scope}:${key}`
   }, 'dev2-subscriptions');
-  logger.error`Syncing dynamodb state connections :${result.Items}`;
 
   if (!result.Items) {
     throw new Error(`Could not get state subscriptions for state ${instance}`);
@@ -327,20 +307,16 @@ DynamoDBState.sync = async (instance, broker, requestId) => {
   const {
     Items: subscriptions
   } = result;
-  logger.error`Syncing dynamodb state connections. subscriptions ${subscriptions}`;
 
   try {
     const syncResult = await Promise.all(subscriptions.map(item => {
       const {
         connectionInfo
       } = item;
-      logger.error`Syncing dynamodb state to connections ${connectionInfo}`;
       return broker.sync(instance, connectionInfo, requestId);
     }));
-    logger.log`Sync result ${syncResult}`;
     return syncResult;
   } catch (e) {
-    logger.error`Error syncing dynamodb state`;
     throw e;
   }
 };
@@ -348,7 +324,7 @@ DynamoDBState.sync = async (instance, broker, requestId) => {
 class DynamodbStore extends Store {
   constructor(options = {}) {
     const {
-      key = 'base',
+      key = SERVER_ID,
       parent = null,
       autoCreate = false,
       onRequestState,
@@ -356,7 +332,6 @@ class DynamodbStore extends Store {
       TableName,
       broker
     } = options;
-    logger.warning`TableName ${TableName}`;
     super({
       key,
       parent,
@@ -369,15 +344,10 @@ class DynamodbStore extends Store {
       TableName
     });
     this.useState = this.useState.bind(this);
-  } // init = async () => {
-  //     const table = await get({id: this.key});
-  //     logger.info`Store table ${table}`
-  // }
-
+    this.deleteState = this._deleteState.bind(this);
+  }
 
   async has(stateKey, scope = "base") {
-    logger.info`Has state? ${stateKey} ${this.key} ${this.TableName}`;
-
     if (super.has(stateKey)) {
       return true;
     }
@@ -391,7 +361,6 @@ class DynamodbStore extends Store {
   }
 
   async get(key, def, options, ...args) {
-    logger.info`STATE QWE getValue ${key} ${options}`;
     const {
       cache = "CACHE_FIRST"
     } = options;
@@ -407,16 +376,58 @@ class DynamodbStore extends Store {
       }
     }
 
-    const state = this.createState(key, def, options, ...args);
-    logger.info`STATE QWE getValue ${key} ${options} ${state}`; //TODO: Refactor. Make this a static method that writes to the instance from the outside.
+    const state = this.createState(key, def, options, ...args); //TODO: Refactor. Make this a static method that writes to the instance from the outside.
     //Void!
 
     await state.getValue();
     return state;
   }
 
+  async scanStates(stateKey, scope = this.key) {
+    const params = {
+      TableName: 'dev2-states',
+      FilterExpression: '#key = :state AND begins_with(#scope, :scope)',
+      ExpressionAttributeValues: {
+        ':state': stateKey,
+        ':scope': scope
+      },
+      ExpressionAttributeNames: {
+        '#key': 'key',
+        '#scope': 'scope'
+      }
+    };
+    const states = await scan(params);
+    return await Promise.all(states.Items.map(s => this.useState(stateKey, s.value, {
+      scope: s.scope
+    })));
+  }
+
+  async scanScopes(scope = this.key) {
+    const params = {
+      TableName: 'dev2-states',
+      FilterExpression: 'begins_with(#scope, :scope)',
+      ExpressionAttributeValues: {
+        // ':state' : stateKey,
+        ':scope': scope
+      },
+      ExpressionAttributeNames: {
+        // '#key' : 'key',
+        '#scope': 'scope'
+      }
+    };
+    const states = await scan(params);
+    console.log("SCAN RESULT", states);
+    return states.Items;
+
+    for (var i = 0; i < states.length; i++) {
+      const s = states[i];
+      states[i] = await this.useState(s.key, s.value, {
+        scope: s.scope
+      });
+    }
+  }
+
   clone(...args) {
-    logger.info`Creating new Dynamodb store`;
     return new DynamodbStore(...args);
   }
 
@@ -424,20 +435,26 @@ class DynamodbStore extends Store {
     const {
       cache = "CACHE_FIRST"
     } = options;
-    logger.info`Using Dynamodb state '${key}'. Validating ${options}`; // let state = await super.useState(key, def, options = {}, ...args);
-
     this.validateUseStateArgs(key, def, options, ...args);
     const hasKey = await this.has(key, options.scope);
-    logger.info`Has key ${hasKey} ${options.scope} ${this.key === options.scope}`;
-    if (hasKey) return await this.get(key, def, options, ...args); // const id = 'temp-'+v4();
+    if (hasKey) return await this.get(key, def, options, ...args);
 
-    if (this.autoCreate && !options.throwIfNotAvailable) {
+    if (this.autoCreate) {
       const state = this.createState(key, def, options, ...args);
       await state.setValue(def, true);
       return state;
     }
 
-    this.throwNotAvailble(key);
+    if (options.throwIfNotAvailable || !this.autoCreate) {
+      this.throwNotAvailble(key);
+    }
+  }
+
+  async _deleteState(key) {
+    await del({
+      key,
+      scope: this.key
+    }, 'dev2-states');
   }
 
 }
