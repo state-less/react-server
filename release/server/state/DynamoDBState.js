@@ -123,6 +123,10 @@ class DynamoDBState extends AtomicState {
       value,
       updateEquation
     } = this;
+    logger.info`Compiling expression ${value} ${nextValue}`;
+    /**
+     * Compiles an array of numbers to atomic update expressions.
+     */
 
     if (value.length) {
       if (value.length !== nextValue.length) {
@@ -134,6 +138,14 @@ class DynamoDBState extends AtomicState {
       });
       const updateEq = this.compile(trees);
       return updateEq;
+    }
+    /**
+     * Compiles a single number into a atomic update expression.
+     */
+
+
+    if (typeof value === 'number') {
+      return this.compile(updateEquation(value, nextValue));
     }
   }
 
@@ -155,7 +167,11 @@ class DynamoDBState extends AtomicState {
         value: fakeArray
       }, 'dev2-states');
       this.value = value;
-    } else if (!initial && this.isAtomic) {
+      /**
+       * TODO: for some reason this.isAtomic is not set correctly even though options.atomic is filled. 
+       * analyse.
+       */
+    } else if (!initial && (this.isAtomic || this.options.atomic)) {
       const expr = this.compileExpression(value);
       const {
         key,
