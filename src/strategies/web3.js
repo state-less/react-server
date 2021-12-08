@@ -1,0 +1,1 @@
+export { recover } from '../lib/web3-util'
