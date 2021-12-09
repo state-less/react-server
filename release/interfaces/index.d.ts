@@ -4,6 +4,7 @@ export declare enum CacheBehaviour {
 }
 declare type RecursiveMap = Map<string, RecursiveMap>;
 export interface Lifecycle {
+    (fn: any, baseStore: any): any;
     rendered: Map<string, object>;
     scope: RecursiveMap;
     isServer(socket: any): boolean;

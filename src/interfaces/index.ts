@@ -5,7 +5,10 @@ export enum CacheBehaviour {
 
 type RecursiveMap = Map<string, RecursiveMap>;
 
-export interface Lifecycle {
+type Component = () => any;
+
+export interface Lifecycle{
+    (fn, baseStore): any
     rendered: Map<string, object>,
     scope: RecursiveMap,
     isServer(socket: any): boolean,
