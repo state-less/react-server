@@ -1,17 +1,15 @@
 "use strict";
 
-const {
-  atomic: genAtomic,
-  compile
-} = require('@state-less/atomic');
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.Atomic = void 0;
 
-const logger = require('../../lib/logger');
+var _atomic = require("@state-less/atomic");
 
-const {
-  State
-} = require('./');
+var _ = require("./");
 
-class Atomic extends State {
+class Atomic extends _.State {
   constructor(defaultValue, options = {}) {
     const {
       key,
@@ -24,7 +22,7 @@ class Atomic extends State {
     });
 
     if (atomic) {
-      const updateEquation = genAtomic(atomic);
+      const updateEquation = (0, _atomic.atomic)(atomic);
       this.updateEquation = updateEquation;
     }
 
@@ -48,6 +46,4 @@ class Atomic extends State {
 
 }
 
-module.exports = {
-  Atomic
-};
+exports.Atomic = Atomic;
