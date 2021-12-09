@@ -456,7 +456,7 @@ class DynamodbStore extends _.Store {
 
     if (this.autoCreate) {
       const state = this.createState(key, def, options, ...args);
-      await state.setValue(def);
+      await state.setValue(def, true);
       return state;
     }
 

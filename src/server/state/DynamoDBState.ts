@@ -253,7 +253,7 @@ type StateCstr = typeof State;
 
 class DynamodbStore extends Store {
     deleteState: (key: any) => void;
-    createState: (key: any, def: any, options?: any, ...args: any[]) => State;
+    createState: (key: any, def: any, options?: any, ...args: any[]) => DynamoDBState;
     validateUseStateArgs: (key: any, def: any, options?: UseStateOptions, ...args: any[]) => void;
     key: string;
     autoCreate: boolean;
@@ -363,8 +363,8 @@ class DynamodbStore extends Store {
 
 
         if (this.autoCreate) {
-            const state = this.createState(key, def, options, ...args);
-            await state.setValue(def);
+            const state: DynamoDBState = this.createState(key, def, options, ...args);
+            await state.setValue(def, true);
             return state;
         }
 

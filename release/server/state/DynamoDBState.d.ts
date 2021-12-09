@@ -44,7 +44,7 @@ declare class DynamoDBState extends AtomicState {
 declare type StateCstr = typeof State;
 declare class DynamodbStore extends Store {
     deleteState: (key: any) => void;
-    createState: (key: any, def: any, options?: any, ...args: any[]) => State;
+    createState: (key: any, def: any, options?: any, ...args: any[]) => DynamoDBState;
     validateUseStateArgs: (key: any, def: any, options?: UseStateOptions, ...args: any[]) => void;
     key: string;
     autoCreate: boolean;
@@ -53,11 +53,11 @@ declare class DynamodbStore extends Store {
     StateConstructor: StateCstr;
     constructor(options?: DynamoDbStoreOptions);
     has(stateKey: any, scope?: string): Promise<boolean>;
-    get(key: any, ...args: any[]): Promise<State>;
+    get(key: any, ...args: any[]): Promise<State | DynamoDBState>;
     scanStates(stateKey: any, scope?: string): Promise<any>;
     scanScopes(scope?: string): Promise<any>;
     clone(...args: any[]): DynamodbStore;
-    useState(key: any, def: any, options?: UseStateOptions, ...args: any[]): Promise<State>;
+    useState(key: any, def: any, options?: UseStateOptions, ...args: any[]): Promise<State | DynamoDBState>;
     _deleteState(key: any): Promise<void>;
 }
 export { DynamoDBState, DynamodbStore, LambdaBroker };
