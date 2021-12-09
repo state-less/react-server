@@ -367,5 +367,4 @@ Component.isServer = (socket) => {
 }
 Component.defaultCacheBehaviour = CacheBehaviour.CACHE_FIRST;
 
-const [foo, setFoo] = Component.useState(1,"asd");
 export {Component};
