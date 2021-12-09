@@ -1,57 +1,34 @@
 "use strict";
 
-const {
-  State,
-  Store,
-  Broker
-} = require('./');
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.LambdaBroker = exports.DynamodbStore = exports.DynamoDBState = void 0;
 
-const {
-  Atomic: AtomicState
-} = require('./Atomic');
+var _ = require("./");
 
-const {
-  compile
-} = require('@state-less/atomic/DynamoDB');
+var _Atomic = require("./Atomic");
 
-const {
-  broadcast,
-  emit
-} = require('./util');
+var _DynamoDB = require("@state-less/atomic/DynamoDB");
 
-const {
-  success
-} = require('../../lib/response-lib/websocket');
+var _util = require("./util");
 
-const {
-  put,
-  get,
-  update,
-  del,
-  query,
-  scan
-} = require('../../lib/dynamodb-lib');
+var _websocket = require("../../lib/response-lib/websocket");
 
-const logger = require('../../lib/logger');
+var _dynamodbLib = require("../../lib/dynamodb-lib");
 
-const {
-  Pinpoint
-} = require('aws-sdk');
+var _consts = require("../../consts");
 
-const {
-  v4
-} = require('uuid');
+var _logger = _interopRequireDefault(require("../../lib/logger"));
 
-const {
-  encryptValue
-} = require('../pipes/Crypt');
+var _interfaces = require("../../interfaces");
 
-const {
-  SERVER_ID
-} = require('../../consts');
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-class LambdaBroker extends Broker {
-  constructor(io, options = {}) {
+;
+
+class LambdaBroker extends _.Broker {
+  constructor(options = {}) {
     super(options);
     const {
       getScope = this.getScope
@@ -81,13 +58,13 @@ class LambdaBroker extends Broker {
       id,
       value
     };
-    const data = success(syncObject, {
+    const data = (0, _websocket.success)(syncObject, {
       action: 'setValue',
       requestId
     });
 
     try {
-      return await emit(connection, data);
+      return await (0, _util.emit)(connection, data);
       ;
     } catch (e) {
       await state.unsync(this, connection);
@@ -98,6 +75,7 @@ class LambdaBroker extends Broker {
 
 }
 
+exports.LambdaBroker = LambdaBroker;
 ;
 
 const copyStateVariables = ({
@@ -110,7 +88,7 @@ const copyStateVariables = ({
   id
 });
 
-class DynamoDBState extends AtomicState {
+class DynamoDBState extends _Atomic.AtomicState {
   constructor(def, options) {
     super(def, options);
     Object.freeze(this.value);
@@ -123,7 +101,7 @@ class DynamoDBState extends AtomicState {
       value,
       updateEquation
     } = this;
-    logger.info`Compiling expression ${value} ${nextValue}`;
+    _logger.default.info`Compiling expression ${value} ${nextValue}`;
     /**
      * Compiles an array of numbers to atomic update expressions.
      */
@@ -150,7 +128,7 @@ class DynamoDBState extends AtomicState {
   }
 
   compile(...trees) {
-    return compile(...trees);
+    return (0, _DynamoDB.compile)(...trees);
   }
 
   async setInternalValue(value) {
@@ -163,7 +141,7 @@ class DynamoDBState extends AtomicState {
         $$isArray: true
       };
       fakeArray.length = this.value.length;
-      await put({ ...this,
+      await (0, _dynamodbLib.put)({ ...this,
         value: fakeArray
       }, 'dev2-states');
       this.value = value;
@@ -175,16 +153,21 @@ class DynamoDBState extends AtomicState {
       const expr = this.compileExpression(value);
       const {
         key,
-        scope,
-        id
+        scope
       } = this;
 
       try {
-        const res = await update({
+        const res = await (0, _dynamodbLib.update)({
           key,
           scope
         }, expr, 'dev2-states');
-        this.value = res.Attributes.value;
+
+        if (typeof res.Attributes.value === 'object') {
+          /** Apply updated results partially (saves bandwidth) */
+          Object.assign(this.value, res.Attributes.value);
+        } else {
+          this.value = res.Attributes.value;
+        }
       } catch (e) {}
     } else {
       // const encrypted = JSON.stringify(encryptValue(value));
@@ -196,7 +179,7 @@ class DynamoDBState extends AtomicState {
       };
 
       try {
-        await put({
+        await (0, _dynamodbLib.put)({
           key,
           scope,
           id,
@@ -234,12 +217,12 @@ class DynamoDBState extends AtomicState {
     super.sync(broker, connectionInfo, requestId);
 
     try {
-      let res = await put({
+      let res = await (0, _dynamodbLib.put)({
         id: connectionInfo.id,
         key: `${scope}:${key}`,
         connectionInfo
       }, 'dev2-subscriptions');
-      res = await put({
+      res = await (0, _dynamodbLib.put)({
         id: `${scope}:${key}`,
         key: connectionInfo.id,
         connectionInfo
@@ -255,11 +238,11 @@ class DynamoDBState extends AtomicState {
     } = this;
 
     try {
-      let res = await del({
+      let res = await (0, _dynamodbLib.del)({
         id: connectionInfo.id,
         key: `${scope}:${key}`
       }, 'dev2-subscriptions');
-      res = await del({
+      res = await (0, _dynamodbLib.del)({
         key: connectionInfo.id,
         id: `${scope}:${key}`
       }, 'dev2-subscriptions');
@@ -273,7 +256,7 @@ class DynamoDBState extends AtomicState {
     let state;
 
     try {
-      state = await get({
+      state = await (0, _dynamodbLib.get)({
         key: this.key,
         scope: this.scope
       }, 'dev2-states');
@@ -308,13 +291,17 @@ class DynamoDBState extends AtomicState {
 
 }
 
+exports.DynamoDBState = DynamoDBState;
+
 DynamoDBState.sync = async (instance, broker, requestId) => {
   const {
     scope,
     key
   } = instance;
-  State.sync(instance);
-  const result = await query({
+
+  _.State.sync(instance);
+
+  const result = await (0, _dynamodbLib.query)({
     id: `${scope}:${key}`
   }, 'dev2-subscriptions');
 
@@ -339,10 +326,10 @@ DynamoDBState.sync = async (instance, broker, requestId) => {
   }
 };
 
-class DynamodbStore extends Store {
+class DynamodbStore extends _.Store {
   constructor(options = {}) {
     const {
-      key = SERVER_ID,
+      key = _consts.SERVER_ID,
       parent = null,
       autoCreate = false,
       onRequestState,
@@ -370,7 +357,7 @@ class DynamodbStore extends Store {
       return true;
     }
 
-    const state = await get({
+    const state = await (0, _dynamodbLib.get)({
       key: stateKey,
       scope: scope
     }, 'dev2-states');
@@ -414,7 +401,7 @@ class DynamodbStore extends Store {
         '#scope': 'scope'
       }
     };
-    const states = await scan(params);
+    const states = await (0, _dynamodbLib.scan)(params);
     return await Promise.all(states.Items.map(s => this.useState(stateKey, s.value, {
       scope: s.scope
     })));
@@ -433,7 +420,7 @@ class DynamodbStore extends Store {
         '#scope': 'scope'
       }
     };
-    const states = await scan(params);
+    const states = await (0, _dynamodbLib.scan)(params);
     console.log("SCAN RESULT", states);
     return states.Items;
 
@@ -449,9 +436,11 @@ class DynamodbStore extends Store {
     return new DynamodbStore(...args);
   }
 
-  async useState(key, def, options = {}, ...args) {
+  async useState(key, def, options = {
+    throwIfNotAvailable: false
+  }, ...args) {
     const {
-      cache = "CACHE_FIRST"
+      cache = _interfaces.CacheBehaviour.CACHE_FIRST
     } = options;
     this.validateUseStateArgs(key, def, options, ...args);
     const hasKey = await this.has(key, options.scope);
@@ -469,7 +458,7 @@ class DynamodbStore extends Store {
   }
 
   async _deleteState(key) {
-    await del({
+    await (0, _dynamodbLib.del)({
       key,
       scope: this.key
     }, 'dev2-states');
@@ -477,8 +466,4 @@ class DynamodbStore extends Store {
 
 }
 
-module.exports = {
-  DynamoDBState,
-  DynamodbStore,
-  LambdaBroker
-};
+exports.DynamodbStore = DynamodbStore;
