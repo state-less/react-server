@@ -5,7 +5,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.validateComponentArgs = exports.assertIsValid = void 0;
 
-const baseLogger = require('./lib/logger');
+const baseLogger = require('../lib/logger');
 
 const {
   DESC_MISSING_KEY
