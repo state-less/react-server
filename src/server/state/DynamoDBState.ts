@@ -1,5 +1,6 @@
+import { StateOptions, UseStateOptions } from '../../interfaces'
 import { State, Store, Broker } from './'
-import { Atomic, AtomicState } from './Atomic'
+import { Atomic as AtomicState } from './Atomic'
 import { compile } from '@state-less/atomic/DynamoDB'
 import { broadcast, emit } from './util'
 import { success } from '../../lib/response-lib/websocket'
@@ -13,13 +14,7 @@ interface LambdaBrokerOptions {
     getScope?: Function
 };
 
-interface UseStateOptions {
-    scope?: string;
-    cache?: CacheBehaviour
-    throwIfNotAvailable?: boolean;
-}
-
-interface DynamoDbStateOptions {
+interface DynamoDbStateOptions extends StateOptions {
     atomic?: string;
 }
 
@@ -29,7 +24,7 @@ interface DynamoDbStoreOptions {
     autoCreate?: boolean;
     onRequestState?: Function;
     StateConstructor?: Function;
-    TableName?:  string;
+    TableName?: string;
     broker?: Broker
 }
 
@@ -46,7 +41,8 @@ class LambdaBroker extends Broker {
     }
 
     //rename to publish
-    async sync(state, connection, requestId) {
+    async sync(state, connection, ...args) {
+        const [requestId] = args;
         if (connection.endpoint === 'localhost')
             return;
 
@@ -81,7 +77,6 @@ class DynamoDBState extends AtomicState {
     updateEquation: Function;
     emit: Function;
 
-    static sync:Function; 
 
     constructor(def, options) {
         super(def, options);
@@ -123,7 +118,8 @@ class DynamoDBState extends AtomicState {
         this.value = value;
     }
 
-    async setValue(value, initial) {
+    async setValue(value, ...args) {
+        const [initial] = args;
         if (Array.isArray(value) && initial) {
             const fakeArray = { ...this.value, $$isArray: true };
             fakeArray.length = this.value.length;
@@ -177,12 +173,14 @@ class DynamoDBState extends AtomicState {
 
     }
 
-    async publish(broker, connectionInfo, requestId) {
+    async publish(...args) {
         super.publish();
+        const [broker, connectionInfo, requestId] = args;
         return await DynamoDBState.sync(this, broker, requestId);
     }
 
-    async sync(broker, connectionInfo, requestId) {
+    async sync(broker, ...args) {
+        const [connectionInfo, requestId] = args;
         const { key, scope } = this;
         super.sync(broker, connectionInfo, requestId);
 
@@ -209,7 +207,7 @@ class DynamoDBState extends AtomicState {
 
     }
 
-    async getValue(key) {
+    async getValue(key?) {
         let state;
         try {
             state = await get({ key: this.key, scope: this.scope }, 'dev2-states');
@@ -251,24 +249,31 @@ DynamoDBState.sync = async (instance, broker, requestId) => {
     }
 };
 
+type StateCstr = typeof State;
+
 class DynamodbStore extends Store {
-    deleteState: Function;
-    createState: Function;
-    validateUseStateArgs: Function;
+    deleteState: (key: any) => void;
+    createState: (key: any, def: any, options?: any, ...args: any[]) => State;
+    validateUseStateArgs: (key: any, def: any, options?: UseStateOptions, ...args: any[]) => void;
     key: string;
-    autoCreate: boolean; 
+    autoCreate: boolean;
     throwIfNotAvailable: boolean;
-    throwNotAvailble: Function;
+    throwNotAvailble: (key: any) => void;
+    StateConstructor: StateCstr;
+    
 
     constructor(options: DynamoDbStoreOptions = {}) {
         const { key = SERVER_ID, parent = null, autoCreate = false, onRequestState, StateConstructor = DynamoDBState, TableName, broker } = options;
-        super({ key, parent, autoCreate, onRequestState, StateConstructor, broker })
+
+        const stateCstr: any = StateConstructor;
+        super({ key, parent, autoCreate, onRequestState, StateConstructor: stateCstr, broker })
         Object.assign(this, { TableName })
         this.useState = this.useState.bind(this);
         this.deleteState = this._deleteState.bind(this);
     }
 
     async has(stateKey, scope = "base") {
+        //???
         if (super.has(stateKey)) {
             return true;
         }
@@ -278,7 +283,8 @@ class DynamodbStore extends Store {
         return hasState;
     }
 
-    async get(key, def, options, ...args) {
+    async get(key, ...args) {
+        const [def, options] = args;
         const { cache = "CACHE_FIRST" } = options;
 
         if (super.has(key)) {
@@ -286,7 +292,7 @@ class DynamodbStore extends Store {
             if (cache !== 'NETWORK_FIRST') {
                 return state;
             } else {
-                await state.getValue();
+                (await state).getValue();
                 return state;
             }
         }
@@ -347,7 +353,7 @@ class DynamodbStore extends Store {
         return new DynamodbStore(...args);
     }
 
-    async useState(key, def, options : UseStateOptions = { throwIfNotAvailable: false}, ...args) {
+    async useState(key, def, options: UseStateOptions = { throwIfNotAvailable: false }, ...args) {
         const { cache = CacheBehaviour.CACHE_FIRST } = options;
         this.validateUseStateArgs(key, def, options, ...args);
         const hasKey = await this.has(key, options.scope);
@@ -358,7 +364,7 @@ class DynamodbStore extends Store {
 
         if (this.autoCreate) {
             const state = this.createState(key, def, options, ...args);
-            await state.setValue(def, true);
+            await state.setValue(def);
             return state;
         }
 

@@ -1,3 +1,4 @@
+import { Broker } from "../server/state";
 export declare enum CacheBehaviour {
     CACHE_FIRST = "CACHE_FIRST",
     NETWORK_FIRST = "NETWORK_FIRST"
@@ -25,5 +26,16 @@ export interface Lifecycle {
     useClientState(defaultValue: any, key: string, options: object): any;
     setTimeout(callback: Function): any;
     destroy(): void;
+}
+export interface UseStateOptions {
+    cache?: CacheBehaviour;
+    throwIfNotAvailable?: boolean;
+    scope?: string;
+}
+export interface StateOptions {
+    syncInitialState?: boolean;
+    args?: any[];
+    broker?: Broker;
+    scope?: string;
 }
 export {};

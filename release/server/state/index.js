@@ -1,32 +1,35 @@
 "use strict";
 
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.Broker = exports.Store = exports.SocketIOBroker = exports.State = void 0;
+
+var _uuid = require("uuid");
+
+var _eventEmitter = _interopRequireDefault(require("event-emitter"));
+
+var _consts = require("../../consts");
+
+var _logger = _interopRequireDefault(require("../../lib/logger"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
-const {
-  v4: uuidv4
-} = require("uuid");
-
-const ee = require('event-emitter');
-
-const {
-  EVENT_STATE_ERROR,
-  EVENT_STATE_USE,
-  EVENT_STATE_SET,
-  EVENT_STATE_PERMIT,
-  EVENT_STATE_CREATE,
-  EVENT_STATE_REQUEST,
-  EVENT_SCOPE_CREATE,
-  EVENT_STATE_DECLINE,
-  SERVER_ID
-} = require('../../consts');
-
-const logger = require('../../lib/logger');
 
 const isFunction = fn => 'function' === typeof fn;
 
-class Broker {}
+class Broker {
+  constructor(options) {
+    this.options = options;
+  }
 
-ee(Broker.prototype);
+  sync(state, client) {}
+
+}
+
+exports.Broker = Broker;
+(0, _eventEmitter.default)(Broker.prototype);
 
 class SocketIOBroker extends Broker {
   constructor(io, options = {}) {
@@ -47,7 +50,7 @@ class SocketIOBroker extends Broker {
   }
 
   emitError(socket, options, message) {
-    socket.emit(EVENT_STATE_ERROR + ':' + options.clientId, {
+    socket.emit(_consts.EVENT_STATE_ERROR + ':' + options.clientId, {
       error: message,
       ...options
     });
@@ -62,14 +65,14 @@ class SocketIOBroker extends Broker {
       id,
       value
     } = state;
-    socket.emit(EVENT_STATE_CREATE + ':' + options.clientId, {
+    socket.emit(_consts.EVENT_STATE_CREATE + ':' + options.clientId, {
       id,
       value,
       ...options
     });
   }
 
-  sync(state, socket) {
+  sync(state, socket, ...args) {
     const {
       id,
       value,
@@ -81,16 +84,18 @@ class SocketIOBroker extends Broker {
     } = error || {};
     const syncObject = {
       id,
-      value
+      value,
+      error: error ? {
+        message,
+        stack
+      } : null
     };
-    syncObject.error = error ? {
-      message,
-      stack
-    } : null;
-    socket.emit(EVENT_STATE_SET + ':' + id, syncObject);
+    socket.emit(_consts.EVENT_STATE_SET + ':' + id, syncObject);
   }
 
 }
+
+exports.SocketIOBroker = SocketIOBroker;
 
 class Store {
   constructor(_options = {}) {
@@ -115,7 +120,7 @@ class Store {
       } = this;
       const state = new StateConstructor(def, { ...options,
         broker: this.broker
-      }, ...args);
+      });
       const {
         scope = this.key
       } = options;
@@ -135,16 +140,14 @@ class Store {
 
       /** The states scope should be the key of the store it was created in */
 
-      console.l;
       state.scope = this.key;
       state.options = options;
       state.args = args;
       this.map.set(key, state);
       let parent = this;
-      ;
 
       do {
-        parent.emit(EVENT_STATE_CREATE, this, state, key, ...args);
+        parent.emit(_consts.EVENT_STATE_CREATE, this, state, key, ...args);
       } while (parent = parent.parent);
 
       return state;
@@ -157,7 +160,7 @@ class Store {
     _defineProperty(this, "onRequestState", (key, options, ...args) => false);
 
     _defineProperty(this, "requestState", (key, options, ...args) => {
-      this.emit(EVENT_STATE_REQUEST, key, options, ...args); //Deny all state requests by default
+      this.emit(_consts.EVENT_STATE_REQUEST, key, options, ...args); //Deny all state requests by default
 
       let permitted = Store.STATE_PERMIT_DEFAULT;
 
@@ -166,9 +169,9 @@ class Store {
       }
 
       if (permitted) {
-        this.emit(EVENT_STATE_PERMIT, key, options, ...args);
+        this.emit(_consts.EVENT_STATE_PERMIT, key, options, ...args);
       } else {
-        this.emit(EVENT_STATE_DECLINE, key, options, ...args);
+        this.emit(_consts.EVENT_STATE_DECLINE, key, options, ...args);
       }
 
       return permitted;
@@ -194,7 +197,7 @@ class Store {
     });
 
     const {
-      key: _key = SERVER_ID,
+      key: _key = _consts.SERVER_ID,
       parent: _parent = null,
       autoCreate = false,
       onRequestState,
@@ -215,12 +218,12 @@ class Store {
     this.useState = this.useState.bind(this);
   }
 
-  has(...args) {
-    return this.map.has(...args);
+  has(key) {
+    return this.map.has(key);
   }
 
-  get(...args) {
-    return this.map.get(...args);
+  get(key) {
+    return this.map.get(key);
   }
 
   clone(...args) {
@@ -263,15 +266,15 @@ class Store {
         onRequestState
       } = this;
       const store = this.clone({ ...rest,
-        autoCreate: true,
+        autoCreate,
         onRequestState,
         StateConstructor,
         key: `${this.key}.${key[0]}`,
         parent: this
       });
-      this.scopes.set(key, store);
+      this.scopes.set(key[0], store);
       store.actions = this.actions;
-      this.emit(EVENT_SCOPE_CREATE, store, key, ...args);
+      this.emit(_consts.EVENT_SCOPE_CREATE, store, key, ...args);
       return store.scope(key.slice(1));
     }
 
@@ -288,14 +291,14 @@ class Store {
     });
     this.scopes.set(key, store);
     store.actions = this.actions;
-    this.emit(EVENT_SCOPE_CREATE, store, key, ...args);
+    this.emit(_consts.EVENT_SCOPE_CREATE, store, key, ...args);
     return store;
   }
 
   path(...keys) {}
 
   validateUseStateArgs(key, def, options = {}, ...args) {
-    this.emit(EVENT_STATE_USE, key, def, ...args); // const {scope, ...rest} = options;
+    this.emit(_consts.EVENT_STATE_USE, key, def, ...args); // const {scope, ...rest} = options;
 
     if (typeof key !== 'string') {}
 
@@ -324,14 +327,11 @@ class Store {
 
 }
 
+exports.Store = Store;
 Store.STATE_PERMIT_DEFAULT = false;
-ee(Store.prototype);
+(0, _eventEmitter.default)(Store.prototype);
 
 class State {
-  static genId() {
-    return uuidv4();
-  }
-
   constructor(defaultValue, options = {}) {
     _defineProperty(this, "setError", error => {
       this.error = error;
@@ -355,7 +355,7 @@ class State {
       ...rest
     };
     Object.assign(this, instanceVariables);
-    if (syncInitialState) this.setValue(defaultValue, true); // setImmediate(() => {
+    if (syncInitialState) this.setValue(defaultValue); // setImmediate(() => {
     // })
 
     this.setValue = this.setValue.bind(this);
@@ -364,7 +364,7 @@ class State {
   setValue(value) {
     this.value = value;
     this.emit('setValue', value);
-    return this.constructor.sync(this);
+    return State.sync(this);
   }
 
   getValue() {
@@ -392,7 +392,13 @@ class State {
 
 }
 
-ee(State.prototype);
+exports.State = State;
+
+State.genId = () => {
+  return (0, _uuid.v4)();
+};
+
+(0, _eventEmitter.default)(State.prototype);
 
 State.sync = instance => {
   instance.brokers.forEach((entry, i) => {
@@ -401,15 +407,9 @@ State.sync = instance => {
     if (typeof broker === 'function') {
       broker(instance, ...args);
     } else if (broker instanceof Broker) {
-      broker.sync(instance, ...args);
+      broker.sync(instance, args[0]);
     }
   });
 };
 
-logger.setState(State);
-module.exports = {
-  State,
-  SocketIOBroker,
-  Store,
-  Broker
-};
+_logger.default.setState(State);

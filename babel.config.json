@@ -1,6 +1,13 @@
 {
     "plugins": [
       [
+        "@babel/plugin-transform-typescript",
+        {
+          "isTSX": true,
+          "allExtensions": true
+        }
+      ],
+      [
         "@babel/plugin-transform-react-jsx",
         {
           "throwIfNamespace": false, // defaults to true
@@ -8,12 +15,7 @@
           "importSource": "./jsx-renderer" // defaults to react
         }
       ],
-      [
-        "@babel/plugin-transform-typescript",
-        {
-          "isTSX": true
-        }
-      ],
+
       [
         "@babel/plugin-proposal-class-properties"
       ],

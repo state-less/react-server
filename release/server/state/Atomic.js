@@ -7,18 +7,16 @@ exports.Atomic = void 0;
 
 var _atomic = require("@state-less/atomic");
 
-var _ = require("./");
+var _index = require("./index");
 
-class Atomic extends _.State {
+class Atomic extends _index.State {
   constructor(defaultValue, options = {}) {
     const {
       key,
       atomic,
       ...rest
     } = options;
-    super(defaultValue, {
-      key,
-      ...rest
+    super(defaultValue, { ...rest
     });
 
     if (atomic) {
@@ -32,7 +30,6 @@ class Atomic extends _.State {
 
   compileExpression(nextValue, sub) {
     const {
-      key,
       value,
       updateEquation
     } = this;

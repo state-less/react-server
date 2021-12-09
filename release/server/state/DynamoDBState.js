@@ -46,7 +46,8 @@ class LambdaBroker extends _.Broker {
   } //rename to publish
 
 
-  async sync(state, connection, requestId) {
+  async sync(state, connection, ...args) {
+    const [requestId] = args;
     if (connection.endpoint === 'localhost') return;
     const {
       id,
@@ -88,7 +89,7 @@ const copyStateVariables = ({
   id
 });
 
-class DynamoDBState extends _Atomic.AtomicState {
+class DynamoDBState extends _Atomic.Atomic {
   constructor(def, options) {
     super(def, options);
     Object.freeze(this.value);
@@ -135,7 +136,9 @@ class DynamoDBState extends _Atomic.AtomicState {
     this.value = value;
   }
 
-  async setValue(value, initial) {
+  async setValue(value, ...args) {
+    const [initial] = args;
+
     if (Array.isArray(value) && initial) {
       const fakeArray = { ...this.value,
         $$isArray: true
@@ -204,12 +207,14 @@ class DynamoDBState extends _Atomic.AtomicState {
     }, 10);
   }
 
-  async publish(broker, connectionInfo, requestId) {
+  async publish(...args) {
     super.publish();
+    const [broker, connectionInfo, requestId] = args;
     return await DynamoDBState.sync(this, broker, requestId);
   }
 
-  async sync(broker, connectionInfo, requestId) {
+  async sync(broker, ...args) {
+    const [connectionInfo, requestId] = args;
     const {
       key,
       scope
@@ -337,12 +342,13 @@ class DynamodbStore extends _.Store {
       TableName,
       broker
     } = options;
+    const stateCstr = StateConstructor;
     super({
       key,
       parent,
       autoCreate,
       onRequestState,
-      StateConstructor,
+      StateConstructor: stateCstr,
       broker
     });
     Object.assign(this, {
@@ -353,6 +359,7 @@ class DynamodbStore extends _.Store {
   }
 
   async has(stateKey, scope = "base") {
+    //???
     if (super.has(stateKey)) {
       return true;
     }
@@ -365,7 +372,8 @@ class DynamodbStore extends _.Store {
     return hasState;
   }
 
-  async get(key, def, options, ...args) {
+  async get(key, ...args) {
+    const [def, options] = args;
     const {
       cache = "CACHE_FIRST"
     } = options;
@@ -376,7 +384,7 @@ class DynamodbStore extends _.Store {
       if (cache !== 'NETWORK_FIRST') {
         return state;
       } else {
-        await state.getValue();
+        (await state).getValue();
         return state;
       }
     }
@@ -448,7 +456,7 @@ class DynamodbStore extends _.Store {
 
     if (this.autoCreate) {
       const state = this.createState(key, def, options, ...args);
-      await state.setValue(def, true);
+      await state.setValue(def);
       return state;
     }
 
