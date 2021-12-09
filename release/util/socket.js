@@ -5,6 +5,8 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.validateSecWebSocketKey = exports.getSecWebSocketKey = void 0;
 
+var _ = require(".");
+
 /**
  * Interface to retrieve the sec-websocket-key in case the implementation might change
  * @param {*} req - Websocket request
@@ -22,7 +24,7 @@ const getSecWebSocketKey = req => req.headers['sec-websocket-key'];
 exports.getSecWebSocketKey = getSecWebSocketKey;
 
 const validateSecWebSocketKey = req => {
-  assertIsValid(getSecWebSocketKey(req), 'Invalid websocket connection.');
+  (0, _.assertIsValid)(getSecWebSocketKey(req), 'Invalid websocket connection.');
 };
 
 exports.validateSecWebSocketKey = validateSecWebSocketKey;

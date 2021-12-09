@@ -1,3 +1,5 @@
+import { assertIsValid } from "."
+
 /**
  * Interface to retrieve the sec-websocket-key in case the implementation might change
  * @param {*} req - Websocket request

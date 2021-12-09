@@ -1,5 +1,10 @@
 "use strict";
 
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.validateComponentArgs = exports.assertIsValid = void 0;
+
 const baseLogger = require('./lib/logger');
 
 const {
@@ -12,6 +17,8 @@ const assertIsValid = (isValid, message) => {
   if (!isValid) throw new Error(message);
 };
 
+exports.assertIsValid = assertIsValid;
+
 const validateComponentArgs = (props, key, options, socket) => {
   if (!key) {
     logger.warning`Error validating component args. ${DESC_MISSING_KEY}`;
@@ -21,7 +28,4 @@ const validateComponentArgs = (props, key, options, socket) => {
   return true;
 };
 
-module.exports = {
-  assertIsValid,
-  validateComponentArgs
-};
+exports.validateComponentArgs = validateComponentArgs;
