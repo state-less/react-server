@@ -3,18 +3,29 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.ACTION_USE_STATE = exports.ACTION_CALL = exports.ACTION_AUTH = exports.ACTION_STREAM = exports.ACTION_RENDER = void 0;
+exports.DESC_MISSING_KEY = exports.ERR_MISSING_KEY = exports.SCOPE_COMPONENT = exports.SCOPE_SERVER = exports.SCOPE_CLIENT = exports.ACTION_USE_STATE = exports.ACTION_CALL = exports.ACTION_AUTH = exports.ACTION_STREAM = exports.ACTION_RENDER = exports.SERVER_ID = exports.NETWORK_FIRST = exports.CACHE_FIRST = exports.EVENT_SCOPE_CREATE = exports.EVENT_STATE_ERROR = exports.EVENT_STATE_REQUEST = exports.EVENT_STATE_CREATE = exports.EVENT_STATE_SET = exports.EVENT_STATE_DECLINE = exports.EVENT_STATE_PERMIT = exports.EVENT_STATE_USE = void 0;
 const EVENT_STATE_USE = 'useState';
+exports.EVENT_STATE_USE = EVENT_STATE_USE;
 const EVENT_STATE_PERMIT = 'permitState';
+exports.EVENT_STATE_PERMIT = EVENT_STATE_PERMIT;
 const EVENT_STATE_DECLINE = 'declineState';
+exports.EVENT_STATE_DECLINE = EVENT_STATE_DECLINE;
 const EVENT_STATE_SET = 'setState';
+exports.EVENT_STATE_SET = EVENT_STATE_SET;
 const EVENT_STATE_CREATE = 'createState';
+exports.EVENT_STATE_CREATE = EVENT_STATE_CREATE;
 const EVENT_STATE_REQUEST = 'requestState';
+exports.EVENT_STATE_REQUEST = EVENT_STATE_REQUEST;
 const EVENT_STATE_ERROR = 'error';
+exports.EVENT_STATE_ERROR = EVENT_STATE_ERROR;
 const EVENT_SCOPE_CREATE = 'createScope';
+exports.EVENT_SCOPE_CREATE = EVENT_SCOPE_CREATE;
 const CACHE_FIRST = 'CACHE_FIRST';
+exports.CACHE_FIRST = CACHE_FIRST;
 const NETWORK_FIRST = 'NETWORK_FIRST';
+exports.NETWORK_FIRST = NETWORK_FIRST;
 const SERVER_ID = 'server';
+exports.SERVER_ID = SERVER_ID;
 const ACTION_RENDER = 'render';
 exports.ACTION_RENDER = ACTION_RENDER;
 const ACTION_STREAM = 'stream';
@@ -26,25 +37,12 @@ exports.ACTION_CALL = ACTION_CALL;
 const ACTION_USE_STATE = 'useState';
 exports.ACTION_USE_STATE = ACTION_USE_STATE;
 const SCOPE_CLIENT = '$client';
+exports.SCOPE_CLIENT = SCOPE_CLIENT;
 const SCOPE_SERVER = '$server';
+exports.SCOPE_SERVER = SCOPE_SERVER;
 const SCOPE_COMPONENT = '$component';
+exports.SCOPE_COMPONENT = SCOPE_COMPONENT;
 const ERR_MISSING_KEY = `Missing property 'key' in component props.`;
+exports.ERR_MISSING_KEY = ERR_MISSING_KEY;
 const DESC_MISSING_KEY = `A key is required to be able to map the client component to a Server component.`;
-module.exports = {
-  EVENT_STATE_ERROR,
-  EVENT_STATE_DECLINE,
-  EVENT_STATE_PERMIT,
-  EVENT_STATE_SET,
-  EVENT_STATE_USE,
-  EVENT_STATE_CREATE,
-  EVENT_STATE_REQUEST,
-  EVENT_SCOPE_CREATE,
-  CACHE_FIRST,
-  NETWORK_FIRST,
-  SERVER_ID,
-  SCOPE_CLIENT,
-  SCOPE_SERVER,
-  SCOPE_COMPONENT,
-  ERR_MISSING_KEY,
-  DESC_MISSING_KEY
-};
+exports.DESC_MISSING_KEY = DESC_MISSING_KEY;
