@@ -9,7 +9,7 @@ const baseLogger = require('../lib/logger');
 
 const {
   DESC_MISSING_KEY
-} = require("./consts");
+} = require("../consts");
 
 const logger = baseLogger.scope('util');
 
