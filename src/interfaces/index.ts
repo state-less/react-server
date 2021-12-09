@@ -7,6 +7,8 @@ type RecursiveMap = Map<string, RecursiveMap>;
 
 type Component = () => any;
 
+export type SetValueFunction = (value: any) => void;
+
 export interface Lifecycle{
     (fn, baseStore): any
     rendered: Map<string, object>,
@@ -14,8 +16,15 @@ export interface Lifecycle{
     isServer(socket: any): boolean,
     instances: any,
     defaultCacheBehaviour: CacheBehaviour,
-    useState(defaultValue: any, key: string, options: object)
-    useEffect(callback: Function)
+    /**
+     * 
+     * @param defaultValue - default value for the state
+     * @param key - the key of the state.
+     * @param options - options that are passed to useState
+     * @returns - Array of value and setter function.
+     */
+    useState <T extends any>(defaultValue: T, key: string, options?: object): [T, (value: T) => void] 
+    useEffect(callback: Function, changedVariables: any[]): void
     useClientEffect(callback: Function)
     useFunction(callback: Function)
     useClientState(defaultValue: any, key: string, options: object)

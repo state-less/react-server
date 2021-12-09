@@ -13,6 +13,8 @@ var strategies = _interopRequireWildcard(require("../strategies"));
 
 var _socket2 = require("../actions/socket");
 
+var _socket3 = require("../factories/socket");
+
 function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
@@ -214,7 +216,7 @@ const handleRender = (wss, secret, streams, store) => {
               key
             })));
           } catch (e) {
-            socket.send(failure(ErrorMessage(e), RenderErrorAction()));
+            socket.send(failure((0, _socket3.ErrorMessage)(e), RenderErrorAction()));
           }
         }
 
@@ -428,7 +430,7 @@ const handleRender = (wss, secret, streams, store) => {
 
       socket.on('message', onMessage);
     } catch (e) {
-      socket.send(failure(ErrorMessage(e), (0, _socket2.SocketErrorAction)()));
+      socket.send(failure((0, _socket3.ErrorMessage)(e), (0, _socket2.SocketErrorAction)()));
     }
   });
 };

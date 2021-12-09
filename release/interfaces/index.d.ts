@@ -3,6 +3,7 @@ export declare enum CacheBehaviour {
     NETWORK_FIRST = "NETWORK_FIRST"
 }
 declare type RecursiveMap = Map<string, RecursiveMap>;
+export declare type SetValueFunction = (value: any) => void;
 export interface Lifecycle {
     (fn: any, baseStore: any): any;
     rendered: Map<string, object>;
@@ -10,8 +11,15 @@ export interface Lifecycle {
     isServer(socket: any): boolean;
     instances: any;
     defaultCacheBehaviour: CacheBehaviour;
-    useState(defaultValue: any, key: string, options: object): any;
-    useEffect(callback: Function): any;
+    /**
+     *
+     * @param defaultValue - default value for the state
+     * @param key - the key of the state.
+     * @param options - options that are passed to useState
+     * @returns - Array of value and setter function.
+     */
+    useState<T extends any>(defaultValue: T, key: string, options?: object): [T, (value: T) => void];
+    useEffect(callback: Function, changedVariables: any[]): void;
     useClientEffect(callback: Function): any;
     useFunction(callback: Function): any;
     useClientState(defaultValue: any, key: string, options: object): any;

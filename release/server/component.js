@@ -429,3 +429,4 @@ Component.isServer = socket => {
 };
 
 Component.defaultCacheBehaviour = _interfaces.CacheBehaviour.CACHE_FIRST;
+const [foo, setFoo] = Component.useState(1, "asd");

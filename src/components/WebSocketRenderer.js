@@ -20,7 +20,7 @@ import { getSecWebSocketKey, validateSecWebSocketKey } from '../util/socket';
 
 import * as strategies from '../strategies';
 import { RenderAction, SocketErrorAction } from '../actions/socket';
-
+import { ErrorMessage } from '../factories/socket'
 
 /**
  * An object containing the active connections to the server.
