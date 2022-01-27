@@ -168,7 +168,7 @@ const handleRender = (wss, secret, streams, store) => {
                                     phase: 'response',
                                     routeKey: 'auth',
                                     type: 'response',
-                                    address,
+                                    address: token.address,
                                     id
                                 }));
                             } catch (e) {
