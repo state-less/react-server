@@ -1,5 +1,6 @@
+import fetch from 'isomorphic-fetch';
 const jwt = require('jsonwebtoken');
-const fetch = require('isomorphic-fetch');
+
 var jwkToPem = require("jwk-to-pem")
 
 var jwk = {
@@ -27,7 +28,7 @@ var jwk = {
   export const recover = async (challenge, response) => {
     const jwk = await fetch('https://www.googleapis.com/oauth2/v3/certs');
     const json = await jwk.json();
-    const pem = jwkToPem(json.keys[0]);
+    const pem = jwkToPem(json.keys[1]);
     console.log ("Verifiying", response, pem);
     const token = jwt.verify(response, pem);
     return token

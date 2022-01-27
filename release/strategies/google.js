@@ -5,9 +5,11 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.recover = void 0;
 
-const jwt = require('jsonwebtoken');
+var _isomorphicFetch = _interopRequireDefault(require("isomorphic-fetch"));
 
-const fetch = require('isomorphic-fetch');
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+const jwt = require('jsonwebtoken');
 
 var jwkToPem = require("jwk-to-pem");
 
@@ -30,9 +32,9 @@ var jwk = {
 };
 
 const recover = async (challenge, response) => {
-  const jwk = await fetch('https://www.googleapis.com/oauth2/v3/certs');
+  const jwk = await (0, _isomorphicFetch.default)('https://www.googleapis.com/oauth2/v3/certs');
   const json = await jwk.json();
-  const pem = jwkToPem(json.keys[0]);
+  const pem = jwkToPem(json.keys[1]);
   console.log("Verifiying", response, pem);
   const token = jwt.verify(response, pem);
   return token;
