@@ -26,9 +26,11 @@ var jwk = {
     "n": "xWDJBwwxLU8KU0w2bqiiXPPrOA7ffmF7g78O_D6LOv80bzeRyyX3zjzIcOI0tLZfFEfFO8CvpzTzB1h5bNinDA4MX9PFMyNBjc7Q4h7QStYZoORY6Kac314IQkwfVM3u4hbIpVvVgmapYESGpPfKh_SPr8tRvarDoEnXG6a501Ni8PfZg44aCbe0kJygl4YZjvLABEkH19HxPiXojxJEWee1lToyDJfM8tZqNTal5u3F8Mk37RhkMWMM1gypvl22t6MDUEOmqp5StwWWgo7KDJ17nDXsM6TQ10rxofkQm5I2swvfosr4Qr3GoUCrE1zXnPwNZJ_P-sQziOFRd36eZw=="
   }]
 };
-const pem = jwkToPem(jwk.keys[0]);
 
-const recover = (challenge, response) => {
+const recover = async (challenge, response) => {
+  const jwk = await fetch('https://www.googleapis.com/oauth2/v3/certs');
+  const json = await jwk.json();
+  const pem = jwkToPem(json.keys[0]);
   console.log("Verifiying", response, pem);
   const token = jwt.verify(response, pem);
   return token;

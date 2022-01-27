@@ -158,73 +158,86 @@ const handleRender = (wss, secret, streams, store) => {
 
                 if (action === ACTION_AUTH) {
                     const { id, phase } = json;
-                    if (phase === 'challenge') {
-                        if (headers?.Authorization) {
-                            let token;
-                            try {
-                                token = jwt.verify(headers.Authorization.split(' ')[1], secret);
+                    try {
+
+
+                        if (phase === 'challenge') {
+                            if (headers?.Authorization) {
+                                let token;
+                                try {
+                                    token = jwt.verify(headers.Authorization.split(' ')[1], secret);
+                                    socket.send(success(token, {
+                                        action: 'auth',
+                                        phase: 'response',
+                                        routeKey: 'auth',
+                                        type: 'response',
+                                        address: token.address,
+                                        id
+                                    }));
+                                } catch (e) {
+                                    console.log("Error e", e);
+                                    socket.send(success(token, {
+                                        action: 'invalidate',
+                                        phase: 'response',
+                                        routeKey: 'auth',
+                                        type: 'response',
+                                        id
+                                    }));
+                                }
+                            } else {
+                                crypto.randomBytes(8, function (err, buffer) {
+                                    const token = buffer.toString('hex');
+                                    challenge = `Please sign this message to prove your identity: ${token}`
+                                    socket.send(success(challenge, {
+                                        action: 'auth',
+                                        phase: 'challenge',
+                                        routeKey: 'auth',
+                                        type: 'response',
+                                        id
+                                    }));
+                                });
+                            }
+
+                        }
+                        if (phase === 'response') {
+                            const { challenge, response, strategy } = json;
+
+                            if (!strategy || !strategies[strategy]) {
+                                socket.send(failure({ message: 'Invalid strategy: "' + strategy + '"' }, {
+                                    action: 'invalidate',
+                                    routeKey: 'auth',
+                                    phase: 'response',
+                                    type: 'error',
+                                    id
+                                }));
+                            } else {
+
+                                const strat = strategies[strategy]
+                                const address = await strat.recover(challenge, response)
+                                const token = jwt.sign({
+                                    exp: Math.floor(Date.now() / 1000) + (60 * 60),
+                                    iat: Date.now() / 1000,
+                                    address
+                                }, secret);
+
                                 socket.send(success(token, {
                                     action: 'auth',
                                     phase: 'response',
                                     routeKey: 'auth',
                                     type: 'response',
-                                    address: token.address,
-                                    id
-                                }));
-                            } catch (e) {
-                                console.log("Error e", e);
-                                socket.send(success(token, {
-                                    action: 'invalidate',
-                                    phase: 'response',
-                                    routeKey: 'auth',
-                                    type: 'response',
+                                    address,
                                     id
                                 }));
                             }
-                        } else {
-                            crypto.randomBytes(8, function (err, buffer) {
-                                const token = buffer.toString('hex');
-                                challenge = `Please sign this message to prove your identity: ${token}`
-                                socket.send(success(challenge, {
-                                    action: 'auth',
-                                    phase: 'challenge',
-                                    routeKey: 'auth',
-                                    type: 'response',
-                                    id
-                                }));
-                            });
                         }
-                    }
-                    if (phase === 'response') {
-                        const { challenge, response, strategy } = json;
-
-                        if (!strategy || !strategies[strategy]) {
-                            socket.send(failure({ message: 'Invalid strategy: "' + strategy + '"' }, {
-                                action: 'invalidate',
-                                routeKey: 'auth',
-                                phase: 'response',
-                                type: 'error',
-                                id
-                            }));
-                        } else {
-
-                            const strat = strategies[strategy]
-                            const address = strat.recover(challenge, response)
-                            const token = jwt.sign({
-                                exp: Math.floor(Date.now() / 1000) + (60 * 60),
-                                iat: Date.now() / 1000,
-                                address
-                            }, secret);
-
-                            socket.send(success(token, {
-                                action: 'auth',
-                                phase: 'response',
-                                routeKey: 'auth',
-                                type: 'response',
-                                address,
-                                id
-                            }));
-                        }
+                    } catch (e) {
+                        const { message, stack } = e;
+                        socket.send(failure({ message, stack }, {
+                            action: 'call',
+                            routeKey: 'call',
+                            type: 'error',
+                            id
+                        }));
                     }
                 }
 

@@ -22,9 +22,11 @@ var jwk = {
     ]
   }
 
-const pem = jwkToPem(jwk.keys[0]);
-
-export const recover = (challenge, response) => {
+  
+  export const recover = async (challenge, response) => {
+    const jwk = await fetch('https://www.googleapis.com/oauth2/v3/certs');
+    const json = await jwk.json();
+    const pem = jwkToPem(json.keys[0]);
     console.log ("Verifiying", response, pem);
     const token = jwt.verify(response, pem);
     return token
