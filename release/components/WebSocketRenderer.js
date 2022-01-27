@@ -216,7 +216,7 @@ const handleRender = (wss, secret, streams, store) => {
               key
             })));
           } catch (e) {
-            socket.send(failure((0, _socket3.ErrorMessage)(e), RenderErrorAction()));
+            socket.send(failure((0, _socket3.ErrorMessage)(e), (0, _socket2.RenderErrorAction)()));
           }
         }
 
