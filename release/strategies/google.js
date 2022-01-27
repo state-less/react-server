@@ -7,6 +7,8 @@ exports.recover = void 0;
 
 const jwt = require('jsonwebtoken');
 
+const fetch = require('isomorphic-fetch');
+
 var jwkToPem = require("jwk-to-pem");
 
 var jwk = {
