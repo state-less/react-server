@@ -230,8 +230,7 @@ const handleRender = ({server, secret, streams, store, authFactors}) => {
                                     currentFactor++
                                     crypto.randomBytes(8, function (err, buffer) {
                                         const token = buffer.toString('hex');
-                                        challenge = `Please sign this message to prove your identity: ${token}`
-                                        socket.send(success(challenge, {
+                                        socket.send(success(`Please sign this message to prove your identity: ${token}`, {
                                             action: 'auth',
                                             phase: 'challenge',
                                             routeKey: 'auth',
