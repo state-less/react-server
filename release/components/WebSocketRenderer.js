@@ -97,13 +97,24 @@ const WebSocketRenderer = async props => {
   const {
     children,
     store,
-    secret
+    secret,
+    authFactors
   } = props;
   const server = WebSocketServer(props);
-  handleRender(server, secret, null, store);
+  handleRender({
+    server,
+    secret,
+    streams: null,
+    store,
+    authFactors
+  });
   return {
     server,
-    handler: (...args) => handleRender(server, secret, ...args)
+    handler: (...args) => handleRender({
+      server,
+      secret,
+      ...args
+    })
   };
 };
 
@@ -164,10 +175,21 @@ const emit = (socket, data) => {
 
 const componentCache = {};
 
-const handleRender = (wss, secret, streams, store) => {
+const handleRender = ({
+  server,
+  secret,
+  streams,
+  store,
+  authFactors
+}) => {
   wss.on('connection', (socket, req) => {
     try {
-      let challenge;
+      let challenge,
+          solvedFactors = authFactors.reduce((lkp, cur) => ({ ...lkp,
+        [cur]: false
+      }), {}),
+          currentFactor = 0,
+          identities = {};
       (0, _socket.validateSecWebSocketKey)(req);
       const clientId = (0, _socket.getSecWebSocketKey)(req);
       const connectionInfo = {
@@ -240,7 +262,8 @@ const handleRender = (wss, secret, streams, store) => {
         if (action === ACTION_AUTH) {
           const {
             id,
-            phase
+            phase,
+            strategy
           } = json;
 
           try {
@@ -277,6 +300,7 @@ const handleRender = (wss, secret, streams, store) => {
                     phase: 'challenge',
                     routeKey: 'auth',
                     type: 'response',
+                    strategy: authFactors[currentFactor],
                     id
                   }));
                 });
@@ -303,19 +327,39 @@ const handleRender = (wss, secret, streams, store) => {
               } else {
                 const strat = strategies[strategy];
                 const address = await strat.recover(challenge, response);
+                identities[strategy] = address;
                 const token = jwt.sign({
                   exp: Math.floor(Date.now() / 1000) + 60 * 60,
                   iat: Date.now() / 1000,
-                  address
-                }, secret);
-                socket.send(success(token, {
-                  action: 'auth',
-                  phase: 'response',
-                  routeKey: 'auth',
-                  type: 'response',
                   address,
-                  id
-                }));
+                  ...identities
+                }, secret);
+                solvedFactors[strategy] = true;
+
+                if (!Object.values(solvedFactors).reduce((a, b) => a && b)) {
+                  currentFactor++;
+                  crypto.randomBytes(8, function (err, buffer) {
+                    const token = buffer.toString('hex');
+                    challenge = `Please sign this message to prove your identity: ${token}`;
+                    socket.send(success(challenge, {
+                      action: 'auth',
+                      phase: 'challenge',
+                      routeKey: 'auth',
+                      type: 'response',
+                      strategy: authFactors[currentFactor],
+                      id
+                    }));
+                  });
+                } else {
+                  socket.send(success(token, {
+                    action: 'auth',
+                    phase: 'response',
+                    routeKey: 'auth',
+                    type: 'response',
+                    address,
+                    id
+                  }));
+                }
               }
             }
           } catch (e) {
