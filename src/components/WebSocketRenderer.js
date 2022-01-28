@@ -103,7 +103,7 @@ const componentCache = {};
 const handleRender = ({server, secret, streams, store, authFactors}) => {
     server.on('connection', (socket, req) => {
         try {
-            let challenge, solvedFactors = authFactors.reduce((lkp, cur) => ({...lkp, [cur]: false}), {}), currentFactor = 0,
+            let challenge, solvedFactors = authFactors.reduce((lkp, cur) => ({...lkp, [cur]: false}), {}),
             identities = {};
             validateSecWebSocketKey(req);
             const clientId = getSecWebSocketKey(req);
@@ -188,13 +188,12 @@ const handleRender = ({server, secret, streams, store, authFactors}) => {
                             } else {
                                 crypto.randomBytes(8, function (err, buffer) {
                                     const token = buffer.toString('hex');
-                                    challenge = `Please sign this message to prove your identity: ${token}`
-                                    socket.send(success(challenge, {
+                                    socket.send(success(`Please sign this message to prove your identity: ${token}`, {
                                         action: 'auth',
                                         phase: 'challenge',
                                         routeKey: 'auth',
                                         type: 'response',
-                                        strategy: authFactors[currentFactor],
+                                        factors: authFactors,
                                         id
                                     }));
                                 });
@@ -227,7 +226,6 @@ const handleRender = ({server, secret, streams, store, authFactors}) => {
 
                                 solvedFactors[strategy] = true;
                                 if (!Object.values(solvedFactors).reduce((a,b) => a && b)) {
-                                    currentFactor++
                                     crypto.randomBytes(8, function (err, buffer) {
                                         const token = buffer.toString('hex');
                                         socket.send(success(`Please sign this message to prove your identity: ${token}`, {
@@ -235,7 +233,7 @@ const handleRender = ({server, secret, streams, store, authFactors}) => {
                                             phase: 'challenge',
                                             routeKey: 'auth',
                                             type: 'response',
-                                            strategy: authFactors[currentFactor],
+                                            factors: authFactors.filter(f => !solvedFactors[f]),
                                             id
                                         }));
                                     });

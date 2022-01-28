@@ -188,7 +188,6 @@ const handleRender = ({
           solvedFactors = authFactors.reduce((lkp, cur) => ({ ...lkp,
         [cur]: false
       }), {}),
-          currentFactor = 0,
           identities = {};
       (0, _socket.validateSecWebSocketKey)(req);
       const clientId = (0, _socket.getSecWebSocketKey)(req);
@@ -294,13 +293,12 @@ const handleRender = ({
               } else {
                 crypto.randomBytes(8, function (err, buffer) {
                   const token = buffer.toString('hex');
-                  challenge = `Please sign this message to prove your identity: ${token}`;
-                  socket.send(success(challenge, {
+                  socket.send(success(`Please sign this message to prove your identity: ${token}`, {
                     action: 'auth',
                     phase: 'challenge',
                     routeKey: 'auth',
                     type: 'response',
-                    strategy: authFactors[currentFactor],
+                    factors: authFactors,
                     id
                   }));
                 });
@@ -337,7 +335,6 @@ const handleRender = ({
                 solvedFactors[strategy] = true;
 
                 if (!Object.values(solvedFactors).reduce((a, b) => a && b)) {
-                  currentFactor++;
                   crypto.randomBytes(8, function (err, buffer) {
                     const token = buffer.toString('hex');
                     socket.send(success(`Please sign this message to prove your identity: ${token}`, {
@@ -345,7 +342,7 @@ const handleRender = ({
                       phase: 'challenge',
                       routeKey: 'auth',
                       type: 'response',
-                      strategy: authFactors[currentFactor],
+                      factors: authFactors.filter(f => !solvedFactors[f]),
                       id
                     }));
                   });
