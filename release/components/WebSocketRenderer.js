@@ -182,7 +182,7 @@ const handleRender = ({
   store,
   authFactors
 }) => {
-  wss.on('connection', (socket, req) => {
+  server.on('connection', (socket, req) => {
     try {
       let challenge,
           solvedFactors = authFactors.reduce((lkp, cur) => ({ ...lkp,

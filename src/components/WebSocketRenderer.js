@@ -101,7 +101,7 @@ const emit = (socket, data) => {
 
 const componentCache = {};
 const handleRender = ({server, secret, streams, store, authFactors}) => {
-    wss.on('connection', (socket, req) => {
+    server.on('connection', (socket, req) => {
         try {
             let challenge, solvedFactors = authFactors.reduce((lkp, cur) => ({...lkp, [cur]: false}), {}), currentFactor = 0,
             identities = {};
