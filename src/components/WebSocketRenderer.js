@@ -228,13 +228,20 @@ const handleRender = ({server, secret, streams, store, authFactors}) => {
                                 if (!Object.values(solvedFactors).reduce((a,b) => a && b)) {
                                     crypto.randomBytes(8, function (err, buffer) {
                                         const token = buffer.toString('hex');
+                                        socket.send(success(token, {
+                                            action: 'auth',
+                                            phase: 'response',
+                                            routeKey: 'auth',
+                                            type: 'response',
+                                            identities,
+                                            id
+                                        }));
                                         socket.send(success(`Please sign this message to prove your identity: ${token}`, {
                                             action: 'auth',
                                             phase: 'challenge',
                                             routeKey: 'auth',
                                             type: 'response',
                                             factors: authFactors.filter(f => !solvedFactors[f]),
-                                            id
                                         }));
                                     });
                                 } else {
@@ -245,7 +252,7 @@ const handleRender = ({server, secret, streams, store, authFactors}) => {
                                         phase: 'response',
                                         routeKey: 'auth',
                                         type: 'response',
-                                        address,
+                                        identities,
                                         id
                                     }));
                                 }
