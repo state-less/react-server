@@ -330,22 +330,22 @@ const handleRender = ({
                   exp: Math.floor(Date.now() / 1000) + 60 * 60,
                   iat: Date.now() / 1000,
                   address,
-                  ...identities
+                  ...identities,
+                  factors: authFactors.filter(f => !solvedFactors[f])
                 }, secret);
                 solvedFactors[strategy] = true;
 
                 if (!Object.values(solvedFactors).reduce((a, b) => a && b)) {
                   crypto.randomBytes(8, function (err, buffer) {
-                    const token = buffer.toString('hex');
+                    const rand = buffer.toString('hex');
                     socket.send(success(token, {
                       action: 'auth',
                       phase: 'response',
                       routeKey: 'auth',
                       type: 'response',
-                      identities,
                       id
                     }));
-                    socket.send(success(`Please sign this message to prove your identity: ${token}`, {
+                    socket.send(success(`Please sign this message to prove your identity: ${rand}`, {
                       action: 'auth',
                       phase: 'challenge',
                       routeKey: 'auth',
