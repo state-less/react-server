@@ -245,8 +245,6 @@ const handleRender = ({server, secret, streams, store, authFactors}) => {
                                         }));
                                     });
                                 } else {
-
-                                    
                                     socket.send(success(token, {
                                         action: 'auth',
                                         phase: 'response',

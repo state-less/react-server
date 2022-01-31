@@ -34,10 +34,24 @@ var jwk = {
 const recover = async (challenge, response) => {
   const jwk = await (0, _isomorphicFetch.default)('https://www.googleapis.com/oauth2/v3/certs');
   const json = await jwk.json();
-  const pem = jwkToPem(json.keys[1]);
-  console.log("Verifiying", response, pem);
-  const token = jwt.verify(response, pem);
-  return token;
+
+  for (let i = 0; i < 1; i++) {
+    const pem = jwkToPem(json.keys[i]);
+    let e;
+
+    try {
+      console.log("Trying signature ", i, "of ", 2);
+      const token = jwt.verify(response, pem);
+      console.log("Successful");
+      return token;
+    } catch (e) {
+      console.log("Error");
+      e = e;
+      continue;
+    }
+  }
+
+  throw e;
 };
 
 exports.recover = recover;
