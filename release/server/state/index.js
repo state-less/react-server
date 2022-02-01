@@ -226,8 +226,11 @@ class Store {
     return this.map.get(key);
   }
 
-  clone(...args) {
-    return new Store(...args);
+  clone(options, ...args) {
+    const {
+      StoreConstructor = Store
+    } = options;
+    return new StoreConstructor(options, ...args);
   }
   /**
    * 
@@ -237,7 +240,7 @@ class Store {
    */
 
 
-  scope(key, ...args) {
+  scope(key, options = {}) {
     const {
       StateConstructor,
       ...rest
@@ -249,11 +252,11 @@ class Store {
 
     if (/\./.test(key)) {
       key = key.split('.');
-      if (key[0] === this.key) return this.scope(key.slice(1), ...args);
+      if (key[0] === this.key) return this.scope(key.slice(1), options);
     }
 
     if (Array.isArray(key) && this.scopes.has(key[0])) {
-      return this.scopes.get(key[0]).scope(key.slice(1), ...args);
+      return this.scopes.get(key[0]).scope(key.slice(1), options);
     } else if (Array.isArray(key) && key.length === 0) {
       return this;
     } else if (key === this.key) {
@@ -266,6 +269,7 @@ class Store {
         onRequestState
       } = this;
       const store = this.clone({ ...rest,
+        ...options,
         autoCreate,
         onRequestState,
         StateConstructor,
@@ -274,7 +278,7 @@ class Store {
       });
       this.scopes.set(key[0], store);
       store.actions = this.actions;
-      this.emit(_consts.EVENT_SCOPE_CREATE, store, key, ...args);
+      this.emit(_consts.EVENT_SCOPE_CREATE, store, key, options);
       return store.scope(key.slice(1));
     }
 
@@ -291,7 +295,7 @@ class Store {
     });
     this.scopes.set(key, store);
     store.actions = this.actions;
-    this.emit(_consts.EVENT_SCOPE_CREATE, store, key, ...args);
+    this.emit(_consts.EVENT_SCOPE_CREATE, store, key, options);
     return store;
   }
 

@@ -117,8 +117,9 @@ class Store {
         })
     }
 
-    clone(...args) {
-        return new Store(...args);
+    clone(options, ...args) {
+        const {StoreConstructor = Store} = options;
+        return new StoreConstructor(options, ...args);
     }
 
     /**
@@ -127,7 +128,7 @@ class Store {
      * @param  {...any} args - Additional args passed to the store constructor.
      * @returns {Store} - A new store instance
      */
-    scope(key, ...args) {
+    scope(key, options = {}) {
         const { StateConstructor, ...rest } = this;
         if (this.scopes.has(key)) {
             return this.scopes.get(key);
@@ -136,11 +137,11 @@ class Store {
         if (/\./.test(key)) {
             key = key.split('.');
             if (key[0] === this.key)
-                return this.scope(key.slice(1), ...args);
+                return this.scope(key.slice(1), options);
         }
 
         if (Array.isArray(key) && this.scopes.has(key[0])) {
-            return this.scopes.get(key[0]).scope(key.slice(1), ...args)
+            return this.scopes.get(key[0]).scope(key.slice(1), options)
         } else if (Array.isArray(key) && key.length === 0) {
             return this;
         } else if (key === this.key) {
@@ -149,13 +150,13 @@ class Store {
 
         if (Array.isArray(key) && !this.scopes.has(key[0])) {
             const { autoCreate, onRequestState } = this;
-            const store = this.clone({ ...rest, autoCreate, onRequestState, StateConstructor, key: `${this.key}.${key[0]}`, parent: this });
+            const store = this.clone({ ...rest, ...options, autoCreate, onRequestState, StateConstructor, key: `${this.key}.${key[0]}`, parent: this });
 
             this.scopes.set(key[0], store);
 
             store.actions = this.actions;
 
-            this.emit(EVENT_SCOPE_CREATE, store, key, ...args);
+            this.emit(EVENT_SCOPE_CREATE, store, key, options);
             return store.scope(key.slice(1));
         }
 
@@ -166,7 +167,7 @@ class Store {
 
         store.actions = this.actions;
 
-        this.emit(EVENT_SCOPE_CREATE, store, key, ...args);
+        this.emit(EVENT_SCOPE_CREATE, store, key, options);
         return store;
     }
 

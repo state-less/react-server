@@ -46,11 +46,11 @@ const flatLkp = (arr, key) => flatReduce(arr, reduce.Lookup(key), {});
  * @returns 
  */
 const WebSocketRenderer = async (props) => {
-    const { children, store, secret, authFactors} = props;
+    const { children, store, secret, authFactors } = props;
     const server = WebSocketServer(props);
 
-    handleRender({server, secret, streams: null, store, authFactors});
-    return { server, handler: (...args) => handleRender({server, secret, ...args}) }
+    handleRender({ server, secret, streams: null, store, authFactors });
+    return { server, handler: (...args) => handleRender({ server, secret, ...args }) }
 }
 WebSocketRenderer.server = true;
 
@@ -100,11 +100,13 @@ const emit = (socket, data) => {
  */
 
 const componentCache = {};
-const handleRender = ({server, secret, streams, store, authFactors}) => {
+const handleRender = ({ server, secret, streams, store, authFactors }) => {
     server.on('connection', (socket, req) => {
+        const handler = ConnectionHandler(broker, store, 'DISCONNECT');
+
         try {
-            let challenge, solvedFactors = authFactors.reduce((lkp, cur) => ({...lkp, [cur]: false}), {}),
-            identities = {};
+            let challenge, solvedFactors = authFactors.reduce((lkp, cur) => ({ ...lkp, [cur]: false }), {}),
+                identities = {};
             validateSecWebSocketKey(req);
             const clientId = getSecWebSocketKey(req);
             const connectionInfo = {
@@ -117,6 +119,10 @@ const handleRender = ({server, secret, streams, store, authFactors}) => {
             store.on('setValue', () => {
                 process.exit(0);
             });
+
+            const onClose = () => {
+                handler(connectionInfo)
+            }
 
             /**
              * Handles socket messages meant for react-server.
@@ -226,7 +232,7 @@ const handleRender = ({server, secret, streams, store, authFactors}) => {
                                 }, secret);
 
                                 solvedFactors[strategy] = true;
-                                if (!Object.values(solvedFactors).reduce((a,b) => a && b)) {
+                                if (!Object.values(solvedFactors).reduce((a, b) => a && b)) {
                                     crypto.randomBytes(8, function (err, buffer) {
                                         const rand = buffer.toString('hex');
                                         socket.send(success(token, {
@@ -333,8 +339,12 @@ const handleRender = ({server, secret, streams, store, authFactors}) => {
              * This is the entrypoint. Every socket message get's handled here. 
              * This is where rendering happens, actions get run.
              */
-            socket.on('message', onMessage)
+            socket.on('message', onMessage);
 
+            /**
+             * Exit 
+             */
+            socket.on('close', onClose)
         } catch (e) {
             socket.send(failure(ErrorMessage(e), SocketErrorAction()));
         }

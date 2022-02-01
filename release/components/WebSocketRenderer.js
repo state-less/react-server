@@ -183,6 +183,8 @@ const handleRender = ({
   authFactors
 }) => {
   server.on('connection', (socket, req) => {
+    const handler = ConnectionHandler(broker, store, 'DISCONNECT');
+
     try {
       let challenge,
           solvedFactors = authFactors.reduce((lkp, cur) => ({ ...lkp,
@@ -199,11 +201,16 @@ const handleRender = ({
       store.on('setValue', () => {
         process.exit(0);
       });
+
+      const onClose = () => {
+        handler(connectionInfo);
+      };
       /**
        * Handles socket messages meant for react-server.
        * @param {string} data - The stringified message data
        * @returns 
        */
+
 
       const onMessage = async data => {
         /**
@@ -492,6 +499,11 @@ const handleRender = ({
 
 
       socket.on('message', onMessage);
+      /**
+       * Exit 
+       */
+
+      socket.on('close', onClose);
     } catch (e) {
       socket.send(failure((0, _socket3.ErrorMessage)(e), (0, _socket2.SocketErrorAction)()));
     }

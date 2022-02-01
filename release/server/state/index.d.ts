@@ -38,14 +38,14 @@ declare class Store {
     has(key: string): boolean | Promise<boolean>;
     get(key: string): State | Promise<State>;
     purge: () => void;
-    clone(...args: any[]): Store;
+    clone(options: any, ...args: any[]): any;
     /**
      *
      * @param {String} key - The key of the subscope
      * @param  {...any} args - Additional args passed to the store constructor.
      * @returns {Store} - A new store instance
      */
-    scope(key: any, ...args: any[]): any;
+    scope(key: any, options?: {}): any;
     path(...keys: any[]): void;
     createState: (key: any, def: any, options?: UseStateOptions, ...args: any[]) => State;
     deleteState: (key: any) => void;
