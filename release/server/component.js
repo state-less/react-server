@@ -63,6 +63,7 @@ const Component = (fn, baseStore) => {
   const component = (() => {
     /** Component scope. This scope is valid once per rendered component and doesn't change during rerenders */
     let lastStates = [];
+    const stateValues = new Map();
     return async (props = null, key, options, clientProps, socket = {
       id: SERVER_ID
     }) => {
@@ -101,7 +102,6 @@ const Component = (fn, baseStore) => {
         store = baseStore.scope(key)
       } = options;
       const id = Math.random();
-      const stateValues = new Map();
 
       scopedUseState = async (initial, stateKey, {
         deny = false,

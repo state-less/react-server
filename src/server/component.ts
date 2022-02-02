@@ -46,6 +46,7 @@ const Component : Lifecycle =(fn, baseStore) => {
     const component = (() => {
         /** Component scope. This scope is valid once per rendered component and doesn't change during rerenders */
         let lastStates = [];
+        const stateValues = new Map();
 
         return async (props = null, key, options, clientProps, socket = { id: SERVER_ID }) => {
             let scopedUseEffect;
@@ -78,7 +79,6 @@ const Component : Lifecycle =(fn, baseStore) => {
             let { ttl = Infinity, createdAt, store = baseStore.scope(key) } = options;
 
             const id = Math.random();
-            const stateValues = new Map();
             scopedUseState = async (initial, stateKey, { deny = false, scope = void 0, ...rest } = {}) => {
                 if (deny) {
                     return [null, () => { throw new Error('Attempt to set unauthenticated state') }];
