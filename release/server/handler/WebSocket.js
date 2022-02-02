@@ -18,8 +18,9 @@ const ConnectionHandler = (broker, store, eventType) => {
   if (eventType === 'USE_STATE') {
     return async (connectionInfo, data = {}) => {
       const {
-        key = "votes",
+        key,
         scope,
+        id,
         defaultValue = null,
         requestId,
         requestType,

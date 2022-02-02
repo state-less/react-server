@@ -105,6 +105,10 @@ const WebSocketRenderer = async props => {
     authFactors
   });
   return {
+    type: 'ServerComponent',
+    key: 'server',
+    props,
+    children,
     server,
     handler: (...args) => handleRender({
       server,
@@ -481,7 +485,7 @@ const handleRender = ({
             options
           } = json;
           const handler = ConnectionHandler(broker, store, 'USE_STATE');
-          await handler(connectionInfo, {
+          const state = await handler(connectionInfo, {
             key,
             scope,
             requestId,
@@ -489,6 +493,7 @@ const handleRender = ({
             options,
             requestType
           });
+          console.log("Used state ", key, state.key, state.id);
         }
 
         if (action === ACTION_SET_STATE) {
