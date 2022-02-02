@@ -114,45 +114,6 @@ class Store {
       });
     });
 
-    _defineProperty(this, "createState", (key, def, options = {}, ...args) => {
-      const {
-        StateConstructor
-      } = this;
-      const state = new StateConstructor(def, { ...options,
-        broker: this.broker
-      });
-      const {
-        scope = this.key
-      } = options;
-      if (!key) key = state.id;
-      state.key = key;
-      /** I'm not sure whether the store should handle creating subscopes or the component controller */
-
-      /** TODO: Think of a better scoping mechanism  */
-
-      /** TODO: infinite loop when no scope passed */
-      // if (scope && scope !== this.key && scope !== this.key.split('.').pop()) {
-      //     return this.scope(scope).createState(key, def, {
-      //         ...options,
-      //         scope: scope.split('.').slice(1).join('.')
-      //     }, ...args);
-      // }
-
-      /** The states scope should be the key of the store it was created in */
-
-      state.scope = this.key;
-      state.options = options;
-      state.args = args;
-      this.map.set(key, state);
-      let parent = this;
-
-      do {
-        parent.emit(_consts.EVENT_STATE_CREATE, this, state, key, ...args);
-      } while (parent = parent.parent);
-
-      return state;
-    });
-
     _defineProperty(this, "deleteState", key => {
       this.map.delete(key);
     });
@@ -198,21 +159,21 @@ class Store {
 
     const {
       key: _key = _consts.SERVER_ID,
-      parent: _parent = null,
+      parent = null,
       autoCreate = false,
       onRequestState,
-      StateConstructor: _StateConstructor = State,
+      StateConstructor = State,
       StoreConstructor = Store,
       broker
     } = _options;
     this.map = new Map();
     this.actions = new Map();
     this.scopes = new Map();
-    this.StateConstructor = _StateConstructor;
+    this.StateConstructor = StateConstructor;
     this.StoreConstructor = StoreConstructor;
     Object.assign(this, {
       key: _key,
-      parent: _parent,
+      parent,
       autoCreate,
       onRequestState,
       broker
@@ -306,6 +267,45 @@ class Store {
   }
 
   path(...keys) {}
+
+  createState(key, def, options = {}, ...args) {
+    const {
+      StateConstructor
+    } = this;
+    const state = new StateConstructor(def, { ...options,
+      broker: this.broker
+    });
+    const {
+      scope = this.key
+    } = options;
+    if (!key) key = state.id;
+    state.key = key;
+    /** I'm not sure whether the store should handle creating subscopes or the component controller */
+
+    /** TODO: Think of a better scoping mechanism  */
+
+    /** TODO: infinite loop when no scope passed */
+    // if (scope && scope !== this.key && scope !== this.key.split('.').pop()) {
+    //     return this.scope(scope).createState(key, def, {
+    //         ...options,
+    //         scope: scope.split('.').slice(1).join('.')
+    //     }, ...args);
+    // }
+
+    /** The states scope should be the key of the store it was created in */
+
+    state.scope = this.key;
+    state.options = options;
+    state.args = args;
+    this.map.set(key, state);
+    let parent = this;
+
+    do {
+      parent.emit(_consts.EVENT_STATE_CREATE, this, state, key, ...args);
+    } while (parent = parent.parent);
+
+    return state;
+  }
 
   validateUseStateArgs(key, def, options = {}, ...args) {
     this.emit(_consts.EVENT_STATE_USE, key, def, ...args); // const {scope, ...rest} = options;

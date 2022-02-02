@@ -49,7 +49,7 @@ declare class Store {
      */
     scope(key: any, options?: {}): any;
     path(...keys: any[]): void;
-    createState: (key: any, def: any, options?: UseStateOptions, ...args: any[]) => State | Promise<State>;
+    createState(key: any, def: any, options?: UseStateOptions, ...args: any[]): State | Promise<State>;
     deleteState: (key: any) => void;
     /**
      * @description Callback to accept or deny requests to use a state.
