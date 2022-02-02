@@ -161,7 +161,7 @@ class Store {
         }
 
         const { autoCreate, onRequestState } = this;
-        const store = this.clone({ ...rest, autoCreate: true, onRequestState, StateConstructor, key: `${this.key}.${key}`, parent: this });
+        const store = this.clone({ ...rest, autoCreate: true, onRequestState, StateConstructor, key: `${this.key}.${key}`, parent: this,...options});
 
         this.scopes.set(key, store);
 

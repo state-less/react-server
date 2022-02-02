@@ -291,7 +291,8 @@ class Store {
       onRequestState,
       StateConstructor,
       key: `${this.key}.${key}`,
-      parent: this
+      parent: this,
+      ...options
     });
     this.scopes.set(key, store);
     store.actions = this.actions;
