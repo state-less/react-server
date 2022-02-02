@@ -482,7 +482,8 @@ const handleRender = ({
             scope,
             requestId,
             props,
-            options
+            options,
+            defaultValue
           } = json;
           const handler = ConnectionHandler(broker, store, 'USE_STATE');
           const state = await handler(connectionInfo, {
@@ -491,7 +492,8 @@ const handleRender = ({
             requestId,
             props,
             options,
-            requestType
+            requestType,
+            defaultValue
           });
           console.log("Used state ", key, state.key, state.id);
         }
