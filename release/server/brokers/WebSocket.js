@@ -30,9 +30,9 @@ class WebsocketBroker extends Broker {
 
   getScope(socket, options) {
     let {
-      scope = 'client'
+      scope = '$client'
     } = options;
-    return scope === 'client' ? socket.id : scope;
+    return scope === '$client' ? socket.id : scope;
   }
 
   emitError(socket, options, message) {
