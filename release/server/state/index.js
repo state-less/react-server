@@ -269,12 +269,12 @@ class Store {
         onRequestState
       } = this;
       const store = this.clone({ ...rest,
-        ...options,
         autoCreate,
         onRequestState,
         StateConstructor,
         key: `${this.key}.${key[0]}`,
-        parent: this
+        parent: this,
+        ...options
       });
       this.scopes.set(key[0], store);
       store.actions = this.actions;

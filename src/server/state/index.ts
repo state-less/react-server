@@ -150,7 +150,7 @@ class Store {
 
         if (Array.isArray(key) && !this.scopes.has(key[0])) {
             const { autoCreate, onRequestState } = this;
-            const store = this.clone({ ...rest, ...options, autoCreate, onRequestState, StateConstructor, key: `${this.key}.${key[0]}`, parent: this });
+            const store = this.clone({ ...rest, autoCreate, onRequestState, StateConstructor, key: `${this.key}.${key[0]}`, parent: this, ...options});
 
             this.scopes.set(key[0], store);
 
