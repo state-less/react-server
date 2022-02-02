@@ -179,7 +179,7 @@ class Store {
 
     }
 
-    createState = (key, def, options: UseStateOptions = {}, ...args) => {
+    createState = (key, def, options: UseStateOptions = {}, ...args) : State | Promise<State> => {
         const { StateConstructor } = this;
         const state = new StateConstructor(def, {...options, broker: this.broker });
         const { scope = this.key } = options;
