@@ -24,6 +24,14 @@ var jwk = {
   ]
 }
 
+export const getIdentity = (token) => {
+  return token.email;
+}
+
+export const getAddress = (token) => {
+  const {name, email, picture} = token;
+  return {name, email, picture};
+}
 
 export const recover = async (challenge, response) => {
 

@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.recover = void 0;
+exports.recover = exports.getAddress = exports.getIdentity = void 0;
 
 var _isomorphicFetch = _interopRequireDefault(require("isomorphic-fetch"));
 
@@ -30,6 +30,27 @@ var jwk = {
     "n": "xWDJBwwxLU8KU0w2bqiiXPPrOA7ffmF7g78O_D6LOv80bzeRyyX3zjzIcOI0tLZfFEfFO8CvpzTzB1h5bNinDA4MX9PFMyNBjc7Q4h7QStYZoORY6Kac314IQkwfVM3u4hbIpVvVgmapYESGpPfKh_SPr8tRvarDoEnXG6a501Ni8PfZg44aCbe0kJygl4YZjvLABEkH19HxPiXojxJEWee1lToyDJfM8tZqNTal5u3F8Mk37RhkMWMM1gypvl22t6MDUEOmqp5StwWWgo7KDJ17nDXsM6TQ10rxofkQm5I2swvfosr4Qr3GoUCrE1zXnPwNZJ_P-sQziOFRd36eZw=="
   }]
 };
+
+const getIdentity = token => {
+  return token.email;
+};
+
+exports.getIdentity = getIdentity;
+
+const getAddress = token => {
+  const {
+    name,
+    email,
+    picture
+  } = token;
+  return {
+    name,
+    email,
+    picture
+  };
+};
+
+exports.getAddress = getAddress;
 
 const recover = async (challenge, response) => {
   const jwk = await (0, _isomorphicFetch.default)('https://www.googleapis.com/oauth2/v3/certs');
