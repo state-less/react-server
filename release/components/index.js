@@ -72,12 +72,14 @@ ClientComponent.server = true;
 const Action = props => {
   const {
     children: name,
+    disabled,
     ...rest
   } = props;
   return {
     component: 'Action',
     props: {
       name,
+      disabled,
       handler: rest
     }
   };
