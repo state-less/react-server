@@ -9,13 +9,13 @@ Object.defineProperty(exports, "recover", {
     return _web3Util.recover;
   }
 });
-exports.getAddress = exports.getId = void 0;
+exports.getAddress = exports.getIdentity = void 0;
 
 var _web3Util = require("../lib/web3-util");
 
-const getId = token => token;
+const getIdentity = token => token;
 
-exports.getId = getId;
+exports.getIdentity = getIdentity;
 
 const getAddress = token => ({
   name: token,

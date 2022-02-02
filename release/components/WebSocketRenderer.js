@@ -341,7 +341,7 @@ const handleRender = ({
                   exp: Math.floor(Date.now() / 1000) + 60 * 60,
                   iat: Date.now() / 1000,
                   address: strat.getAddress(address),
-                  id: strat.getId(address),
+                  id: strat.getIdentity(address),
                   ...identities,
                   factors: authFactors.filter(f => !solvedFactors[f])
                 }, secret);
