@@ -80,7 +80,7 @@ declare class State {
     static sync: Function;
     static genId: Function;
     constructor(defaultValue: any, options?: StateOptions);
-    setValue(value: any): any;
+    setValue(value: any, initial?: boolean): any | Promise<any>;
     getValue(): any;
     setError: (error: any) => void;
     publish(): void;

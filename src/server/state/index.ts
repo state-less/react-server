@@ -350,7 +350,7 @@ class State {
         this.setValue = this.setValue.bind(this);
     }
 
-    setValue(value): any {
+    setValue(value, initial = false): any | Promise<any>{
         this.value = value;
         this.emit('setValue', value)
         

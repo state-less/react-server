@@ -371,7 +371,7 @@ class State {
     this.setValue = this.setValue.bind(this);
   }
 
-  setValue(value) {
+  setValue(value, initial = false) {
     this.value = value;
     this.emit('setValue', value);
     return State.sync(this);
