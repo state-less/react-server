@@ -5,8 +5,6 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.activeConnections = void 0;
 
-var _reduce = require("../util/reduce");
-
 var _socket = require("../util/socket");
 
 var strategies = _interopRequireWildcard(require("../strategies"));
@@ -45,7 +43,8 @@ const {
   ACTION_STREAM,
   ACTION_AUTH,
   ACTION_CALL,
-  ACTION_USE_STATE
+  ACTION_USE_STATE,
+  ACTION_SET_STATE
 } = require("../consts");
 
 const {
@@ -76,8 +75,6 @@ exports.activeConnections = activeConnections;
 const broker = new WebsocketBroker({
   activeConnections
 });
-
-const flatLkp = (arr, key) => (0, _reduce.flatReduce)(arr, reduce.Lookup(key), {});
 /**
  * @typedef WebSocketRendererProps
  * @property {string} secret - A private key or secret used to sign JWT
@@ -91,7 +88,6 @@ const flatLkp = (arr, key) => (0, _reduce.flatReduce)(arr, reduce.Lookup(key), {
  * @param {WebSocketRendererProps} props 
  * @returns 
  */
-
 
 const WebSocketRenderer = async props => {
   const {
@@ -113,6 +109,9 @@ const WebSocketRenderer = async props => {
     handler: (...args) => handleRender({
       server,
       secret,
+      streams: null,
+      store,
+      authFactors,
       ...args
     })
   };
@@ -180,7 +179,8 @@ const handleRender = ({
   secret,
   streams,
   store,
-  authFactors
+  authFactors,
+  ...rest
 }) => {
   server.on('connection', (socket, req) => {
     const handler = ConnectionHandler(broker, store, 'DISCONNECT');
@@ -480,9 +480,8 @@ const handleRender = ({
             props,
             options
           } = json;
-          const comp = Component.instances.get(key);
           const handler = ConnectionHandler(broker, store, 'USE_STATE');
-          const state = await handler(connectionInfo, {
+          await handler(connectionInfo, {
             key,
             scope,
             requestId,
@@ -490,6 +489,37 @@ const handleRender = ({
             options,
             requestType
           });
+        }
+
+        if (action === ACTION_SET_STATE) {
+          const {
+            action,
+            key,
+            scope,
+            requestId,
+            props,
+            options,
+            value,
+            id
+          } = json;
+          const handler = ConnectionHandler(broker, store, 'USE_STATE');
+          const state = await handler(connectionInfo, {
+            key: key ? key : id,
+            scope,
+            requestId,
+            props,
+            options,
+            requestType
+          });
+          console.log("Setting state value", state.id);
+          state.setValue(value);
+          socket.send(success({
+            value
+          }, {
+            action,
+            routeKey: action,
+            id
+          }));
         }
       };
       /**

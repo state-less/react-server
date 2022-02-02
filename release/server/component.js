@@ -341,6 +341,7 @@ const Component = (fn, baseStore) => {
             return action.component === 'Action';
           }).forEach(action => {
             action.props.boundHandler = action.props.handler;
+            action.props.boundHandler = action.props.handler;
             action.props.handler = Object.keys(action.props.handler);
           });
         } else if (result) {

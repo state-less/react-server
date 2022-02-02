@@ -18,6 +18,7 @@ export const ACTION_STREAM = 'stream';
 export const ACTION_AUTH = 'auth';
 export const ACTION_CALL = 'call';
 export const ACTION_USE_STATE = 'useState';
+export const ACTION_SET_STATE = 'setState';
 
 export const SCOPE_CLIENT = '$client';
 export const SCOPE_SERVER = '$server';

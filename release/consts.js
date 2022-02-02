@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.DESC_MISSING_KEY = exports.ERR_MISSING_KEY = exports.SCOPE_COMPONENT = exports.SCOPE_SERVER = exports.SCOPE_CLIENT = exports.ACTION_USE_STATE = exports.ACTION_CALL = exports.ACTION_AUTH = exports.ACTION_STREAM = exports.ACTION_RENDER = exports.SERVER_ID = exports.NETWORK_FIRST = exports.CACHE_FIRST = exports.EVENT_SCOPE_CREATE = exports.EVENT_STATE_ERROR = exports.EVENT_STATE_REQUEST = exports.EVENT_STATE_CREATE = exports.EVENT_STATE_SET = exports.EVENT_STATE_DECLINE = exports.EVENT_STATE_PERMIT = exports.EVENT_STATE_USE = void 0;
+exports.DESC_MISSING_KEY = exports.ERR_MISSING_KEY = exports.SCOPE_COMPONENT = exports.SCOPE_SERVER = exports.SCOPE_CLIENT = exports.ACTION_SET_STATE = exports.ACTION_USE_STATE = exports.ACTION_CALL = exports.ACTION_AUTH = exports.ACTION_STREAM = exports.ACTION_RENDER = exports.SERVER_ID = exports.NETWORK_FIRST = exports.CACHE_FIRST = exports.EVENT_SCOPE_CREATE = exports.EVENT_STATE_ERROR = exports.EVENT_STATE_REQUEST = exports.EVENT_STATE_CREATE = exports.EVENT_STATE_SET = exports.EVENT_STATE_DECLINE = exports.EVENT_STATE_PERMIT = exports.EVENT_STATE_USE = void 0;
 const EVENT_STATE_USE = 'useState';
 exports.EVENT_STATE_USE = EVENT_STATE_USE;
 const EVENT_STATE_PERMIT = 'permitState';
@@ -36,6 +36,8 @@ const ACTION_CALL = 'call';
 exports.ACTION_CALL = ACTION_CALL;
 const ACTION_USE_STATE = 'useState';
 exports.ACTION_USE_STATE = ACTION_USE_STATE;
+const ACTION_SET_STATE = 'setState';
+exports.ACTION_SET_STATE = ACTION_SET_STATE;
 const SCOPE_CLIENT = '$client';
 exports.SCOPE_CLIENT = SCOPE_CLIENT;
 const SCOPE_SERVER = '$server';
