@@ -64,6 +64,7 @@ interface StoreOptions {
     autoCreate?: boolean;
     onRequestState?: Function;
     StateConstructor?: typeof State;
+    StoreConstructor?: typeof Store;
     broker?: Broker;
 }
 
@@ -76,6 +77,7 @@ class Store {
     actions: Map<string, any>;
     scopes: Map<string, Store>;
     StateConstructor: typeof State;
+    StoreConstructor?: typeof Store;
     key: string;
     autoCreate: boolean;
     broker?: Broker
@@ -85,12 +87,14 @@ class Store {
     static STATE_PERMIT_DEFAULT: boolean;
 
     constructor(options: StoreOptions = {}) {
-        const { key = SERVER_ID, parent = null, autoCreate = false, onRequestState, StateConstructor = State, broker } = options;
+        const { key = SERVER_ID, parent = null, autoCreate = false, onRequestState, StateConstructor = State, StoreConstructor = Store, broker } = options;
         this.map = new Map();
         this.actions = new Map;
         this.scopes = new Map;
 
         this.StateConstructor = StateConstructor;
+        this.StoreConstructor = StoreConstructor;
+
         Object.assign(this, { key, parent, autoCreate, onRequestState, broker });
         this.useState = this.useState.bind(this);
     }
@@ -117,9 +121,9 @@ class Store {
         })
     }
 
-    clone(options, ...args) {
+    clone(options : StoreOptions) {
         const {StoreConstructor = Store} = options;
-        return new StoreConstructor(options, ...args);
+        return new StoreConstructor(options);
     }
 
     /**
@@ -129,7 +133,7 @@ class Store {
      * @returns {Store} - A new store instance
      */
     scope(key, options = {}) {
-        const { StateConstructor, ...rest } = this;
+        const { StateConstructor, StoreConstructor, ...rest } = this;
         if (this.scopes.has(key)) {
             return this.scopes.get(key);
         }
@@ -150,7 +154,7 @@ class Store {
 
         if (Array.isArray(key) && !this.scopes.has(key[0])) {
             const { autoCreate, onRequestState } = this;
-            const store = this.clone({ ...rest, autoCreate, onRequestState, StateConstructor, key: `${this.key}.${key[0]}`, parent: this, ...options});
+            const store = this.clone({ ...rest, autoCreate, onRequestState, StateConstructor, StoreConstructor, key: `${this.key}.${key[0]}`, parent: this, ...options});
 
             this.scopes.set(key[0], store);
 
@@ -161,7 +165,7 @@ class Store {
         }
 
         const { autoCreate, onRequestState } = this;
-        const store = this.clone({ ...rest, autoCreate: true, onRequestState, StateConstructor, key: `${this.key}.${key}`, parent: this,...options});
+        const store = this.clone({ ...rest, autoCreate: true, onRequestState, StateConstructor, StoreConstructor, key: `${this.key}.${key}`, parent: this,...options});
 
         this.scopes.set(key, store);
 

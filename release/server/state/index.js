@@ -202,12 +202,14 @@ class Store {
       autoCreate = false,
       onRequestState,
       StateConstructor: _StateConstructor = State,
+      StoreConstructor = Store,
       broker
     } = _options;
     this.map = new Map();
     this.actions = new Map();
     this.scopes = new Map();
     this.StateConstructor = _StateConstructor;
+    this.StoreConstructor = StoreConstructor;
     Object.assign(this, {
       key: _key,
       parent: _parent,
@@ -226,11 +228,11 @@ class Store {
     return this.map.get(key);
   }
 
-  clone(options, ...args) {
+  clone(options) {
     const {
       StoreConstructor = Store
     } = options;
-    return new StoreConstructor(options, ...args);
+    return new StoreConstructor(options);
   }
   /**
    * 
@@ -243,6 +245,7 @@ class Store {
   scope(key, options = {}) {
     const {
       StateConstructor,
+      StoreConstructor,
       ...rest
     } = this;
 
@@ -272,6 +275,7 @@ class Store {
         autoCreate,
         onRequestState,
         StateConstructor,
+        StoreConstructor,
         key: `${this.key}.${key[0]}`,
         parent: this,
         ...options
@@ -290,6 +294,7 @@ class Store {
       autoCreate: true,
       onRequestState,
       StateConstructor,
+      StoreConstructor,
       key: `${this.key}.${key}`,
       parent: this,
       ...options

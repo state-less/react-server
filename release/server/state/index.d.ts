@@ -21,6 +21,7 @@ interface StoreOptions {
     autoCreate?: boolean;
     onRequestState?: Function;
     StateConstructor?: typeof State;
+    StoreConstructor?: typeof Store;
     broker?: Broker;
 }
 declare class Store {
@@ -28,6 +29,7 @@ declare class Store {
     actions: Map<string, any>;
     scopes: Map<string, Store>;
     StateConstructor: typeof State;
+    StoreConstructor?: typeof Store;
     key: string;
     autoCreate: boolean;
     broker?: Broker;
@@ -38,7 +40,7 @@ declare class Store {
     has(key: string): boolean | Promise<boolean>;
     get(key: string): State | Promise<State>;
     purge: () => void;
-    clone(options: any, ...args: any[]): any;
+    clone(options: StoreOptions): Store;
     /**
      *
      * @param {String} key - The key of the subscope
