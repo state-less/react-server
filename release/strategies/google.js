@@ -64,10 +64,10 @@ exports.challenge = challenge;
 const recover = async (challenge, response) => {
   const jwk = await (0, _isomorphicFetch.default)('https://www.googleapis.com/oauth2/v3/certs');
   const json = await jwk.json();
+  let e;
 
   for (let i = 0; i < 1; i++) {
     const pem = jwkToPem(json.keys[i]);
-    let e;
 
     try {
       console.log("Trying signature ", i, "of ", 2);

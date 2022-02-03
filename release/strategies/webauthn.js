@@ -28,11 +28,13 @@ const registerChallenge = name => {
 exports.registerChallenge = registerChallenge;
 
 const getIdentity = token => token.id;
+/** Send only public key to client. If you leak the private key somone might forge a valid authentication request */
+
 
 exports.getIdentity = getIdentity;
 
 const getAddress = token => ({
-  name: token,
+  name: token.publicKey,
   email: null,
   picture: null
 });
