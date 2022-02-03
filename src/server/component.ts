@@ -108,7 +108,7 @@ const Component : Lifecycle =(fn, baseStore) => {
                 const state = states[stateIndex] || await useState(scopedKey, initial, { temp: !stateKey, cache: Component.defaultCacheBehaviour, ...rest });
 
                 let { value, setValue } = state;
-                if (!(value instanceof Object))
+                if (!(value instanceof Object) && value !== null)
                     value = Object(value);
 
                 stateValues.set(value, state);
