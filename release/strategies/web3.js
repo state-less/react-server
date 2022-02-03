@@ -32,7 +32,10 @@ exports.getAddress = getAddress;
 const challenge = () => {
   const token = _crypto.default.randomBytes(4);
 
-  return `Please sign this message to prove your identity: ${token}`;
+  return {
+    type: 'sign',
+    challenge: `Please sign this message to prove your identity: ${token}`
+  };
 };
 
 exports.challenge = challenge;

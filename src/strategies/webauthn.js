@@ -1,5 +1,3 @@
-const jwt = require('jsonwebtoken');
-var jwkToPem = require("jwk-to-pem")
 const { generateRegistrationChallenge, generateLoginChallenge, parseRegisterRequest, parseLoginRequest } = require('@webauthn/server')
 
 
@@ -18,10 +16,13 @@ export const register = (response) => {
 }
 
 export const recover = (challenge, response) => {
-  return token
+  const {key} = parseRegisterRequest(response);
+  return
 }
 
 export const challenge = () => {
-
-  return registerChallenge('Peter Enis');
+  return {
+    type: 'register',
+    challenge: registerChallenge('Peter Enis')
+  }
 }

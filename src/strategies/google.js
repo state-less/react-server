@@ -34,7 +34,10 @@ export const getAddress = (token) => {
 }
 
 export const challenge = () => {
-  return null
+  return {
+    type: 'oauth',
+    challenge: null
+  }
 }
 
 export const recover = async (challenge, response) => {

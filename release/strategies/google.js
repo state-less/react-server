@@ -53,7 +53,10 @@ const getAddress = token => {
 exports.getAddress = getAddress;
 
 const challenge = () => {
-  return null;
+  return {
+    type: 'oauth',
+    challenge: null
+  };
 };
 
 exports.challenge = challenge;

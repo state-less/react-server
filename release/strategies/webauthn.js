@@ -5,10 +5,6 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.challenge = exports.recover = exports.register = exports.registerChallenge = void 0;
 
-const jwt = require('jsonwebtoken');
-
-var jwkToPem = require("jwk-to-pem");
-
 const {
   generateRegistrationChallenge,
   generateLoginChallenge,
@@ -45,13 +41,19 @@ const register = response => {
 exports.register = register;
 
 const recover = (challenge, response) => {
-  return token;
+  const {
+    key
+  } = parseRegisterRequest(response);
+  return;
 };
 
 exports.recover = recover;
 
 const challenge = () => {
-  return registerChallenge('Peter Enis');
+  return {
+    type: 'register',
+    challenge: registerChallenge('Peter Enis')
+  };
 };
 
 exports.challenge = challenge;
