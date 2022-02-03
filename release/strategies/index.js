@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.web3 = exports.google = void 0;
+exports.webauthn = exports.web3 = exports.google = void 0;
 
 var google = _interopRequireWildcard(require("./google"));
 
@@ -12,6 +12,10 @@ exports.google = google;
 var web3 = _interopRequireWildcard(require("./web3"));
 
 exports.web3 = web3;
+
+var webauthn = _interopRequireWildcard(require("./webauthn"));
+
+exports.webauthn = webauthn;
 
 function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
 
