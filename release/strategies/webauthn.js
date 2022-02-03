@@ -86,7 +86,7 @@ const recover = (json, store) => {
 
 exports.recover = recover;
 
-const challenge = json => {
+const challenge = (json, store) => {
   const {
     name = "Anonymous"
   } = json;

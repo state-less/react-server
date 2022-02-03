@@ -39,7 +39,7 @@ export const recover = (json, store) => {
   return key
 }
 
-export const challenge = (json) => {
+export const challenge = (json, store) => {
   const {name = "Anonymous"} = json;
   const state = store.scope('auth-strategy-webauthn').useState('key-' + name)
   if (!state.value) {
