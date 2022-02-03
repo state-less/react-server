@@ -56,7 +56,7 @@ const recover = (challenge, response) => {
   const {
     key
   } = parseRegisterRequest(response);
-  return;
+  return key;
 };
 
 exports.recover = recover;
