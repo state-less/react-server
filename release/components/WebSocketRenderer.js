@@ -273,10 +273,25 @@ const handleRender = ({
           const {
             id,
             phase,
-            strategy
+            strategy,
+            data
           } = json;
+          const strat = strategies[strategy];
 
           try {
+            if (!strat) {
+              socket.send(failure({
+                message: 'Invalid strategy: "' + strategy + '"'
+              }, {
+                action: 'invalidate',
+                routeKey: 'auth',
+                phase: 'response',
+                type: 'error',
+                id
+              }));
+              return;
+            }
+
             if (phase === 'challenge') {
               if (headers !== null && headers !== void 0 && headers.Authorization) {
                 let token;
@@ -314,6 +329,30 @@ const handleRender = ({
                   }));
                 });
               }
+            }
+
+            if (phase === 'requestRegister') {
+              const challenge = strat.registerChallenge(data);
+              socket.send(success(challenge, {
+                action: 'auth',
+                phase: 'register',
+                routeKey: 'auth',
+                type: 'response',
+                factors: authFactors,
+                id
+              }));
+            }
+
+            if (phase === 'register') {
+              const challenge = strat.register(data);
+              if (challenge) socket.send(success(challenge, {
+                action: 'auth',
+                phase: 'response',
+                routeKey: 'auth',
+                type: 'response',
+                factors: authFactors,
+                id
+              }));
             }
 
             if (phase === 'response') {
