@@ -10,6 +10,10 @@ export const registerChallenge = (name) => {
   return challengeResponse
 }
 
+export const getIdentity = (token) => token.id;
+export const getAddress = (token) => ({name: token, email: null, picture: null});
+
+
 export const register = (response) => {
   const { key, challenge } = parseRegisterRequest(solved);
   return { key, challenge };

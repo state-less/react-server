@@ -316,42 +316,15 @@ const handleRender = ({
               } else {
                 let challenge = 'Following strategies available';
                 if (strat) challenge = strat.challenge();
-                crypto.randomBytes(8, function (err, buffer) {
-                  const token = buffer.toString('hex');
-                  socket.send(success(challenge, {
-                    action: 'auth',
-                    phase: 'challenge',
-                    routeKey: 'auth',
-                    type: 'response',
-                    factors: authFactors,
-                    id
-                  }));
-                });
+                socket.send(success(challenge, {
+                  action: 'auth',
+                  phase: 'challenge',
+                  routeKey: 'auth',
+                  type: 'response',
+                  factors: authFactors,
+                  id
+                }));
               }
-            }
-
-            if (phase === 'requestRegister') {
-              const challenge = strat.registerChallenge(data);
-              socket.send(success(challenge, {
-                action: 'auth',
-                phase: 'register',
-                routeKey: 'auth',
-                type: 'response',
-                factors: authFactors,
-                id
-              }));
-            }
-
-            if (phase === 'register') {
-              const challenge = strat.register(data);
-              if (challenge) socket.send(success(challenge, {
-                action: 'auth',
-                phase: 'response',
-                routeKey: 'auth',
-                type: 'response',
-                factors: authFactors,
-                id
-              }));
             }
 
             if (phase === 'response') {

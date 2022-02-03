@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.challenge = exports.recover = exports.register = exports.registerChallenge = void 0;
+exports.challenge = exports.recover = exports.register = exports.getAddress = exports.getIdentity = exports.registerChallenge = void 0;
 
 const {
   generateRegistrationChallenge,
@@ -26,6 +26,18 @@ const registerChallenge = name => {
 };
 
 exports.registerChallenge = registerChallenge;
+
+const getIdentity = token => token.id;
+
+exports.getIdentity = getIdentity;
+
+const getAddress = token => ({
+  name: token,
+  email: null,
+  picture: null
+});
+
+exports.getAddress = getAddress;
 
 const register = response => {
   const {
