@@ -24,7 +24,7 @@ export const register = (response) => {
 }
 
 export const recover = (json, store) => {
-  const { type, response, name = 'Anonymous'} = json;
+  const { type, response, name = 'Anonymous' } = json;
   const state = store.scope('auth-strategy-webauthn').useState('key-' + name)
   if (type === 'register') {
     const { key } = parseRegisterRequest(response);
@@ -32,15 +32,21 @@ export const recover = (json, store) => {
     return key;
   } else if (type === 'login') {
     const challengeResponse = parseLoginRequest(response);
-    if (state.credID === challengeResponse.keyId)
+    console.log ("Verify Yubikey", state.credID, challengeResponse.keyId);
+    if (state.credID === challengeResponse.keyId) {
+
       return challengeResponse;
+    } else {
+      return null;
+    }
+  } else {
+
     throw new Error('Not implemented');
   }
-  return key
 }
 
 export const challenge = (json, store) => {
-  const {name = "Anonymous"} = json;
+  const { name = "Anonymous" } = json;
   const state = store.scope('auth-strategy-webauthn').useState('key-' + name)
   if (!state.value) {
     return {

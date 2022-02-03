@@ -76,11 +76,16 @@ const recover = (json, store) => {
     return key;
   } else if (type === 'login') {
     const challengeResponse = parseLoginRequest(response);
-    if (state.credID === challengeResponse.keyId) return challengeResponse;
+    console.log("Verify Yubikey", state.credID, challengeResponse.keyId);
+
+    if (state.credID === challengeResponse.keyId) {
+      return challengeResponse;
+    } else {
+      return null;
+    }
+  } else {
     throw new Error('Not implemented');
   }
-
-  return key;
 };
 
 exports.recover = recover;
