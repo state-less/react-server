@@ -74,9 +74,9 @@ const recover = (json, store) => {
     } = parseRegisterRequest(response);
     state.setValue(key);
     return key;
-  } else {
+  } else if (type === 'login') {
     const challengeResponse = parseLoginRequest(response);
-    return state.credID === challengeResponse.keyId;
+    if (state.credID === challengeResponse.keyId) return challengeResponse;
     throw new Error('Not implemented');
   }
 
