@@ -76,9 +76,9 @@ const recover = (json, store) => {
     return key;
   } else if (type === 'login') {
     const challengeResponse = parseLoginRequest(response);
-    console.log("Verify Yubikey", state.credID, challengeResponse.keyId);
+    console.log("Verify Yubikey", state.value.credID, challengeResponse.keyId);
 
-    if (state.credID === challengeResponse.keyId) {
+    if (state.value.credID === challengeResponse.keyId) {
       return challengeResponse;
     } else {
       return null;
