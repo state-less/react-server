@@ -21,7 +21,7 @@ export const register = (response) => {
 
 export const recover = (challenge, response) => {
   const {key} = parseRegisterRequest(response);
-  return
+  return key
 }
 
 export const challenge = () => {
