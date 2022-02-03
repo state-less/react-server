@@ -32,7 +32,6 @@ export const recover = (json, store) => {
     return key;
   } else {
     const challengeResponse = parseLoginRequest(response);
-    console.log ("LOGIN REQUEST", challengeResponse, user, key);
     return state.credID === challengeResponse.keyId;
     throw new Error('Not implemented');
   }
