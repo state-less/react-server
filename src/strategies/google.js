@@ -45,7 +45,7 @@ export const recover = async (challenge, response) => {
   const jwk = await fetch('https://www.googleapis.com/oauth2/v3/certs');
   const json = await jwk.json();
   let e;
-  for (let i = 0; i < 1; i++) {
+  for (let i = 0; i < 2; i++) {
     const pem = jwkToPem(json.keys[i]);
     try {
       console.log ("Trying signature ", i, "of ", 2)
@@ -58,5 +58,7 @@ export const recover = async (challenge, response) => {
       continue;
     }
   }
-  throw e;
+  if (e)
+    throw e;
+  throw new Error('Google token could not be verified.')
 }

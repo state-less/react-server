@@ -66,7 +66,7 @@ const recover = async (challenge, response) => {
   const json = await jwk.json();
   let e;
 
-  for (let i = 0; i < 1; i++) {
+  for (let i = 0; i < 2; i++) {
     const pem = jwkToPem(json.keys[i]);
 
     try {
@@ -81,7 +81,8 @@ const recover = async (challenge, response) => {
     }
   }
 
-  throw e;
+  if (e) throw e;
+  throw new Error('Google token could not be verified.');
 };
 
 exports.recover = recover;
