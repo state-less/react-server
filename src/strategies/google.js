@@ -33,6 +33,10 @@ export const getAddress = (token) => {
   return {name, email, picture};
 }
 
+export const challenge = () => {
+  return null
+}
+
 export const recover = async (challenge, response) => {
 
   const jwk = await fetch('https://www.googleapis.com/oauth2/v3/certs');

@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.recover = exports.getAddress = exports.getIdentity = void 0;
+exports.recover = exports.challenge = exports.getAddress = exports.getIdentity = void 0;
 
 var _isomorphicFetch = _interopRequireDefault(require("isomorphic-fetch"));
 
@@ -51,6 +51,12 @@ const getAddress = token => {
 };
 
 exports.getAddress = getAddress;
+
+const challenge = () => {
+  return null;
+};
+
+exports.challenge = challenge;
 
 const recover = async (challenge, response) => {
   const jwk = await (0, _isomorphicFetch.default)('https://www.googleapis.com/oauth2/v3/certs');

@@ -279,17 +279,14 @@ const handleRender = ({
           const strat = strategies[strategy];
 
           try {
-            if (!strat) {
-              socket.send(failure({
-                message: 'Invalid strategy: "' + strategy + '"'
-              }, {
-                action: 'invalidate',
-                routeKey: 'auth',
-                phase: 'response',
-                type: 'error',
-                id
-              }));
-              return;
+            if (!strat) {// socket.send(failure({ message: 'Invalid strategy: "' + strategy + '"' }, {
+              //     action: 'invalidate',
+              //     routeKey: 'auth',
+              //     phase: 'response',
+              //     type: 'error',
+              //     id
+              // }));
+              // return;
             }
 
             if (phase === 'challenge') {
@@ -317,9 +314,11 @@ const handleRender = ({
                   }));
                 }
               } else {
+                let challenge = 'Following strategies available';
+                if (strat) challenge = strat.challenge();
                 crypto.randomBytes(8, function (err, buffer) {
                   const token = buffer.toString('hex');
-                  socket.send(success(`Please sign this message to prove your identity: ${token}`, {
+                  socket.send(success(challenge, {
                     action: 'auth',
                     phase: 'challenge',
                     routeKey: 'auth',

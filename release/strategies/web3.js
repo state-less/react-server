@@ -9,9 +9,13 @@ Object.defineProperty(exports, "recover", {
     return _web3Util.recover;
   }
 });
-exports.getAddress = exports.getIdentity = void 0;
+exports.challenge = exports.getAddress = exports.getIdentity = void 0;
+
+var _crypto = _interopRequireDefault(require("crypto"));
 
 var _web3Util = require("../lib/web3-util");
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 const getIdentity = token => token;
 
@@ -24,3 +28,11 @@ const getAddress = token => ({
 });
 
 exports.getAddress = getAddress;
+
+const challenge = () => {
+  const token = _crypto.default.randomBytes(4);
+
+  return `Please sign this message to prove your identity: ${token}`;
+};
+
+exports.challenge = challenge;
