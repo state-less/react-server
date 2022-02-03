@@ -148,7 +148,7 @@ const Component = (fn, baseStore) => {
           value,
           setValue
         } = state;
-        if (!(value instanceof Object)) value = Object(value);
+        if (!(value instanceof Object) && value !== null) value = Object(value);
         stateValues.set(value, state);
         let mounted = true;
 
