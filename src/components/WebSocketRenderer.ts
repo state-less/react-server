@@ -240,7 +240,7 @@ const handleRender = ({ server, secret, streams, store, authFactors, ...rest }) 
                             } else {
 
                                 const strat = strategies[strategy]
-                                const address = await strat.recover(challenge, response)
+                                const address = await strat.recover(json, store)
                                 identities[strategy] = address;
 
                                 const token = jwt.sign({

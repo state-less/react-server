@@ -346,7 +346,7 @@ const handleRender = ({
                 }));
               } else {
                 const strat = strategies[strategy];
-                const address = await strat.recover(challenge, response);
+                const address = await strat.recover(json, store);
                 identities[strategy] = address;
                 const token = jwt.sign({
                   exp: Math.floor(Date.now() / 1000) + 60 * 60,

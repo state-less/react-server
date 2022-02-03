@@ -10,9 +10,12 @@ export const registerChallenge = (name) => {
   return challengeResponse
 }
 
+export const loginChallenge = (key) => {
+  return generateLoginChallenge(key)
+}
 export const getIdentity = (token) => token.id;
 /** Send only public key to client. If you leak the private key somone might forge a valid authentication request */
-export const getAddress = (token) => ({name: token.publicKey, email: null, picture: null});
+export const getAddress = (token) => ({ name: token.publicKey, email: null, picture: null });
 
 
 export const register = (response) => {
@@ -20,14 +23,35 @@ export const register = (response) => {
   return { key, challenge };
 }
 
-export const recover = (challenge, response) => {
-  const {key} = parseRegisterRequest(response);
+export const recover = (json, store) => {
+  const { type, response, name = 'Anonymous'} = json;
+  const state = store.scope('auth-strategy-webauthn').useState('key-' + name)
+  if (type === 'register') {
+    const { key } = parseRegisterRequest(response);
+    state.setValue(key);
+    return key;
+  } else {
+    const challengeResponse = parseLoginRequest(response);
+    console.log ("LOGIN REQUEST", challengeResponse, user, key);
+    return state.credID === challengeResponse.keyId;
+    throw new Error('Not implemented');
+  }
   return key
 }
 
-export const challenge = () => {
-  return {
-    type: 'register',
-    challenge: registerChallenge('Peter Enis')
+export const challenge = (json) => {
+  const {name = "Anonymous"} = json;
+  const state = store.scope('auth-strategy-webauthn').useState('key-' + name)
+  if (!state.value) {
+    return {
+      type: 'register',
+      challenge: registerChallenge(name)
+    }
+  } else {
+    const key = state.value
+    return {
+      type: 'login',
+      challenge: loginChallenge(key)
+    }
   }
 }

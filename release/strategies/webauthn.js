@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.challenge = exports.recover = exports.register = exports.getAddress = exports.getIdentity = exports.registerChallenge = void 0;
+exports.challenge = exports.recover = exports.register = exports.getAddress = exports.getIdentity = exports.loginChallenge = exports.registerChallenge = void 0;
 
 const {
   generateRegistrationChallenge,
@@ -26,6 +26,12 @@ const registerChallenge = name => {
 };
 
 exports.registerChallenge = registerChallenge;
+
+const loginChallenge = key => {
+  return generateLoginChallenge(key);
+};
+
+exports.loginChallenge = loginChallenge;
 
 const getIdentity = token => token.id;
 /** Send only public key to client. If you leak the private key somone might forge a valid authentication request */
@@ -54,20 +60,50 @@ const register = response => {
 
 exports.register = register;
 
-const recover = (challenge, response) => {
+const recover = (json, store) => {
   const {
-    key
-  } = parseRegisterRequest(response);
+    type,
+    response,
+    name = 'Anonymous'
+  } = json;
+  const state = store.scope('auth-strategy-webauthn').useState('key-' + name);
+
+  if (type === 'register') {
+    const {
+      key
+    } = parseRegisterRequest(response);
+    state.setValue(key);
+    return key;
+  } else {
+    const challengeResponse = parseLoginRequest(response);
+    console.log("LOGIN REQUEST", challengeResponse, user, key);
+    return state.credID === challengeResponse.keyId;
+    throw new Error('Not implemented');
+  }
+
   return key;
 };
 
 exports.recover = recover;
 
-const challenge = () => {
-  return {
-    type: 'register',
-    challenge: registerChallenge('Peter Enis')
-  };
+const challenge = json => {
+  const {
+    name = "Anonymous"
+  } = json;
+  const state = store.scope('auth-strategy-webauthn').useState('key-' + name);
+
+  if (!state.value) {
+    return {
+      type: 'register',
+      challenge: registerChallenge(name)
+    };
+  } else {
+    const key = state.value;
+    return {
+      type: 'login',
+      challenge: loginChallenge(key)
+    };
+  }
 };
 
 exports.challenge = challenge;
