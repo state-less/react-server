@@ -384,7 +384,7 @@ const Component = (fn, baseStore) => {
 
       if (rendered) {
         rendered.key = key;
-      } else {
+      } else if (rendered !== null) {
         logger.warning`Nothing rendered at: ${new Error().stack}`;
       }
 
