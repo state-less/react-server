@@ -25,7 +25,7 @@ const recover = json => {
   const {
     visitorId,
     confidence
-  } = json;
+  } = response;
   return getIdentity({
     visitorId,
     confidence
