@@ -3,13 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-Object.defineProperty(exports, "recover", {
-  enumerable: true,
-  get: function () {
-    return _web3Util.recover;
-  }
-});
-exports.challenge = exports.getAddress = exports.getIdentity = void 0;
+exports.challenge = exports.recover = exports.getAddress = exports.getIdentity = void 0;
 
 var _crypto = _interopRequireDefault(require("crypto"));
 
@@ -28,6 +22,15 @@ const getAddress = token => ({
 });
 
 exports.getAddress = getAddress;
+
+const recover = json => {
+  const {
+    response
+  } = json;
+  return (0, _web3Util.recover)(response);
+};
+
+exports.recover = recover;
 
 const challenge = () => {
   return new Promise(resolve => {

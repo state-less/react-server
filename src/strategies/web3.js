@@ -1,9 +1,13 @@
 import crypto from 'crypto';
 
-export { recover } from '../lib/web3-util'
+import {recover as web3Recover} from '../lib/web3-util'
 export const getIdentity = (token) => token;
 export const getAddress = (token) => ({name: token, email: null, picture: null});
 
+export const recover = (json) => {
+    const {response} = json;
+    return web3Recover(response)
+}
 export const challenge = () => {
     return new Promise ((resolve, ) => {
         crypto.randomBytes(8, function (err, buffer) {
