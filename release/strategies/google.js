@@ -75,7 +75,7 @@ const recover = async (challenge, response) => {
       console.log("Successful");
       return token;
     } catch (e) {
-      console.log("Error");
+      console.log("Error", e);
       e = e;
       continue;
     }

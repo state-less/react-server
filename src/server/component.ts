@@ -108,7 +108,9 @@ const Component : Lifecycle =(fn, baseStore) => {
                 const state = states[stateIndex] || await useState(scopedKey, initial, { temp: !stateKey, cache: Component.defaultCacheBehaviour, ...rest });
 
                 let { value, setValue } = state;
-                if (!(value instanceof Object) && value !== null)
+
+                /** So I'm not sure how I can store unique references to null values. For now it's a restriction */
+                if (!(value instanceof Object) && value !== null && typeof value !== 'undefined')
                     value = Object(value);
 
                 stateValues.set(value, state);

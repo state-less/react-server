@@ -148,7 +148,9 @@ const Component = (fn, baseStore) => {
           value,
           setValue
         } = state;
-        if (!(value instanceof Object) && value !== null) value = Object(value);
+        /** So I'm not sure how I can store unique references to null values. For now it's a restriction */
+
+        if (!(value instanceof Object) && value !== null && typeof value !== 'undefined') value = Object(value);
         stateValues.set(value, state);
         let mounted = true;
 
