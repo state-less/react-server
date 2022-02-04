@@ -449,7 +449,7 @@ const handleRender = ({
             throw new Error('No handler ${handler} defined for action ${action}');
           }
 
-          console.log("Invoking handler ", action.props.boundHandler[handler]);
+          logger.info`Invoking function ${name}`;
 
           try {
             if (action.props.boundHandler.use && typeof action.props.boundHandler.use === 'function') {
@@ -458,7 +458,6 @@ const handleRender = ({
                 connectionInfo,
                 data: json
               }, ...args);
-              console.log("USE RES", useRes);
             }
 
             const res = await action.props.boundHandler[handler]({

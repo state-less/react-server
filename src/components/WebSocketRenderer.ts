@@ -319,7 +319,9 @@ const handleRender = ({ server, secret, streams, store, authFactors, ...rest }) 
                     } else if (!action.props.boundHandler[handler]) {
                         throw new Error('No handler ${handler} defined for action ${action}');
                     }
-                    console.log("Invoking handler ", action.props.boundHandler[handler]);
+                    
+                    logger.info`Invoking function ${name}`;
+                    
                     try {
                         if (action.props.boundHandler.use && typeof action.props.boundHandler.use === 'function') {
                             const useRes = await action.props.boundHandler.use({
@@ -327,8 +329,8 @@ const handleRender = ({ server, secret, streams, store, authFactors, ...rest }) 
                                 connectionInfo,
                                 data: json
                             }, ...args);
-                            console.log("USE RES", useRes)
                         }
+
                         const res = await action.props.boundHandler[handler]({ socket, connectionInfo }, ...args);
                         socket.send(success(res, {
                             action: 'call',
