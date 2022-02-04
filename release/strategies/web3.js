@@ -25,9 +25,10 @@ exports.getAddress = getAddress;
 
 const recover = json => {
   const {
+    challenge,
     response
   } = json;
-  return (0, _web3Util.recover)(response);
+  return (0, _web3Util.recover)(challenge, response);
 };
 
 exports.recover = recover;

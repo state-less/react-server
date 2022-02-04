@@ -5,8 +5,8 @@ export const getIdentity = (token) => token;
 export const getAddress = (token) => ({name: token, email: null, picture: null});
 
 export const recover = (json) => {
-    const {response} = json;
-    return web3Recover(response)
+    const {challenge, response} = json;
+    return web3Recover(challenge, response)
 }
 export const challenge = () => {
     return new Promise ((resolve, ) => {
