@@ -213,7 +213,7 @@ const handleRender = ({ server, secret, streams, store, authFactors, ...rest }) 
                             } else {
                                 let challenge = 'Following strategies available'
                                 if (strat)
-                                    challenge = strat.challenge(json, store);
+                                    challenge = await strat.challenge(json, store);
 
 
                                 socket.send(success(challenge, {

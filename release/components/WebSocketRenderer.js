@@ -315,7 +315,7 @@ const handleRender = ({
                 }
               } else {
                 let challenge = 'Following strategies available';
-                if (strat) challenge = strat.challenge(json, store);
+                if (strat) challenge = await strat.challenge(json, store);
                 socket.send(success(challenge, {
                   action: 'auth',
                   phase: 'challenge',

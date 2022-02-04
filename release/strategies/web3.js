@@ -30,12 +30,15 @@ const getAddress = token => ({
 exports.getAddress = getAddress;
 
 const challenge = () => {
-  const token = _crypto.default.randomBytes(4).toString('hex');
-
-  return {
-    type: 'sign',
-    challenge: `Please sign this message to prove your identity: ${token}`
-  };
+  return new Promise((reject, resolve) => {
+    _crypto.default.randomBytes(8, function (err, buffer) {
+      const token = buffer.toString('hex');
+      resolve({
+        type: 'sign',
+        challenge: `Please sign this message to prove your identity: ${token}`
+      });
+    });
+  });
 };
 
 exports.challenge = challenge;
