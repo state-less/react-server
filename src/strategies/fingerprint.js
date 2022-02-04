@@ -1,9 +1,10 @@
-export const getIdentity = (token) => token;
-export const getAddress = (token) => ({name: token, email: null, picture: null});
+export const getIdentity = (token) => token.visitorId;
+export const getAddress = (token) => ({name: token.visitorId, email: null, picture: null});
 
 export const recover = (json) => {
     const {challenge, response} = json;
-    return response
+    const {visitorId, confidence} = json;
+    return getIdentity({visitorId, confidence})
 }
 export const challenge = () => {
     return {

@@ -295,6 +295,11 @@ const handleRender = ({
 
                 try {
                   token = jwt.verify(headers.Authorization.split(' ')[1], secret);
+
+                  for (const key in token) {
+                    if (strategies[key]) identities[key] = token[key];
+                  }
+
                   socket.send(success(token, {
                     action: 'auth',
                     phase: 'response',

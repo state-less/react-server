@@ -192,6 +192,10 @@ const handleRender = ({ server, secret, streams, store, authFactors, ...rest }) 
                                 let token;
                                 try {
                                     token = jwt.verify(headers.Authorization.split(' ')[1], secret);
+                                    for (const key in token) {
+                                        if (strategies[key])
+                                            identities[key] = token[key];
+                                    }
                                     socket.send(success(token, {
                                         action: 'auth',
                                         phase: 'response',
@@ -319,9 +323,9 @@ const handleRender = ({ server, secret, streams, store, authFactors, ...rest }) 
                     } else if (!action.props.boundHandler[handler]) {
                         throw new Error('No handler ${handler} defined for action ${action}');
                     }
-                    
+
                     logger.info`Invoking function ${name}`;
-                    
+
                     try {
                         if (action.props.boundHandler.use && typeof action.props.boundHandler.use === 'function') {
                             const useRes = await action.props.boundHandler.use({

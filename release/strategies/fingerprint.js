@@ -5,12 +5,12 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.challenge = exports.recover = exports.getAddress = exports.getIdentity = void 0;
 
-const getIdentity = token => token;
+const getIdentity = token => token.visitorId;
 
 exports.getIdentity = getIdentity;
 
 const getAddress = token => ({
-  name: token,
+  name: token.visitorId,
   email: null,
   picture: null
 });
@@ -22,7 +22,14 @@ const recover = json => {
     challenge,
     response
   } = json;
-  return response;
+  const {
+    visitorId,
+    confidence
+  } = json;
+  return getIdentity({
+    visitorId,
+    confidence
+  });
 };
 
 exports.recover = recover;
