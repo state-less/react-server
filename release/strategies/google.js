@@ -7,6 +7,8 @@ exports.recover = exports.challenge = exports.getAddress = exports.getIdentity =
 
 var _isomorphicFetch = _interopRequireDefault(require("isomorphic-fetch"));
 
+var _logger = _interopRequireDefault(require("../lib/logger"));
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 const jwt = require('jsonwebtoken');
@@ -61,21 +63,25 @@ const challenge = () => {
 
 exports.challenge = challenge;
 
-const recover = async (challenge, response) => {
+const recover = async json => {
+  const {
+    challenge,
+    response
+  } = json;
   const jwk = await (0, _isomorphicFetch.default)('https://www.googleapis.com/oauth2/v3/certs');
-  const json = await jwk.json();
+  const certJson = await jwk.json();
   let e;
 
   for (let i = 0; i < 2; i++) {
-    const pem = jwkToPem(json.keys[i]);
+    const pem = jwkToPem(certJson.keys[i]);
 
     try {
-      console.log("Trying signature ", i, "of ", 2);
+      _logger.default.debug`Trying signature ${i + 1} of 2`;
       const token = jwt.verify(response, pem);
       console.log("Successful");
       return token;
     } catch (e) {
-      console.log("Error", e);
+      _logger.default.error`Error validating google oauth signature. ${e}`;
       e = e;
       continue;
     }

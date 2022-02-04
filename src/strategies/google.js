@@ -1,4 +1,5 @@
 import fetch from 'isomorphic-fetch';
+import logger from '../lib/logger'
 const jwt = require('jsonwebtoken');
 
 var jwkToPem = require("jwk-to-pem")
@@ -40,20 +41,20 @@ export const challenge = () => {
   }
 }
 
-export const recover = async (challenge, response) => {
-
+export const recover = async (json) => {
+  const {challenge, response} = json;
   const jwk = await fetch('https://www.googleapis.com/oauth2/v3/certs');
-  const json = await jwk.json();
+  const certJson = await jwk.json();
   let e;
   for (let i = 0; i < 2; i++) {
-    const pem = jwkToPem(json.keys[i]);
+    const pem = jwkToPem(certJson.keys[i]);
     try {
-      console.log ("Trying signature ", i, "of ", 2)
+      logger.debug`Trying signature ${i+1} of 2`;
       const token = jwt.verify(response, pem);
       console.log ("Successful")
       return token
     } catch (e) {
-      console.log ("Error", e)
+      logger.error`Error validating google oauth signature. ${e}`;
       e = e;
       continue;
     }

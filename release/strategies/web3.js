@@ -30,7 +30,7 @@ const getAddress = token => ({
 exports.getAddress = getAddress;
 
 const challenge = () => {
-  const token = _crypto.default.randomBytes(4);
+  const token = _crypto.default.randomBytes(4).toString('hex');
 
   return {
     type: 'sign',
