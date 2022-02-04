@@ -5,7 +5,7 @@ export const getIdentity = (token) => token;
 export const getAddress = (token) => ({name: token, email: null, picture: null});
 
 export const challenge = () => {
-    return new Promise ((reject, resolve) => {
+    return new Promise ((resolve, ) => {
         crypto.randomBytes(8, function (err, buffer) {
             const token = buffer.toString('hex');
             resolve ({

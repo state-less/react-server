@@ -30,7 +30,7 @@ const getAddress = token => ({
 exports.getAddress = getAddress;
 
 const challenge = () => {
-  return new Promise((reject, resolve) => {
+  return new Promise(resolve => {
     _crypto.default.randomBytes(8, function (err, buffer) {
       const token = buffer.toString('hex');
       resolve({
