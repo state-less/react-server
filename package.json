@@ -41,7 +41,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "babel -x \".ts\" -x \".tsx\" -x \".js\" ./src --out-dir ./release && tsc",
-    "start": "babel ./test.jsx.js --out-file test.c.js && node test.c.js"
+    "start": "babel ./test.jsx.js --out-file test.c.js && node test.c.js",
+    "release": "npm run build && git add -u && cz"
   },
   "repository": {
     "type": "git",

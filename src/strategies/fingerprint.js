@@ -4,7 +4,7 @@ export const getAddress = (token) => ({name: token.visitorId, email: null, pictu
 export const recover = (json) => {
     const {challenge, response} = json;
     const {visitorId, confidence} = response;
-    return getIdentity({visitorId, confidence})
+    return {visitorId, confidence}
 }
 export const challenge = () => {
     return {

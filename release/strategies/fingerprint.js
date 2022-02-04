@@ -26,10 +26,10 @@ const recover = json => {
     visitorId,
     confidence
   } = response;
-  return getIdentity({
+  return {
     visitorId,
     confidence
-  });
+  };
 };
 
 exports.recover = recover;
