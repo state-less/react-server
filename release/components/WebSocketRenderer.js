@@ -290,7 +290,7 @@ const handleRender = ({
             }
 
             if (phase === 'challenge') {
-              if (headers !== null && headers !== void 0 && headers.Authorization) {
+              if (headers !== null && headers !== void 0 && headers.Authorization && !strat) {
                 let token;
 
                 try {

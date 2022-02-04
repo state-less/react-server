@@ -188,7 +188,7 @@ const handleRender = ({ server, secret, streams, store, authFactors, ...rest }) 
 
 
                         if (phase === 'challenge') {
-                            if (headers?.Authorization) {
+                            if (headers?.Authorization && !strat) {
                                 let token;
                                 try {
                                     token = jwt.verify(headers.Authorization.split(' ')[1], secret);
