@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.challenge = exports.recover = exports.register = exports.getAddress = exports.getIdentity = exports.loginChallenge = exports.registerChallenge = void 0;
+exports.challenge = exports.recover = exports.register = exports.link = exports.getAddress = exports.getIdentity = exports.loginChallenge = exports.registerChallenge = void 0;
 
 const {
   generateRegistrationChallenge,
@@ -11,6 +11,8 @@ const {
   parseRegisterRequest,
   parseLoginRequest
 } = require('@webauthn/server');
+
+const STRAT = 'webauthn';
 
 const registerChallenge = name => {
   const challengeResponse = generateRegistrationChallenge({
@@ -49,15 +51,45 @@ const getAddress = token => ({
 
 exports.getAddress = getAddress;
 
-const register = response => {
-  const {
-    key,
-    challenge
-  } = parseRegisterRequest(solved);
-  return {
-    key,
-    challenge
+const link = async (token, store) => {
+  const id = token.address.id;
+  const state = await store.useState(id, {}, {
+    scope: 'identities'
+  });
+  const link = await store.useState(token.google.email, {}, {
+    scope: 'identities.google'
+  });
+  const account = { ...state.value
   };
+  account.identities.google = token.google;
+  link.setValue(state.id);
+  state.setValue(account);
+  return account;
+};
+
+exports.link = link;
+
+const register = async (identity, store) => {
+  if (identity.compound) return link(identity, store);
+  const state = await store.useState(null, null, {
+    scope: 'identities'
+  });
+  const linked = await store.useState(identity.email, null, {
+    scope: 'identities.google'
+  });
+  if (linked !== null && linked !== void 0 && linked.value) throw new Error('Account already registered');
+  const account = {
+    id: state.id,
+    name: identity.name,
+    email: identity.email,
+    picture: identity.picture,
+    identities: {
+      [STRAT]: identity
+    }
+  };
+  linked.setValue(state.id);
+  state.setValue(account);
+  return account;
 };
 
 exports.register = register;
