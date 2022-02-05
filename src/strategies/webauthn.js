@@ -15,7 +15,7 @@ export const loginChallenge = (key) => {
 }
 export const getIdentity = (token) => token.id;
 /** Send only public key to client. If you leak the private key somone might forge a valid authentication request */
-export const getAddress = (token) => ({ name: token.publicKey, email: null, picture: null });
+export const getAddress = (token) => ({ id: token.keyId, name: token.keyId, email: null, picture: null });
 
 
 export const register = (response) => {

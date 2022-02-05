@@ -40,7 +40,8 @@ const getIdentity = token => token.id;
 exports.getIdentity = getIdentity;
 
 const getAddress = token => ({
-  name: token.publicKey,
+  id: token.keyId,
+  name: token.keyId,
   email: null,
   picture: null
 });

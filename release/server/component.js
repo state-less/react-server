@@ -365,7 +365,7 @@ const Component = (fn, baseStore) => {
         scope.set(key, componentState); //Implement publish mechanism based on configuration/environment.
         //Render server publishes on render. That updates the cache of the fallback renderer running serverless. (that's what happens right now)
 
-        if (!lastResult || !lastResult.props || Object.keys(lastResult.props).length !== Object.keys(result.props).length) {
+        if (!lastResult || !lastResult.props || Object.keys(lastResult.props).length !== Object.keys(result.props).length || JSON.stringify(lastResult.props) !== JSON.stringify(result.props)) {
           const res = await setResult(result);
         }
 
