@@ -191,9 +191,7 @@ const handleRender = ({
 
     try {
       let challenge,
-          solvedFactors = authFactors.reduce((lkp, cur) => ({ ...lkp,
-        [cur]: false
-      }), {}),
+          solvedFactors = {},
           identities = {};
       (0, _socket.validateSecWebSocketKey)(req);
       const clientId = (0, _socket.getSecWebSocketKey)(req);
@@ -401,7 +399,19 @@ const handleRender = ({
               } else {
                 const strat = strategies[strategy];
                 const recoveredToken = await strat.recover(json, store);
+
+                if (recoveredToken.compound) {
+                  const mfaState = store.scope('mfa').scope(recoveredToken.compound.id).useState('2fa');
+
+                  if (typeof mfaState.value === 'object') {
+                    for (const key in mfaState.value) {
+                      solvedFactors[key] = false;
+                    }
+                  }
+                }
+
                 Object.assign(identities, recoveredToken);
+                solvedFactors[strategy] = true;
                 const token = jwt.sign({
                   exp: Math.floor(Date.now() / 1000) + 60 * 60,
                   iat: Date.now() / 1000,
@@ -410,7 +420,6 @@ const handleRender = ({
                   ...identities,
                   factors: authFactors.filter(f => !solvedFactors[f])
                 }, secret);
-                solvedFactors[strategy] = true;
 
                 if (!Object.values(solvedFactors).reduce((a, b) => a && b)) {
                   crypto.randomBytes(8, function (err, buffer) {

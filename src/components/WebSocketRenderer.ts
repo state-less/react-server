@@ -112,7 +112,8 @@ const handleRender = ({ server, secret, streams, store, authFactors, ...rest }) 
         const handler = ConnectionHandler(broker, store, 'DISCONNECT');
 
         try {
-            let challenge, solvedFactors = authFactors.reduce((lkp, cur) => ({ ...lkp, [cur]: false }), {}),
+            let challenge,
+                solvedFactors = {},
                 identities = {};
             validateSecWebSocketKey(req);
             const clientId = getSecWebSocketKey(req);
@@ -292,7 +293,18 @@ const handleRender = ({ server, secret, streams, store, authFactors, ...rest }) 
 
                                 const strat = strategies[strategy]
                                 const recoveredToken = await strat.recover(json, store)
+
+                                if (recoveredToken.compound) {
+                                    const mfaState = store.scope('mfa').scope(recoveredToken.compound.id).useState('2fa');
+                                    if (typeof mfaState.value === 'object') {
+                                        for (const key in mfaState.value) {
+                                            solvedFactors[key] = false
+                                        }
+                                    }
+                                }
                                 Object.assign(identities, recoveredToken);
+
+                                solvedFactors[strategy] = true;
 
                                 const token = jwt.sign({
                                     exp: Math.floor(Date.now() / 1000) + (60 * 60),
@@ -303,7 +315,6 @@ const handleRender = ({ server, secret, streams, store, authFactors, ...rest }) 
                                     factors: authFactors.filter(f => !solvedFactors[f])
                                 }, secret);
 
-                                solvedFactors[strategy] = true;
                                 if (!Object.values(solvedFactors).reduce((a, b) => a && b)) {
                                     crypto.randomBytes(8, function (err, buffer) {
                                         const rand = buffer.toString('hex');
