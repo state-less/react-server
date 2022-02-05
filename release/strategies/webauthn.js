@@ -48,14 +48,22 @@ const getAddress = token => ({
   email: null,
   picture: null
 });
+/**
+ * Links the currently authenticated webauthn device to the registered account.
+ * Both accounts need to be actively authenticated.
+ * @param token 
+ * @param store 
+ * @returns 
+ */
+
 
 exports.getAddress = getAddress;
 
 const link = async (token, store) => {
   if (!token.webauthn) throw new Error('Not authenticated');
-  const id = token.address.id;
+  const accountId = token.compound.id;
   const identity = token.webauthn;
-  const state = await store.useState(id, {}, {
+  const state = await store.useState(accountId, {}, {
     scope: 'identities'
   });
   const link = await store.useState(identity.keyId, {}, {
