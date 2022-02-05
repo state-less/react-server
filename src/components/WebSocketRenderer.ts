@@ -176,7 +176,7 @@ const handleRender = ({ server, secret, streams, store, authFactors, ...rest }) 
                     const strat = strategies[strategy]
 
                     try {
-                        if (!headers?.Authorization)
+                        if (phase === 'logout')
                             identities = {}
 
                         if (phase === 'register') {

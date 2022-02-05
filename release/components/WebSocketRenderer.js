@@ -277,7 +277,7 @@ const handleRender = ({
           const strat = strategies[strategy];
 
           try {
-            if (!(headers !== null && headers !== void 0 && headers.Authorization)) identities = {};
+            if (phase === 'logout') identities = {};
 
             if (phase === 'register') {
               if (!(headers !== null && headers !== void 0 && headers.Authorization)) {
