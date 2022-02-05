@@ -176,16 +176,8 @@ const handleRender = ({ server, secret, streams, store, authFactors, ...rest }) 
                     const strat = strategies[strategy]
 
                     try {
-                        if (!strat) {
-                            // socket.send(failure({ message: 'Invalid strategy: "' + strategy + '"' }, {
-                            //     action: 'invalidate',
-                            //     routeKey: 'auth',
-                            //     phase: 'response',
-                            //     type: 'error',
-                            //     id
-                            // }));
-                            // return;
-                        }
+                        if (!headers?.Authorization)
+                            identities = {}
 
                         if (phase === 'register') {
                             if (!headers?.Authorization) {
@@ -237,6 +229,8 @@ const handleRender = ({ server, secret, streams, store, authFactors, ...rest }) 
                         }
 
                         if (phase === 'challenge') {
+
+
                             if (headers?.Authorization && !strat) {
                                 let token;
                                 try {
@@ -298,7 +292,8 @@ const handleRender = ({ server, secret, streams, store, authFactors, ...rest }) 
                                     const mfaState = await store.scope('public.mfa').scope(recoveredToken.compound.id).useState('2fa');
                                     if (typeof mfaState.value === 'object') {
                                         for (const key in mfaState.value) {
-                                            solvedFactors[key] = false
+                                            if (mfaState.value[key])
+                                                solvedFactors[key] = false;
                                         }
                                     }
                                 }

@@ -277,15 +277,7 @@ const handleRender = ({
           const strat = strategies[strategy];
 
           try {
-            if (!strat) {// socket.send(failure({ message: 'Invalid strategy: "' + strategy + '"' }, {
-              //     action: 'invalidate',
-              //     routeKey: 'auth',
-              //     phase: 'response',
-              //     type: 'error',
-              //     id
-              // }));
-              // return;
-            }
+            if (!(headers !== null && headers !== void 0 && headers.Authorization)) identities = {};
 
             if (phase === 'register') {
               if (!(headers !== null && headers !== void 0 && headers.Authorization)) {
@@ -405,7 +397,7 @@ const handleRender = ({
 
                   if (typeof mfaState.value === 'object') {
                     for (const key in mfaState.value) {
-                      solvedFactors[key] = false;
+                      if (mfaState.value[key]) solvedFactors[key] = false;
                     }
                   }
                 }
