@@ -84,18 +84,21 @@ export const register = async (token, store: Store) => {
 }
 
 
-export const recover = (json, store) => {
+export const recover = async (json, store) => {
   const { type, response, name = 'Anonymous' } = json;
   const state = store.scope('auth-strategy-webauthn').useState('key-' + name)
   if (type === 'register') {
     const { key } = parseRegisterRequest(response);
     state.setValue(key);
-    return key;
+    return {webauthn: key}
   } else if (type === 'login') {
     const challengeResponse = parseLoginRequest(response);
     console.log("Verify Yubikey", state.value.credID, challengeResponse.keyId);
     if (state.value.credID === challengeResponse.keyId) {
-
+      const link = await store.scope('identities.webauthn').useState(state.value.credID, null)
+      if (!link) return {webauthn:challengeResponse};
+      const account = await store.scope('identities').useState(link.value, null)
+      if (account?.value) return {'compound':account.value, 'webauthn': challengeResponse}
       return {webauthn: challengeResponse};
     } else {
       return null;

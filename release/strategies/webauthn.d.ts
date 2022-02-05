@@ -19,7 +19,13 @@ export declare const getAddress: (token: any) => {
  */
 export declare const link: (token: any, store: Store) => Promise<any>;
 export declare const register: (token: any, store: Store) => Promise<any>;
-export declare const recover: (json: any, store: any) => any;
+export declare const recover: (json: any, store: any) => Promise<{
+    webauthn: any;
+    compound?: undefined;
+} | {
+    compound: any;
+    webauthn: any;
+}>;
 export declare const challenge: (json: any, store: any) => {
     type: string;
     challenge: any;
