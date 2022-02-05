@@ -188,7 +188,7 @@ const handleRender = ({ server, secret, streams, store, authFactors, ...rest }) 
 
                         if (phase === 'register') {
                             if (!headers?.Authorization) {
-                                socket.send(success({ message: 'Invalid strategy: "' + strategy + '"' }, {
+                                socket.send(success({ message: 'Not authorized' }, {
                                     action: 'invalidate',
                                     routeKey: 'auth',
                                     phase: 'response',
@@ -199,7 +199,7 @@ const handleRender = ({ server, secret, streams, store, authFactors, ...rest }) 
                                 let token;
                                 try {
                                     token = jwt.verify(headers.Authorization.split(' ')[1], secret);
-                                    const identity = token[strat]
+                                    const identity = token[strategy]
                                     if (!identity) throw new Error;
 
                                     const registered = await strat.register(identity, store);
