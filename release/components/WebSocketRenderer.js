@@ -401,7 +401,7 @@ const handleRender = ({
                 const recoveredToken = await strat.recover(json, store);
 
                 if (recoveredToken.compound) {
-                  const mfaState = store.scope('public.mfa').scope(recoveredToken.compound.id).useState('2fa');
+                  const mfaState = await store.scope('public.mfa').scope(recoveredToken.compound.id).useState('2fa');
 
                   if (typeof mfaState.value === 'object') {
                     for (const key in mfaState.value) {
