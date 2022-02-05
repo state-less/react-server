@@ -52,16 +52,17 @@ const getAddress = token => ({
 exports.getAddress = getAddress;
 
 const link = async (token, store) => {
+  if (!token.webauthn) throw new Error('Not authenticated');
   const id = token.address.id;
   const state = await store.useState(id, {}, {
     scope: 'identities'
   });
-  const link = await store.useState(token.google.email, {}, {
-    scope: 'identities.google'
+  const link = await store.useState(token.webauthn.keyId, {}, {
+    scope: 'identities.webauthn'
   });
   const account = { ...state.value
   };
-  account.identities.google = token.google;
+  account.identities.webauthn = token.webauthn;
   link.setValue(state.id);
   state.setValue(account);
   return account;
@@ -74,8 +75,8 @@ const register = async (identity, store) => {
   const state = await store.useState(null, null, {
     scope: 'identities'
   });
-  const linked = await store.useState(identity.email, null, {
-    scope: 'identities.google'
+  const linked = await store.useState(identity.webauthn.keyId, null, {
+    scope: 'identities.webauthn'
   });
   if (linked !== null && linked !== void 0 && linked.value) throw new Error('Account already registered');
   const account = {
