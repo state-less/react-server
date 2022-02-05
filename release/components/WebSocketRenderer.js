@@ -418,7 +418,7 @@ const handleRender = ({
                   address: strat.getAddress(recoveredToken),
                   id: strat.getIdentity(recoveredToken),
                   ...identities,
-                  factors: authFactors.filter(f => !solvedFactors[f])
+                  factors: Object.keys(solvedFactors).filter(f => !solvedFactors[f])
                 }, secret);
 
                 if (!Object.values(solvedFactors).reduce((a, b) => a && b)) {
