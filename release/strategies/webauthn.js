@@ -40,6 +40,7 @@ const getIdentity = token => token.id;
 exports.getIdentity = getIdentity;
 
 const getAddress = token => ({
+  strat: 'webauthn',
   id: token.keyId,
   name: token.keyId,
   email: null,

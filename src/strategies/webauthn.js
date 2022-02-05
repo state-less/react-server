@@ -15,7 +15,13 @@ export const loginChallenge = (key) => {
 }
 export const getIdentity = (token) => token.id;
 /** Send only public key to client. If you leak the private key somone might forge a valid authentication request */
-export const getAddress = (token) => ({ id: token.keyId, name: token.keyId, email: null, picture: null });
+export const getAddress = (token) => ({
+  strat: 'webauthn',
+  id: token.keyId,
+  name: token.keyId,
+  email: null,
+  picture: null
+});
 
 
 export const register = (response) => {
@@ -32,7 +38,7 @@ export const recover = (json, store) => {
     return key;
   } else if (type === 'login') {
     const challengeResponse = parseLoginRequest(response);
-    console.log ("Verify Yubikey", state.value.credID, challengeResponse.keyId);
+    console.log("Verify Yubikey", state.value.credID, challengeResponse.keyId);
     if (state.value.credID === challengeResponse.keyId) {
 
       return challengeResponse;

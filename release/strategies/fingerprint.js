@@ -10,6 +10,8 @@ const getIdentity = token => token.visitorId;
 exports.getIdentity = getIdentity;
 
 const getAddress = token => ({
+  id: token.visitorId,
+  strat: 'fingerprint',
   name: token.visitorId,
   email: null,
   picture: null

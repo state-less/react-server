@@ -31,7 +31,7 @@ export const getIdentity = (token) => {
 
 export const getAddress = (token) => {
   const {name, email, picture} = token;
-  return {name, email, picture};
+  return {id: email, strat: 'google', name, email, picture};
 }
 
 export const challenge = () => {

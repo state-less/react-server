@@ -46,6 +46,8 @@ const getAddress = token => {
     picture
   } = token;
   return {
+    id: email,
+    strat: 'google',
     name,
     email,
     picture

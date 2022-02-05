@@ -1,5 +1,5 @@
 export const getIdentity = (token) => token.visitorId;
-export const getAddress = (token) => ({name: token.visitorId, email: null, picture: null});
+export const getAddress = (token) => ({id: token.visitorId, strat: 'fingerprint', name: token.visitorId, email: null, picture: null});
 
 export const recover = (json) => {
     const {challenge, response} = json;

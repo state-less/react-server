@@ -16,6 +16,8 @@ const getIdentity = token => token;
 exports.getIdentity = getIdentity;
 
 const getAddress = token => ({
+  id: token,
+  strat: 'web3',
   name: token,
   email: null,
   picture: null
