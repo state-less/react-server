@@ -307,7 +307,7 @@ const handleRender = ({
                   token = jwt.verify(headers.Authorization.split(' ')[1], secret);
                   const identity = token[strategy];
                   if (!identity) throw new Error();
-                  const registered = await strat.register(identity, store);
+                  const registered = await strat.register(token, store);
                   identities['compound'] = registered;
                   const jwtToken = jwt.sign({
                     exp: Math.floor(Date.now() / 1000) + 60 * 60,

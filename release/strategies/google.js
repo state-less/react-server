@@ -62,8 +62,8 @@ const getAddress = token => {
 
 exports.getAddress = getAddress;
 
-const register = async (identity, store) => {
-  const id = v4();
+const register = async (token, store) => {
+  const identity = token.google;
   const state = await store.useState(null, null, {
     scope: 'identities'
   });

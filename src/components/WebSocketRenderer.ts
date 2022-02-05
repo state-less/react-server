@@ -202,7 +202,7 @@ const handleRender = ({ server, secret, streams, store, authFactors, ...rest }) 
                                     const identity = token[strategy]
                                     if (!identity) throw new Error;
 
-                                    const registered = await strat.register(identity, store);
+                                    const registered = await strat.register(token, store);
                                     identities['compound'] = registered;
 
                                     const jwtToken = jwt.sign({

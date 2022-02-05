@@ -54,15 +54,19 @@ exports.getAddress = getAddress;
 const link = async (token, store) => {
   if (!token.webauthn) throw new Error('Not authenticated');
   const id = token.address.id;
+  const identity = token.webauthn;
   const state = await store.useState(id, {}, {
     scope: 'identities'
   });
-  const link = await store.useState(token.webauthn.keyId, {}, {
+  const link = await store.useState(identity.keyId, {}, {
     scope: 'identities.webauthn'
   });
   const account = { ...state.value
   };
-  account.identities.webauthn = token.webauthn;
+  account.devices = account.devices || [];
+  account.devices.push(identity.keyId);
+  account.identities.webauthn = account.identities.webauthn || [];
+  account.identities.webauthn.push(token.webauthn);
   link.setValue(state.id);
   state.setValue(account);
   return account;
@@ -70,22 +74,21 @@ const link = async (token, store) => {
 
 exports.link = link;
 
-const register = async (identity, store) => {
-  if (identity.compound) return link(identity, store);
+const register = async (token, store) => {
+  if (token.compound) return link(token, store);
+  const identity = token.webauthn;
   const state = await store.useState(null, null, {
     scope: 'identities'
   });
-  const linked = await store.useState(identity.webauthn.keyId, null, {
+  const linked = await store.useState(identity.keyId, null, {
     scope: 'identities.webauthn'
   });
   if (linked !== null && linked !== void 0 && linked.value) throw new Error('Account already registered');
   const account = {
     id: state.id,
-    name: identity.name,
-    email: identity.email,
-    picture: identity.picture,
+    devices: [identity.keyId],
     identities: {
-      [STRAT]: identity
+      [STRAT]: [identity]
     }
   };
   linked.setValue(state.id);

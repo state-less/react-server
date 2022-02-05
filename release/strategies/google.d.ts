@@ -7,7 +7,7 @@ export declare const getAddress: (token: any) => {
     email: any;
     picture: any;
 };
-export declare const register: (identity: any, store: Store) => Promise<{
+export declare const register: (token: any, store: Store) => Promise<{
     id: string;
     name: any;
     email: any;

@@ -38,8 +38,8 @@ export const getAddress = (token) => {
   return { id: email, strat: 'google', name, email, picture };
 }
 
-export const register = async (identity, store: Store) => {
-  const id = v4();
+export const register = async (token, store: Store) => {
+  const identity = token.google;
   const state = await store.useState(null, null, {
     scope: 'identities'
   })
