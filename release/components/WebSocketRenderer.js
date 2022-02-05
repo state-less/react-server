@@ -304,8 +304,7 @@ const handleRender = ({
                     iat: Date.now() / 1000,
                     address: strat.getAddress(registered),
                     id: strat.getIdentity(registered),
-                    ...identities,
-                    factors: authFactors.filter(f => !solvedFactors[f])
+                    ...identities
                   }, secret);
                   socket.send(success(jwtToken, {
                     action: 'auth',
@@ -365,7 +364,6 @@ const handleRender = ({
                   phase: 'challenge',
                   routeKey: 'auth',
                   type: 'response',
-                  factors: authFactors,
                   id
                 }));
               }
@@ -427,8 +425,7 @@ const handleRender = ({
                       action: 'auth',
                       phase: 'challenge',
                       routeKey: 'auth',
-                      type: 'response',
-                      factors: authFactors.filter(f => !solvedFactors[f])
+                      type: 'response'
                     }));
                   });
                 } else {
