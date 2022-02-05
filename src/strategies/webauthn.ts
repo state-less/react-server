@@ -40,7 +40,7 @@ export const link = async (token, store: Store) => {
   const identity = token.webauthn;
   const state = await store.scope('identities').useState(accountId, null);
 
-  const link = await store.scope('identities.webauthn').useState(identity.keyId, null);
+  const link = await store.scope('identities.webauthn').useState(identity.credID, null);
   const account = {
     ...state.value
   };

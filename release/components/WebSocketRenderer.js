@@ -415,6 +415,8 @@ const handleRender = ({
                   address: strat.getAddress(recoveredToken),
                   id: strat.getIdentity(recoveredToken),
                   ...identities,
+
+                  /**This field marks the jwt as invalid, as multiple factor steps are still missing. */
                   factors: Object.keys(solvedFactors).filter(f => !solvedFactors[f])
                 }, secret);
 
