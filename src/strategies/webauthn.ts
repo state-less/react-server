@@ -17,14 +17,18 @@ export const loginChallenge = (key) => {
 }
 export const getIdentity = (token) => token.webauthn.keyId;
 /** Send only public key to client. If you leak the private key somone might forge a valid authentication request */
-export const getAddress = (token) => ({
-  strat: 'webauthn',
-  id: token.webauthn.keyId,
-  name: token.webauthn.keyId,
-  email: null,
-  picture: null
-});
+export const getAddress = (token) => {
+  if (token.compound) {
+    const { id, name, email, picture } = token.compound;
+    return { id, strat: 'compound', name, email, picture };
+  }
 
+  return ({
+    strat: 'webauthn',
+    id: token?.webauthn?.keyId,
+    name: token?.webauthn?.keyId,
+  });
+}
 /**
  * Links the currently authenticated webauthn device to the registered account.
  * Both accounts need to be actively authenticated.
@@ -52,7 +56,7 @@ export const link = async (token, store: Store) => {
 
   link.setValue(state.id);
   state.setValue(account);
-  return {compound: account};
+  return { compound: account };
 };
 
 export const register = async (token, store: Store) => {
@@ -80,7 +84,7 @@ export const register = async (token, store: Store) => {
   linked.setValue(state.id);
   state.setValue(account);
 
-  return {compound: account}
+  return { compound: account }
 }
 
 
@@ -90,16 +94,16 @@ export const recover = async (json, store) => {
   if (type === 'register') {
     const { key } = parseRegisterRequest(response);
     state.setValue(key);
-    return {webauthn: key}
+    return { webauthn: key }
   } else if (type === 'login') {
     const challengeResponse = parseLoginRequest(response);
     console.log("Verify Yubikey", state.value.credID, challengeResponse.keyId);
     if (state.value.credID === challengeResponse.keyId) {
       const link = await store.scope('identities.webauthn').useState(state.value.credID, null)
-      if (!link) return {webauthn:challengeResponse};
+      if (!link) return { webauthn: challengeResponse };
       const account = await store.scope('identities').useState(link.value, null)
-      if (account?.value) return {'compound':account.value, 'webauthn': challengeResponse}
-      return {webauthn: challengeResponse};
+      if (account?.value) return { 'compound': account.value, 'webauthn': challengeResponse }
+      return { webauthn: challengeResponse };
     } else {
       return null;
     }

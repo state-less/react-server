@@ -41,13 +41,31 @@ const getIdentity = token => token.webauthn.keyId;
 
 exports.getIdentity = getIdentity;
 
-const getAddress = token => ({
-  strat: 'webauthn',
-  id: token.webauthn.keyId,
-  name: token.webauthn.keyId,
-  email: null,
-  picture: null
-});
+const getAddress = token => {
+  var _token$webauthn, _token$webauthn2;
+
+  if (token.compound) {
+    const {
+      id,
+      name,
+      email,
+      picture
+    } = token.compound;
+    return {
+      id,
+      strat: 'compound',
+      name,
+      email,
+      picture
+    };
+  }
+
+  return {
+    strat: 'webauthn',
+    id: token === null || token === void 0 ? void 0 : (_token$webauthn = token.webauthn) === null || _token$webauthn === void 0 ? void 0 : _token$webauthn.keyId,
+    name: token === null || token === void 0 ? void 0 : (_token$webauthn2 = token.webauthn) === null || _token$webauthn2 === void 0 ? void 0 : _token$webauthn2.keyId
+  };
+};
 /**
  * Links the currently authenticated webauthn device to the registered account.
  * Both accounts need to be actively authenticated.

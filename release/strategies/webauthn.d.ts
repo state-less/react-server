@@ -4,11 +4,17 @@ export declare const loginChallenge: (key: any) => any;
 export declare const getIdentity: (token: any) => any;
 /** Send only public key to client. If you leak the private key somone might forge a valid authentication request */
 export declare const getAddress: (token: any) => {
-    strat: string;
     id: any;
+    strat: string;
     name: any;
     email: any;
     picture: any;
+} | {
+    strat: string;
+    id: any;
+    name: any;
+    email?: undefined;
+    picture?: undefined;
 };
 /**
  * Links the currently authenticated webauthn device to the registered account.
