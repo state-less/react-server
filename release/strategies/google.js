@@ -40,17 +40,36 @@ var jwk = {
 };
 
 const getIdentity = token => {
-  return token.email;
+  var _token$compound, _token$compound2, _token$google;
+
+  if (token !== null && token !== void 0 && (_token$compound = token.compound) !== null && _token$compound !== void 0 && _token$compound.id) return token === null || token === void 0 ? void 0 : (_token$compound2 = token.compound) === null || _token$compound2 === void 0 ? void 0 : _token$compound2.id;
+  return token === null || token === void 0 ? void 0 : (_token$google = token.google) === null || _token$google === void 0 ? void 0 : _token$google.email;
 };
 
 exports.getIdentity = getIdentity;
 
 const getAddress = token => {
+  if (token.compound) {
+    const {
+      id,
+      name,
+      email,
+      picture
+    } = token.compound;
+    return {
+      id,
+      strat: 'compound',
+      name,
+      email,
+      picture
+    };
+  }
+
   const {
     name,
     email,
     picture
-  } = token;
+  } = token.google;
   return {
     id: email,
     strat: 'google',

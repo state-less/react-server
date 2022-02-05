@@ -30,11 +30,17 @@ var jwk = {
 }
 
 export const getIdentity = (token) => {
-  return token.email;
+  if (token?.compound?.id)
+    return token?.compound?.id;
+  return token?.google?.email;
 }
 
 export const getAddress = (token) => {
-  const { name, email, picture } = token;
+  if (token.compound) {
+    const { id, name, email, picture } = token.compound;
+    return { id, strat: 'compound', name, email, picture };
+  }
+  const { name, email, picture } = token.google;
   return { id: email, strat: 'google', name, email, picture };
 }
 
@@ -42,7 +48,7 @@ export const register = async (token, store: Store) => {
   const identity = token.google;
   const state = await store.scope('identities').useState(null, null)
   const link = await store.scope('identities.google').useState(identity.email, null)
-  
+
   if (link?.value)
     throw new Error('Account already registered');
 
@@ -97,10 +103,10 @@ export const recover = async (json, store) => {
       const token = jwt.verify(response, pem);
       console.log("Successful")
       const link = await store.scope('identities.google').useState(token.email, null)
-      if (!link) return {google:token};
+      if (!link) return { google: token };
       const state = await store.scope('identities').useState(link.value, null)
-      if (state?.value) return {'compound':state.value, 'google': token}
-      return {google: token}
+      if (state?.value) return { 'compound': state.value, 'google': token }
+      return { google: token }
     } catch (e) {
       logger.error`Error validating google oauth signature. ${e}`;
       e = e;

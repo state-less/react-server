@@ -1,8 +1,8 @@
 import crypto from 'crypto';
 
 import {recover as web3Recover} from '../lib/web3-util'
-export const getIdentity = (token) => token;
-export const getAddress = (token) => ({id: token, strat: 'web3', name: token, email: null, picture: null});
+export const getIdentity = ({web3 : token}) => token;
+export const getAddress = ({web3 : token}) => ({id: token, strat: 'web3', name: token});
 
 export const recover = (json) => {
     const {challenge, response} = json;

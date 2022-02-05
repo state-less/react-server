@@ -5,17 +5,23 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.challenge = exports.recover = exports.getAddress = exports.getIdentity = void 0;
 
-const getIdentity = token => token.visitorId;
+const getIdentity = token => {
+  var _token$fingerprint;
+
+  return token === null || token === void 0 ? void 0 : (_token$fingerprint = token.fingerprint) === null || _token$fingerprint === void 0 ? void 0 : _token$fingerprint.visitorId;
+};
 
 exports.getIdentity = getIdentity;
 
-const getAddress = token => ({
-  id: token.visitorId,
-  strat: 'fingerprint',
-  name: token.visitorId,
-  email: null,
-  picture: null
-});
+const getAddress = token => {
+  var _token$fingerprint2, _token$fingerprint3;
+
+  return {
+    id: token === null || token === void 0 ? void 0 : (_token$fingerprint2 = token.fingerprint) === null || _token$fingerprint2 === void 0 ? void 0 : _token$fingerprint2.visitorId,
+    strat: 'fingerprint',
+    name: token === null || token === void 0 ? void 0 : (_token$fingerprint3 = token.fingerprint) === null || _token$fingerprint3 === void 0 ? void 0 : _token$fingerprint3.visitorId
+  };
+};
 
 exports.getAddress = getAddress;
 

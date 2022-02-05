@@ -11,16 +11,18 @@ var _web3Util = require("../lib/web3-util");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-const getIdentity = token => token;
+const getIdentity = ({
+  web3: token
+}) => token;
 
 exports.getIdentity = getIdentity;
 
-const getAddress = token => ({
+const getAddress = ({
+  web3: token
+}) => ({
   id: token,
   strat: 'web3',
-  name: token,
-  email: null,
-  picture: null
+  name: token
 });
 
 exports.getAddress = getAddress;
