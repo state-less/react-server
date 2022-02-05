@@ -29,8 +29,10 @@ const recover = json => {
     confidence
   } = response;
   return {
-    visitorId,
-    confidence
+    fingerprint: {
+      visitorId,
+      confidence
+    }
   };
 };
 

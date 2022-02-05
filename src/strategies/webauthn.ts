@@ -96,7 +96,7 @@ export const recover = (json, store) => {
     console.log("Verify Yubikey", state.value.credID, challengeResponse.keyId);
     if (state.value.credID === challengeResponse.keyId) {
 
-      return challengeResponse;
+      return {webauthn: challengeResponse};
     } else {
       return null;
     }

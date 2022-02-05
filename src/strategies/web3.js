@@ -6,7 +6,7 @@ export const getAddress = (token) => ({id: token, strat: 'web3', name: token, em
 
 export const recover = (json) => {
     const {challenge, response} = json;
-    return web3Recover(challenge, response)
+    return {web3: web3Recover(challenge, response)}
 }
 export const challenge = () => {
     return new Promise ((resolve, ) => {

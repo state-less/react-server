@@ -400,13 +400,13 @@ const handleRender = ({
                 }));
               } else {
                 const strat = strategies[strategy];
-                const address = await strat.recover(json, store);
-                identities[strategy] = address;
+                const recoveredToken = await strat.recover(json, store);
+                Object.assign(identities, recoveredToken);
                 const token = jwt.sign({
                   exp: Math.floor(Date.now() / 1000) + 60 * 60,
                   iat: Date.now() / 1000,
-                  address: strat.getAddress(address),
-                  id: strat.getIdentity(address),
+                  address: strat.getAddress(recoveredToken),
+                  id: strat.getIdentity(recoveredToken),
                   ...identities,
                   factors: authFactors.filter(f => !solvedFactors[f])
                 }, secret);

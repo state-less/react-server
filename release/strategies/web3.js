@@ -30,7 +30,9 @@ const recover = json => {
     challenge,
     response
   } = json;
-  return (0, _web3Util.recover)(challenge, response);
+  return {
+    web3: (0, _web3Util.recover)(challenge, response)
+  };
 };
 
 exports.recover = recover;

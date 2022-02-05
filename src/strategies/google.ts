@@ -97,10 +97,10 @@ export const recover = async (json, store) => {
       const token = jwt.verify(response, pem);
       console.log("Successful")
       const link = await store.scope('identities.google').useState(token.email, null)
-      if (!link) return token;
+      if (!link) return {google:token};
       const state = await store.scope('identities').useState(link.value, null)
-      if (state?.value) return state.value;
-      return token
+      if (state?.value) return {'compound':state.value, 'google': token}
+      return {google: token}
     } catch (e) {
       logger.error`Error validating google oauth signature. ${e}`;
       e = e;

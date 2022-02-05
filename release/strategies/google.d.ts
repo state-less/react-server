@@ -21,4 +21,10 @@ export declare const challenge: () => {
     type: string;
     challenge: any;
 };
-export declare const recover: (json: any, store: any) => Promise<any>;
+export declare const recover: (json: any, store: any) => Promise<{
+    google: any;
+    compound?: undefined;
+} | {
+    compound: any;
+    google: any;
+}>;

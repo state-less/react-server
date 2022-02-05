@@ -4,7 +4,7 @@ export const getAddress = (token) => ({id: token.visitorId, strat: 'fingerprint'
 export const recover = (json) => {
     const {challenge, response} = json;
     const {visitorId, confidence} = response;
-    return {visitorId, confidence}
+    return {fingerprint: {visitorId, confidence}}
 }
 export const challenge = () => {
     return {
