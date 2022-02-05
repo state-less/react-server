@@ -196,7 +196,7 @@ const handleRender = ({ server, secret, streams, store, authFactors, ...rest }) 
                                     if (!identity) throw new Error;
 
                                     const registered = await strat.register(token, store);
-                                    identities['compound'] = registered;
+                                    identities['compound'] = registered.compound;
 
                                     const jwtToken = jwt.sign({
                                         exp: Math.floor(Date.now() / 1000) + (60 * 60),

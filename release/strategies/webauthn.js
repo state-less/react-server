@@ -73,7 +73,9 @@ const link = async (token, store) => {
   account.identities.webauthn.push(token.webauthn);
   link.setValue(state.id);
   state.setValue(account);
-  return account;
+  return {
+    compound: account
+  };
 };
 
 exports.link = link;
@@ -93,7 +95,9 @@ const register = async (token, store) => {
   };
   linked.setValue(state.id);
   state.setValue(account);
-  return account;
+  return {
+    compound: account
+  };
 };
 
 exports.register = register;

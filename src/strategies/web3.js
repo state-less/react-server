@@ -4,6 +4,14 @@ import {recover as web3Recover} from '../lib/web3-util'
 export const getIdentity = ({web3 : token}) => token;
 export const getAddress = ({web3 : token}) => ({id: token, strat: 'web3', name: token});
 
+export const link = (json) => {
+    throw new Error('Web3 can not be linked');
+}
+
+export const register = (json) => {
+    throw new Error('Web3 can not be used to register');
+}
+
 export const recover = (json) => {
     const {challenge, response} = json;
     return {web3: web3Recover(challenge, response)}

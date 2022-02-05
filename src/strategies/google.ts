@@ -65,7 +65,7 @@ export const register = async (token, store: Store) => {
   link.setValue(state.key);
   state.setValue(account);
 
-  return account
+  return {compound: account}
 }
 
 export const link = async (token, store) => {
@@ -81,7 +81,7 @@ export const link = async (token, store) => {
 
   link.setValue(state.key);
   state.setValue(account);
-  return account;
+  return {compound: account}
 };
 
 export const challenge = () => {

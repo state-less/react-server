@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.challenge = exports.recover = exports.getAddress = exports.getIdentity = void 0;
+exports.challenge = exports.recover = exports.register = exports.link = exports.getAddress = exports.getIdentity = void 0;
 
 const getIdentity = token => {
   var _token$fingerprint;
@@ -24,6 +24,18 @@ const getAddress = token => {
 };
 
 exports.getAddress = getAddress;
+
+const link = json => {
+  throw new Error('Fingerprint can not be linked');
+};
+
+exports.link = link;
+
+const register = json => {
+  throw new Error('Fingerprint can not be used to register');
+};
+
+exports.register = register;
 
 const recover = json => {
   const {

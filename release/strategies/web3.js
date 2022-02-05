@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.challenge = exports.recover = exports.getAddress = exports.getIdentity = void 0;
+exports.challenge = exports.recover = exports.register = exports.link = exports.getAddress = exports.getIdentity = void 0;
 
 var _crypto = _interopRequireDefault(require("crypto"));
 
@@ -26,6 +26,18 @@ const getAddress = ({
 });
 
 exports.getAddress = getAddress;
+
+const link = json => {
+  throw new Error('Web3 can not be linked');
+};
+
+exports.link = link;
+
+const register = json => {
+  throw new Error('Web3 can not be used to register');
+};
+
+exports.register = register;
 
 const recover = json => {
   const {

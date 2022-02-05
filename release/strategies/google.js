@@ -97,7 +97,9 @@ const register = async (token, store) => {
   };
   link.setValue(state.key);
   state.setValue(account);
-  return account;
+  return {
+    compound: account
+  };
 };
 
 exports.register = register;
@@ -112,7 +114,9 @@ const link = async (token, store) => {
   account.identities.google = identity;
   link.setValue(state.key);
   state.setValue(account);
-  return account;
+  return {
+    compound: account
+  };
 };
 
 exports.link = link;

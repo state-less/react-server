@@ -17,8 +17,12 @@ export declare const getAddress: (token: any) => {
  * @param store - A store instance that can be used to store data.
  * @returns - The registered account
  */
-export declare const link: (token: any, store: Store) => Promise<any>;
-export declare const register: (token: any, store: Store) => Promise<any>;
+export declare const link: (token: any, store: Store) => Promise<{
+    compound: any;
+}>;
+export declare const register: (token: any, store: Store) => Promise<{
+    compound: any;
+}>;
 export declare const recover: (json: any, store: any) => Promise<{
     webauthn: any;
     compound?: undefined;

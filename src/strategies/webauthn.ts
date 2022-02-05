@@ -52,7 +52,7 @@ export const link = async (token, store: Store) => {
 
   link.setValue(state.id);
   state.setValue(account);
-  return account;
+  return {compound: account};
 };
 
 export const register = async (token, store: Store) => {
@@ -80,7 +80,7 @@ export const register = async (token, store: Store) => {
   linked.setValue(state.id);
   state.setValue(account);
 
-  return account
+  return {compound: account}
 }
 
 
