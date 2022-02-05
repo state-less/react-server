@@ -85,7 +85,7 @@ export const challenge = () => {
   }
 }
 
-export const recover = async (json) => {
+export const recover = async (json, store) => {
   const { challenge, response } = json;
   const jwk = await fetch('https://www.googleapis.com/oauth2/v3/certs');
   const certJson = await jwk.json();
@@ -96,6 +96,10 @@ export const recover = async (json) => {
       logger.debug`Trying signature ${i + 1} of 2`;
       const token = jwt.verify(response, pem);
       console.log("Successful")
+      const link = await store.scope('identities.google').useState(token.email, null)
+      if (!link) return token;
+      const state = await store.scope('identities').useState(link.value, null)
+      if (state) return state.value;
       return token
     } catch (e) {
       logger.error`Error validating google oauth signature. ${e}`;

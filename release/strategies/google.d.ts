@@ -21,4 +21,4 @@ export declare const challenge: () => {
     type: string;
     challenge: any;
 };
-export declare const recover: (json: any) => Promise<any>;
+export declare const recover: (json: any, store: any) => Promise<any>;
