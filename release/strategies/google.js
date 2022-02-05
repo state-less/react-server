@@ -64,12 +64,8 @@ exports.getAddress = getAddress;
 
 const register = async (token, store) => {
   const identity = token.google;
-  const state = await store.useState(null, null, {
-    scope: 'identities'
-  });
-  const link = await store.useState(identity.email, null, {
-    scope: 'identities.google'
-  });
+  const state = await store.scope('identities').useState(null, null);
+  const link = await store.scope('identities.google').useState(identity.email, null);
   if (link !== null && link !== void 0 && link.value) throw new Error('Account already registered');
   const account = {
     id: state.id,
@@ -80,7 +76,7 @@ const register = async (token, store) => {
       [STRAT]: identity
     }
   };
-  link.setValue(state.id);
+  link.setValue(state.key);
   state.setValue(account);
   return account;
 };
@@ -89,16 +85,13 @@ exports.register = register;
 
 const link = async (token, store) => {
   const id = token.address.id;
-  const state = await store.useState(id, {}, {
-    scope: 'identities'
-  });
-  const link = await store.useState(token.google.email, {}, {
-    scope: 'identities.google'
-  });
+  const identity = token.google;
+  const state = await store.scope('identities').useState(id, null);
+  const link = await store.scope('identities.google').useState(identity.email, null);
   const account = { ...state.value
   };
-  account.identities.google = token.google;
-  link.setValue(state.id);
+  account.identities.google = identity;
+  link.setValue(state.key);
   state.setValue(account);
   return account;
 };

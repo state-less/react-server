@@ -51,9 +51,9 @@ const getAddress = token => ({
 /**
  * Links the currently authenticated webauthn device to the registered account.
  * Both accounts need to be actively authenticated.
- * @param token 
- * @param store 
- * @returns 
+ * @param token - The JWT that's currently authenticated.
+ * @param store - A store instance that can be used to store data.
+ * @returns - The registered account
  */
 
 
@@ -63,12 +63,8 @@ const link = async (token, store) => {
   if (!token.webauthn) throw new Error('Not authenticated');
   const accountId = token.compound.id;
   const identity = token.webauthn;
-  const state = await store.useState(accountId, {}, {
-    scope: 'identities'
-  });
-  const link = await store.useState(identity.keyId, {}, {
-    scope: 'identities.webauthn'
-  });
+  const state = await store.scope('identities').useState(accountId, null);
+  const link = await store.scope('identities.webauthn').useState(identity.keyId, null);
   const account = { ...state.value
   };
   account.devices = account.devices || [];
@@ -85,12 +81,8 @@ exports.link = link;
 const register = async (token, store) => {
   if (token.compound) return link(token, store);
   const identity = token.webauthn;
-  const state = await store.useState(null, null, {
-    scope: 'identities'
-  });
-  const linked = await store.useState(identity.keyId, null, {
-    scope: 'identities.webauthn'
-  });
+  const state = await store.scope('identities').useState(null, null);
+  const linked = await store.scope('identities.webauthn').useState(identity.keyId, null);
   if (linked !== null && linked !== void 0 && linked.value) throw new Error('Account already registered');
   const account = {
     id: state.id,
