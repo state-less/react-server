@@ -126,7 +126,7 @@ const recover = async (json, store) => {
       const link = await store.scope('identities.google').useState(token.email, null);
       if (!link) return token;
       const state = await store.scope('identities').useState(link.value, null);
-      if (state) return state.value;
+      if (state !== null && state !== void 0 && state.value) return state.value;
       return token;
     } catch (e) {
       _logger.default.error`Error validating google oauth signature. ${e}`;
