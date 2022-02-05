@@ -186,6 +186,54 @@ const handleRender = ({ server, secret, streams, store, authFactors, ...rest }) 
                             // return;
                         }
 
+                        if (phase === 'register') {
+                            if (!headers?.Authorization) {
+                                socket.send(success({ message: 'Invalid strategy: "' + strategy + '"' }, {
+                                    action: 'invalidate',
+                                    routeKey: 'auth',
+                                    phase: 'response',
+                                    type: 'error',
+                                    id
+                                }));
+                            } else {
+                                let token;
+                                try {
+                                    token = jwt.verify(headers.Authorization.split(' ')[1], secret);
+                                    const identity = token[strat]
+                                    if (!identity) throw new Error;
+
+                                    const registered = await strat.register(identity, store);
+                                    identities['compound'] = registered;
+
+                                    const jwtToken = jwt.sign({
+                                        exp: Math.floor(Date.now() / 1000) + (60 * 60),
+                                        iat: Date.now() / 1000,
+                                        address: strat.getAddress(registered),
+                                        id: strat.getIdentity(registered),
+                                        ...identities,
+                                        factors: authFactors.filter(f => !solvedFactors[f])
+                                    }, secret);
+
+                                    socket.send(success(jwtToken, {
+                                        action: 'auth',
+                                        phase: 'response',
+                                        routeKey: 'auth',
+                                        type: 'response',
+                                        identities,
+                                        id
+                                    }));
+
+                                } catch (e) {
+                                    socket.send(success({ message: 'Invalid token' }, {
+                                        action: 'invalidate',
+                                        routeKey: 'auth',
+                                        phase: 'response',
+                                        type: 'error',
+                                        id
+                                    }));
+                                }
+                            }
+                        }
 
                         if (phase === 'challenge') {
                             if (headers?.Authorization && !strat) {
@@ -205,7 +253,6 @@ const handleRender = ({ server, secret, streams, store, authFactors, ...rest }) 
                                         id
                                     }));
                                 } catch (e) {
-                                    console.log("Error e", e);
                                     socket.send(success(token, {
                                         action: 'invalidate',
                                         phase: 'response',

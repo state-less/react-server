@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.recover = exports.challenge = exports.getAddress = exports.getIdentity = void 0;
+exports.recover = exports.challenge = exports.register = exports.getAddress = exports.getIdentity = void 0;
 
 var _isomorphicFetch = _interopRequireDefault(require("isomorphic-fetch"));
 
@@ -12,6 +12,12 @@ var _logger = _interopRequireDefault(require("../lib/logger"));
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 const jwt = require('jsonwebtoken');
+
+const {
+  v4
+} = require('uuid');
+
+const STRAT = 'google';
 
 var jwkToPem = require("jwk-to-pem");
 
@@ -55,6 +61,29 @@ const getAddress = token => {
 };
 
 exports.getAddress = getAddress;
+
+const register = async (identity, store) => {
+  const id = v4();
+  const state = await store.useState(null, {}, {
+    scope: 'identities'
+  });
+  const link = await store.useState(identity.id, {}, {
+    scope: 'identities.google'
+  });
+  const account = {
+    name: identity.name,
+    email: identity.email,
+    picture: identity.picture,
+    identities: {
+      [STRAT]: identity
+    }
+  };
+  link.setValue(state.id);
+  state.setValue(account);
+  return account;
+};
+
+exports.register = register;
 
 const challenge = () => {
   return {
