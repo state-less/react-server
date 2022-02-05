@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.recover = exports.challenge = exports.register = exports.getAddress = exports.getIdentity = void 0;
+exports.recover = exports.challenge = exports.link = exports.register = exports.getAddress = exports.getIdentity = void 0;
 
 var _isomorphicFetch = _interopRequireDefault(require("isomorphic-fetch"));
 
@@ -64,13 +64,15 @@ exports.getAddress = getAddress;
 
 const register = async (identity, store) => {
   const id = v4();
-  const state = await store.useState(null, {}, {
+  const state = await store.useState(null, null, {
     scope: 'identities'
   });
-  const link = await store.useState(identity.id, {}, {
+  const link = await store.useState(identity.id, null, {
     scope: 'identities.google'
   });
+  if (link !== null && link !== void 0 && link.value) throw new Error('Account already registered');
   const account = {
+    id: state.id,
     name: identity.name,
     email: identity.email,
     picture: identity.picture,
@@ -84,6 +86,24 @@ const register = async (identity, store) => {
 };
 
 exports.register = register;
+
+const link = async (token, store) => {
+  const id = token.address.id;
+  const state = await store.useState(id, {}, {
+    scope: 'identities'
+  });
+  const link = await store.useState(token.google.email, {}, {
+    scope: 'identities.google'
+  });
+  const account = { ...state.value
+  };
+  account.identities.google = token.google;
+  link.setValue(state.id);
+  state.setValue(account);
+  return account;
+};
+
+exports.link = link;
 
 const challenge = () => {
   return {

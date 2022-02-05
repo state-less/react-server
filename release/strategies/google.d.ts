@@ -8,6 +8,7 @@ export declare const getAddress: (token: any) => {
     picture: any;
 };
 export declare const register: (identity: any, store: Store) => Promise<{
+    id: string;
     name: any;
     email: any;
     picture: any;
@@ -15,6 +16,7 @@ export declare const register: (identity: any, store: Store) => Promise<{
         google: any;
     };
 }>;
+export declare const link: (token: any, store: any) => Promise<any>;
 export declare const challenge: () => {
     type: string;
     challenge: any;

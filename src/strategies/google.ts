@@ -34,20 +34,25 @@ export const getIdentity = (token) => {
 }
 
 export const getAddress = (token) => {
-  const {name, email, picture} = token;
-  return {id: email, strat: 'google', name, email, picture};
+  const { name, email, picture } = token;
+  return { id: email, strat: 'google', name, email, picture };
 }
 
-export const register = async (identity, store : Store) => {
+export const register = async (identity, store: Store) => {
   const id = v4();
-  const state = await store.useState(null, {}, {
+  const state = await store.useState(null, null, {
     scope: 'identities'
   })
-  const link = await store.useState(identity.id, {}, {
+
+  const link = await store.useState(identity.id, null, {
     scope: 'identities.google'
   })
+  
+  if (link?.value)
+    throw new Error('Account already registered');
 
   const account = {
+    id: state.id,
     name: identity.name,
     email: identity.email,
     picture: identity.picture,
@@ -61,6 +66,26 @@ export const register = async (identity, store : Store) => {
 
   return account
 }
+
+export const link = async (token, store) => {
+  const id = token.address.id;
+  const state = await store.useState(id, {}, {
+    scope: 'identities'
+  });
+  const link = await store.useState(token.google.email, {}, {
+    scope: 'identities.google'
+  });
+  const account = {
+    ...state.value
+  };
+
+  account.identities.google = token.google
+
+  link.setValue(state.id);
+  state.setValue(account);
+  return account;
+};
+
 export const challenge = () => {
   return {
     type: 'oauth',
@@ -69,16 +94,16 @@ export const challenge = () => {
 }
 
 export const recover = async (json) => {
-  const {challenge, response} = json;
+  const { challenge, response } = json;
   const jwk = await fetch('https://www.googleapis.com/oauth2/v3/certs');
   const certJson = await jwk.json();
   let e;
   for (let i = 0; i < 2; i++) {
     const pem = jwkToPem(certJson.keys[i]);
     try {
-      logger.debug`Trying signature ${i+1} of 2`;
+      logger.debug`Trying signature ${i + 1} of 2`;
       const token = jwt.verify(response, pem);
-      console.log ("Successful")
+      console.log("Successful")
       return token
     } catch (e) {
       logger.error`Error validating google oauth signature. ${e}`;
