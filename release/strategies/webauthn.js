@@ -35,7 +35,13 @@ const loginChallenge = key => {
 
 exports.loginChallenge = loginChallenge;
 
-const getIdentity = token => token.webauthn.keyId;
+const getIdentity = token => {
+  if (token.compound) {
+    return token.compound.id;
+  }
+
+  return token.webauthn.keyId;
+};
 /** Send only public key to client. If you leak the private key somone might forge a valid authentication request */
 
 

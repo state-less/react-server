@@ -15,8 +15,13 @@ export const registerChallenge = (name) => {
 export const loginChallenge = (key) => {
   return generateLoginChallenge(key)
 }
-export const getIdentity = (token) => token.webauthn.keyId;
-/** Send only public key to client. If you leak the private key somone might forge a valid authentication request */
+export const getIdentity = (token) => {
+  if (token.compound) {
+   return token.compound.id;
+  }
+  return token.webauthn.keyId;
+}
+
 export const getAddress = (token) => {
   if (token.compound) {
     const { id, name, email, picture } = token.compound;
