@@ -295,9 +295,13 @@ const handleRender = ({ server, secret, streams, store, authFactors, ...rest }) 
                                         }
                                     }
                                 }
-                                Object.assign(identities, recoveredToken);
 
-                                solvedFactors[strategy] = true;
+                                /** Assign all recovered identities. A strategy can recover multiple identities. Registered + Oauth */
+                                Object.assign(identities, recoveredToken);
+                                /** Mark already authenticated identities as solved.*/
+                                for (const key in identities) {
+                                    solvedFactors[key] = true;
+                                }
 
                                 const token = jwt.sign({
                                     exp: Math.floor(Date.now() / 1000) + (60 * 60),
