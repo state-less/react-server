@@ -44,7 +44,7 @@ export const register = async (identity, store: Store) => {
     scope: 'identities'
   })
 
-  const link = await store.useState(identity.id, null, {
+  const link = await store.useState(identity.email, null, {
     scope: 'identities.google'
   })
   

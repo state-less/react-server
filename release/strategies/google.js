@@ -67,7 +67,7 @@ const register = async (identity, store) => {
   const state = await store.useState(null, null, {
     scope: 'identities'
   });
-  const link = await store.useState(identity.id, null, {
+  const link = await store.useState(identity.email, null, {
     scope: 'identities.google'
   });
   if (link !== null && link !== void 0 && link.value) throw new Error('Account already registered');
