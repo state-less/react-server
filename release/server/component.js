@@ -7,6 +7,8 @@ exports.Component = void 0;
 
 var _interfaces = require("../interfaces");
 
+var _util = require("../util");
+
 const {
   v4: uuidv4,
   v4
@@ -52,9 +54,6 @@ const Component = (fn, baseStore) => {
   let clientEffectIndex = 0;
   let stateIndex = 0;
   let fnIndex = 0;
-  const {
-    useState: useComponentState
-  } = baseStore;
   let lastState;
   /**Reference to the store used by useState. */
 
@@ -67,6 +66,8 @@ const Component = (fn, baseStore) => {
     return async (props = null, key, options, clientProps, socket = {
       id: SERVER_ID
     }) => {
+      var _jwt, _jwt$address;
+
       let scopedUseEffect;
       let scopedDestroy;
       let scopedUseClientEffect;
@@ -81,6 +82,17 @@ const Component = (fn, baseStore) => {
       let functions = [[]];
       let dependencies = [];
       logger = componentLogger.scope(`${key}:${socket.id}`);
+      let jwt;
+
+      try {
+        jwt = (0, _util.authenticate)({
+          data: socket
+        });
+      } catch (e) {}
+
+      const {
+        useState: useComponentState
+      } = baseStore.scope(((_jwt = jwt) === null || _jwt === void 0 ? void 0 : (_jwt$address = _jwt.address) === null || _jwt$address === void 0 ? void 0 : _jwt$address.id) || socket.id);
       /** TODO: Think of a way to provide a component state scope */
       // const componentState = await useComponentState(key, {}, {scope: socket.id});
 

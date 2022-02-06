@@ -1,4 +1,5 @@
 import { Lifecycle, CacheBehaviour } from "../interfaces";
+import { authenticate } from '../util';
 
 const { v4: uuidv4, v4 } = require("uuid");
 const { EVENT_STATE_SET, NETWORK_FIRST, SERVER_ID, CACHE_FIRST } = require("../consts");
@@ -23,7 +24,7 @@ const isEqual = (arrA, arrB) => {
 
 
 
-const Component : Lifecycle =(fn, baseStore) => {
+const Component: Lifecycle = (fn, baseStore) => {
     let logger;
 
     if (!baseStore) {
@@ -37,7 +38,6 @@ const Component : Lifecycle =(fn, baseStore) => {
     let stateIndex = 0;
     let fnIndex = 0;
 
-    const { useState: useComponentState } = baseStore;
     let lastState;
 
     /**Reference to the store used by useState. */
@@ -63,7 +63,15 @@ const Component : Lifecycle =(fn, baseStore) => {
             let functions = [[]];
             let dependencies = [];
             logger = componentLogger.scope(`${key}:${socket.id}`);
-
+            
+            
+            let jwt;
+            try {
+                jwt = authenticate({ data: socket });
+            } catch (e) {
+                
+            }
+            const { useState: useComponentState } = baseStore.scope(jwt?.address?.id || socket.id);
             /** TODO: Think of a way to provide a component state scope */
             // const componentState = await useComponentState(key, {}, {scope: socket.id});
             const componentState = await useComponentState(key, {});
@@ -87,12 +95,12 @@ const Component : Lifecycle =(fn, baseStore) => {
                 let scopedStore;
                 if (/^@/.test(stateKey)) {
                     //Allow crossreferences between component scopes
-                    stateKey = stateKey.replace('@','')
-                    scopedStore = baseStore.scope(stateKey.split('.').slice(0,-1).join('.'));
+                    stateKey = stateKey.replace('@', '')
+                    scopedStore = baseStore.scope(stateKey.split('.').slice(0, -1).join('.'));
                     if (scope) {
-                      scopedStore = scopedStore.scope(scope);
+                        scopedStore = scopedStore.scope(scope);
                     }
-                    stateKey = stateKey.split('.').slice(0,-1)[0];
+                    stateKey = stateKey.split('.').slice(0, -1)[0];
                 } else if (scope) {
                     scopedStore = store.scope(scope)
                 } else {
@@ -215,9 +223,9 @@ const Component : Lifecycle =(fn, baseStore) => {
             }
 
             scopedDestroy = async () => {
-                const {deleteState} = lastStoreRef;
+                const { deleteState } = lastStoreRef;
                 const promises = lastStates.map((state) => {
-                    const {key} = state;
+                    const { key } = state;
                     return deleteState(key);
                 })
                 await Promise.all(promises);
@@ -258,7 +266,7 @@ const Component : Lifecycle =(fn, baseStore) => {
                 }
 
                 // await cleanup()
-                const result = await fn({...props, key}, clientProps, socket);
+                const result = await fn({ ...props, key }, clientProps, socket);
                 lastStates = states;
 
                 if (!result && result !== null) {
@@ -370,4 +378,4 @@ Component.isServer = (socket) => {
 }
 Component.defaultCacheBehaviour = CacheBehaviour.CACHE_FIRST;
 
-export {Component};
+export { Component };

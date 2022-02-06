@@ -42,8 +42,6 @@ const getIdentity = token => {
 
   return token.webauthn.keyId;
 };
-/** Send only public key to client. If you leak the private key somone might forge a valid authentication request */
-
 
 exports.getIdentity = getIdentity;
 

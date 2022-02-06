@@ -15,3 +15,13 @@ export const validateComponentArgs = (props, key, options, socket) => {
   }
   return true;
 }
+
+export const authenticate = ({ data }) => {
+  if (!data?.headers?.Authorization || !data?.headers?.Authorization?.includes('Bearer')) {
+    throw new Error('Not authorized');
+  }
+
+  const token = data.headers.Authorization.split(' ').pop();
+
+  return jwt.verify(token, SECRET)
+}

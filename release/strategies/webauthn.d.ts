@@ -2,7 +2,6 @@ import { Store } from "../server/state";
 export declare const registerChallenge: (name: any) => any;
 export declare const loginChallenge: (key: any) => any;
 export declare const getIdentity: (token: any) => any;
-/** Send only public key to client. If you leak the private key somone might forge a valid authentication request */
 export declare const getAddress: (token: any) => {
     id: any;
     strat: string;
