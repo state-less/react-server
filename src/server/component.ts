@@ -25,7 +25,7 @@ const isEqual = (arrA, arrB) => {
 
 
 
-const createContext = () => {
+export const createContext = () => {
     const listeners = [];
     let value = null;
     const ref = {
@@ -412,4 +412,6 @@ Component.isServer = (socket) => {
 }
 Component.defaultCacheBehaviour = CacheBehaviour.CACHE_FIRST;
 
+export const useState = (...args) => Component.useState.apply(null, args);
+export const useContext = (...args) => Component.useContext.apply(null, args);
 export { Component };

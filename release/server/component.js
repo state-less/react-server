@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.Component = void 0;
+exports.Component = exports.useContext = exports.useState = exports.createContext = void 0;
 
 var _interfaces = require("../interfaces");
 
@@ -64,6 +64,8 @@ const createContext = () => {
     }
   };
 };
+
+exports.createContext = createContext;
 
 const Component = (fn, baseStore) => {
   let logger;
@@ -478,3 +480,11 @@ Component.isServer = socket => {
 };
 
 Component.defaultCacheBehaviour = _interfaces.CacheBehaviour.CACHE_FIRST;
+
+const useState = (...args) => Component.useState.apply(null, args);
+
+exports.useState = useState;
+
+const useContext = (...args) => Component.useContext.apply(null, args);
+
+exports.useContext = useContext;

@@ -24,6 +24,13 @@ const {
   WebsocketStream
 } = require('./Stream');
 
+const {
+  Component,
+  createContext,
+  useState,
+  useContext
+} = require('./server/component');
+
 module.exports = {
   WebsocketStream,
   DynamoDBState,
@@ -33,5 +40,9 @@ module.exports = {
   Router,
   Route,
   WebSocketRenderer,
-  render
+  render,
+  Component,
+  createContext,
+  useState,
+  useContext
 };
