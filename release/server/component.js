@@ -63,6 +63,7 @@ const createContext = () => {
       return props.children;
     }
   };
+  return ref;
 };
 
 exports.createContext = createContext;

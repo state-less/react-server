@@ -44,6 +44,7 @@ export const createContext = () => {
             return props.children;
         }
     };
+    return ref;
 }
 
 const Component: Lifecycle = (fn, baseStore) => {
