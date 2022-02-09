@@ -1,3 +1,4 @@
+import { useDebugValue } from "react";
 import { Lifecycle, CacheBehaviour } from "../interfaces";
 import { authenticate } from '../util';
 
@@ -23,6 +24,27 @@ const isEqual = (arrA, arrB) => {
 }
 
 
+
+const createContext = () => {
+    const listeners = [];
+    let value = null;
+    const ref = {
+        get value() {
+            return value;
+        },
+        set value(v) {
+            value = v;
+            listeners.forEach(fn => 'function' === typeof fn && fn(v));
+        },
+        onChange: (fn) => {
+            listeners.push(fn);
+        },
+        Provider: (props) => {
+            ref.value = props.value;
+            return props.children;
+        }
+    };
+}
 
 const Component: Lifecycle = (fn, baseStore) => {
     let logger;
@@ -50,6 +72,7 @@ const Component: Lifecycle = (fn, baseStore) => {
 
         return async (props = null, key, options, clientProps, socket = { id: SERVER_ID }) => {
             let scopedUseEffect;
+            let scopedUseContext;
             let scopedDestroy;
             let scopedUseClientEffect;
             let scopedUseState;
@@ -63,13 +86,13 @@ const Component: Lifecycle = (fn, baseStore) => {
             let functions = [[]];
             let dependencies = [];
             logger = componentLogger.scope(`${key}:${socket.id}`);
-            
-            
+
+
             let jwt;
             try {
                 jwt = authenticate({ data: socket });
             } catch (e) {
-                
+
             }
             const { useState: useComponentState } = baseStore.scope(jwt?.address?.id || socket.id);
             /** TODO: Think of a way to provide a component state scope */
@@ -87,6 +110,14 @@ const Component: Lifecycle = (fn, baseStore) => {
             let { ttl = Infinity, createdAt, store = baseStore.scope(key) } = options;
 
             const id = Math.random();
+
+            scopedUseContext = (ctx) => {
+                ctx.onChange(async () => {
+                    await render();
+                });
+
+                return ctx.value;
+            }
             scopedUseState = async (initial, stateKey, { deny = false, scope = void 0, ...rest } = {}) => {
                 if (deny) {
                     return [null, () => { throw new Error('Attempt to set unauthenticated state') }];
@@ -135,6 +166,7 @@ const Component: Lifecycle = (fn, baseStore) => {
                     Component.useState = scopedUseState;
                     Component.useClientState = scopedUseClientState;
                     Component.useFunction = scopedUseFunction;
+                    Component.useContext = scopedUseContext;
 
                     try {
                         // setImmediate(() => {
@@ -330,6 +362,7 @@ const Component: Lifecycle = (fn, baseStore) => {
             Component.destroy = scopedDestroy;
             Component.useClientState = scopedUseClientState;
             Component.useFunction = scopedUseFunction;
+            Component.useContext = scopedUseContext;
 
             const rendered = await render();
 
@@ -347,7 +380,7 @@ const Component: Lifecycle = (fn, baseStore) => {
         let bound = component.bind(null, props, key, { ...options, createdAt });
         componentLogger.warning`Setting component ${key}`;
         Component.instances.set(key, bound);
-        bound.server = true;
+        // bound.server = true;
         return bound;
     }
 
@@ -357,6 +390,7 @@ Component.useState = null;
 Component.useEffect = null;
 Component.useClientEffect = null;
 Component.useFunction = null;
+Component.useContext = null;
 Component.useClientState = null;
 Component.setTimeout = null;
 Component.destroy = null;

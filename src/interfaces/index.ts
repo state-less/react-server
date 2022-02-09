@@ -11,6 +11,9 @@ type Component = () => any;
 
 export type SetValueFunction = (value: any) => void;
 
+export type Context = {
+    value: any;
+}
 export interface Lifecycle{
     (fn, baseStore): any
     rendered: Map<string, object>,
@@ -25,7 +28,8 @@ export interface Lifecycle{
      * @param options - options that are passed to useState
      * @returns - Array of value and setter function.
      */
-    useState <T extends any>(defaultValue: T, key: string, options?: object): [T, (value: T) => void] 
+    useState <T extends any>(defaultValue: T, key: string, options?: object): [T, (value: T) => void],
+    useContext(context: Context): any;
     useEffect(callback: Function, changedVariables: any[]): void
     useClientEffect(callback: Function)
     useFunction(callback: Function)

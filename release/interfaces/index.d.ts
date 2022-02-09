@@ -5,6 +5,9 @@ export declare enum CacheBehaviour {
 }
 declare type RecursiveMap = Map<string, RecursiveMap>;
 export declare type SetValueFunction = (value: any) => void;
+export declare type Context = {
+    value: any;
+};
 export interface Lifecycle {
     (fn: any, baseStore: any): any;
     rendered: Map<string, object>;
@@ -20,6 +23,7 @@ export interface Lifecycle {
      * @returns - Array of value and setter function.
      */
     useState<T extends any>(defaultValue: T, key: string, options?: object): [T, (value: T) => void];
+    useContext(context: Context): any;
     useEffect(callback: Function, changedVariables: any[]): void;
     useClientEffect(callback: Function): any;
     useFunction(callback: Function): any;

@@ -42,6 +42,29 @@ const isEqual = (arrA, arrB) => {
   }, true);
 };
 
+const createContext = () => {
+  const listeners = [];
+  let value = null;
+  const ref = {
+    get value() {
+      return value;
+    },
+
+    set value(v) {
+      value = v;
+      listeners.forEach(fn => 'function' === typeof fn && fn(v));
+    },
+
+    onChange: fn => {
+      listeners.push(fn);
+    },
+    Provider: props => {
+      ref.value = props.value;
+      return props.children;
+    }
+  };
+};
+
 const Component = (fn, baseStore) => {
   let logger;
 
@@ -69,6 +92,7 @@ const Component = (fn, baseStore) => {
       var _jwt, _jwt$address;
 
       let scopedUseEffect;
+      let scopedUseContext;
       let scopedDestroy;
       let scopedUseClientEffect;
       let scopedUseState;
@@ -114,6 +138,13 @@ const Component = (fn, baseStore) => {
         store = baseStore.scope(key)
       } = options;
       const id = Math.random();
+
+      scopedUseContext = ctx => {
+        ctx.onChange(async () => {
+          await render();
+        });
+        return ctx.value;
+      };
 
       scopedUseState = async (initial, stateKey, {
         deny = false,
@@ -178,6 +209,7 @@ const Component = (fn, baseStore) => {
           Component.useState = scopedUseState;
           Component.useClientState = scopedUseClientState;
           Component.useFunction = scopedUseFunction;
+          Component.useContext = scopedUseContext;
 
           try {
             // setImmediate(() => {
@@ -392,6 +424,7 @@ const Component = (fn, baseStore) => {
       Component.destroy = scopedDestroy;
       Component.useClientState = scopedUseClientState;
       Component.useFunction = scopedUseFunction;
+      Component.useContext = scopedUseContext;
       const rendered = await render();
 
       if (rendered) {
@@ -410,8 +443,8 @@ const Component = (fn, baseStore) => {
       createdAt
     });
     componentLogger.warning`Setting component ${key}`;
-    Component.instances.set(key, bound);
-    bound.server = true;
+    Component.instances.set(key, bound); // bound.server = true;
+
     return bound;
   };
 };
@@ -421,6 +454,7 @@ Component.useState = null;
 Component.useEffect = null;
 Component.useClientEffect = null;
 Component.useFunction = null;
+Component.useContext = null;
 Component.useClientState = null;
 Component.setTimeout = null;
 Component.destroy = null;
