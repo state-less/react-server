@@ -393,6 +393,10 @@ const Component = (fn, baseStore = new _state.Store({
         const renderChildren = async comp => {
           let children = await (comp === null || comp === void 0 ? void 0 : comp.props.children);
 
+          if (!Array.isArray(children)) {
+            return renderChildren(children);
+          }
+
           for (let i = 0; i < (children === null || children === void 0 ? void 0 : children.length); i++) {
             const child = children[i];
 
