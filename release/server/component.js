@@ -44,7 +44,9 @@ const isEqual = (arrA, arrB) => {
   }, true);
 };
 
-const Component = (fn, baseStore = new _state.Store()) => {
+const Component = (fn, baseStore = new _state.Store({
+  autoCreate: true
+})) => {
   let logger;
 
   if (!baseStore) {
@@ -388,7 +390,9 @@ const Component = (fn, baseStore = new _state.Store()) => {
         scope.set(key, componentState);
 
         if (!lastResult || !lastResult.props || Object.keys(lastResult.props).length !== Object.keys(result.props).length || JSON.stringify(lastResult.props) !== JSON.stringify(result.props)) {
-          for (let i = 0; i < result.props.children.length; i++) {
+          for (let i = 0; i < (result === null || result === void 0 ? void 0 : (_result$props4 = result.props) === null || _result$props4 === void 0 ? void 0 : (_result$props4$childr = _result$props4.children) === null || _result$props4$childr === void 0 ? void 0 : _result$props4$childr.length); i++) {
+            var _result$props4, _result$props4$childr;
+
             result.props.children[i] = await result.props.children[i].render(null, socket);
           }
 

@@ -27,7 +27,9 @@ const isEqual = (arrA, arrB) => {
 
 
 
-const Component: Lifecycle = (fn, baseStore = new Store) => {
+const Component: Lifecycle = (fn, baseStore = new Store({
+    autoCreate: true
+})) => {
     let logger;
 
     if (!baseStore) {
@@ -326,7 +328,7 @@ const Component: Lifecycle = (fn, baseStore = new Store) => {
                 scope.set(key, componentState)
 
                 if (!lastResult || !lastResult.props || Object.keys(lastResult.props).length !== Object.keys(result.props).length || JSON.stringify(lastResult.props) !== JSON.stringify(result.props)) {
-                    for (let i=0; i<result.props.children.length; i++) {
+                    for (let i=0; i<result?.props?.children?.length; i++) {
                         result.props.children[i] = await result.props.children[i].render(null, socket)
                     }
                     const res = await setResult(result);
