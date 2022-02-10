@@ -335,7 +335,7 @@ const Component: Lifecycle = (fn, baseStore = new Store({
                     let children = await comp?.props.children;
                     if (!Array.isArray(children)) {
                         if (comp.render)
-                            comp.props.children = await children.render();
+                            comp.props.children = await children.render(null, socket, { component: result, parent });
                         return //renderChildren(children);
                     }
                     for (let i = 0; i < children?.length; i++) {
