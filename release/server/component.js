@@ -69,7 +69,7 @@ const Component = (fn, baseStore = new _state.Store({
     const stateValues = new Map();
     return async (props = null, key, options, clientProps, socket = {
       id: SERVER_ID
-    }) => {
+    }, parent) => {
       var _jwt, _jwt$address;
 
       let scopedUseEffect;
@@ -118,6 +118,7 @@ const Component = (fn, baseStore = new _state.Store({
       const id = Math.random();
 
       scopedUseContext = ctx => {
+        debugger;
         ctx.onChange(async () => {
           await render();
         });
@@ -398,7 +399,10 @@ const Component = (fn, baseStore = new _state.Store({
             if (Array.isArray(child)) {
               await Promise.all(child.map(renderChildren));
             } else if (typeof child.render === 'function') {
-              comp.props.children[i] = await child.render(null, socket);
+              comp.props.children[i] = await child.render(null, socket, {
+                component: result,
+                parent
+              });
             } else {
               logger.warning`No render function for child ${JSON.stringify(child)} in comp ${key}`;
             }

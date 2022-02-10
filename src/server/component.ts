@@ -53,7 +53,7 @@ const Component: Lifecycle = (fn, baseStore = new Store({
         let lastStates = [];
         const stateValues = new Map();
 
-        return async (props = null, key, options, clientProps, socket = { id: SERVER_ID }) => {
+        return async (props = null, key, options, clientProps, socket = { id: SERVER_ID }, parent) => {
             let scopedUseEffect;
             let scopedUseContext;
             let scopedDestroy;
@@ -93,6 +93,8 @@ const Component: Lifecycle = (fn, baseStore = new Store({
             const id = Math.random();
 
             scopedUseContext = (ctx) => {
+                debugger;
+                
                 ctx.onChange(async () => {
                     await render();
                 });
@@ -333,7 +335,7 @@ const Component: Lifecycle = (fn, baseStore = new Store({
                         if (Array.isArray(child)) {
                             await Promise.all(child.map(renderChildren))
                         } else if (typeof child.render === 'function') {
-                            comp.props.children[i] = await child.render(null, socket)
+                            comp.props.children[i] = await child.render(null, socket, {component:result, parent})
                         } else {
                             logger.warning`No render function for child ${JSON.stringify(child)} in comp ${key}`;
                         }
