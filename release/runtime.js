@@ -29,7 +29,17 @@ const render = async (component, props, connectionInfo) => {
   do {
     var _cmp, _cmp$props;
 
-    cmp = await cmp(props, connectionInfo);
+    if (typeof cmp === 'function') {
+      /** Components can return Components which will be rendered in a second pass; usually upon a client request */
+      cmp = await cmp(props, connectionInfo);
+    } else if (typeof cmp === 'object') {
+      /** Usually components are already transformed to objects and no further processing needs to be done */
+      cmp = cmp;
+    } else {
+      throw new Error('Component not valid');
+    }
+    /** We need to traverse the tree as some component down the tree might have rendered Components */
+
 
     if (cmp && (_cmp = cmp) !== null && _cmp !== void 0 && (_cmp$props = _cmp.props) !== null && _cmp$props !== void 0 && _cmp$props.children) {
       for (var i = 0; i < ((_cmp2 = cmp) === null || _cmp2 === void 0 ? void 0 : (_cmp2$props = _cmp2.props) === null || _cmp2$props === void 0 ? void 0 : _cmp2$props.children.length); i++) {
@@ -59,6 +69,8 @@ const render = async (component, props, connectionInfo) => {
 
     if (typeof cmp !== 'function') cmp = stack.shift();
   } while (typeof cmp === 'function');
+  /** The resolved tree */
+
 
   return cmp;
 };

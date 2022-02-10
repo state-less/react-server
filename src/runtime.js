@@ -21,8 +21,17 @@ const render = async (component, props, connectionInfo) => {
     let stack = [];
 
     do {
-        cmp = await cmp(props, connectionInfo);
+        if (typeof cmp === 'function') {
+            /** Components can return Components which will be rendered in a second pass; usually upon a client request */
+            cmp = await cmp(props, connectionInfo);
+        } else if (typeof cmp === 'object') {
+            /** Usually components are already transformed to objects and no further processing needs to be done */
+            cmp = cmp
+        } else {
+            throw new Error('Component not valid');
+        }
 
+        /** We need to traverse the tree as some component down the tree might have rendered Components */
         if (cmp && cmp?.props?.children) {
             for (var i = 0; i < cmp?.props?.children.length; i++) {
                 const child = cmp?.props?.children[i];
@@ -46,6 +55,8 @@ const render = async (component, props, connectionInfo) => {
         if (typeof cmp !== 'function')
             cmp = stack.shift();
     } while (typeof cmp === 'function');
+
+    /** The resolved tree */
     return cmp;
 }
 
