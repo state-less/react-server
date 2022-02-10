@@ -57,11 +57,12 @@ const render = async (component, props, connectionInfo) => {
     root = cmp;
     /** We need to traverse the tree as some component down the tree might have rendered Components */
 
-    if (cmp && (_cmp = cmp) !== null && _cmp !== void 0 && (_cmp$props = _cmp.props) !== null && _cmp$props !== void 0 && _cmp$props.children) {
-      for (var i = 0; i < ((_cmp2 = cmp) === null || _cmp2 === void 0 ? void 0 : (_cmp2$props = _cmp2.props) === null || _cmp2$props === void 0 ? void 0 : _cmp2$props.children.length); i++) {
-        var _cmp2, _cmp2$props, _cmp3, _cmp3$props;
+    let children = await Promise.all([(_cmp = cmp) === null || _cmp === void 0 ? void 0 : (_cmp$props = _cmp.props) === null || _cmp$props === void 0 ? void 0 : _cmp$props.children].flat());
+    if (cmp.props.children) cmp.props.children = children;
 
-        const child = await ((_cmp3 = cmp) === null || _cmp3 === void 0 ? void 0 : (_cmp3$props = _cmp3.props) === null || _cmp3$props === void 0 ? void 0 : _cmp3$props.children[i]);
+    if (cmp && children) {
+      for (var i = 0; i < children.length; i++) {
+        const child = await children[i];
 
         if (Array.isArray(child)) {
           for (var j = 0; j < child.length; j++) {

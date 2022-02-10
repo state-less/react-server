@@ -358,7 +358,7 @@ const Component: Lifecycle = (fn, baseStore = new Store({
                 }
                 if (!lastResult || !lastResult.props || Object.keys(lastResult.props).length !== Object.keys(result.props).length || JSON.stringify(lastResult.props) !== JSON.stringify(result.props)) {
                     /** This should ONLY be called for components that affect their child tree like Proivder */
-                    await renderChildren(result);
+                    // await renderChildren(result);
                     const res = await setResult(result);
                 }
 
