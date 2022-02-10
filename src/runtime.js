@@ -21,7 +21,7 @@ export const tree = {};
  */
 const render = async (component, props, connectionInfo) => {
     /** The current component that gets rendered */
-    let cmp = component;
+    let cmp = component, root;
     /** Maintains a stack of components to be rendered */
     let stack = [];
 
@@ -38,6 +38,7 @@ const render = async (component, props, connectionInfo) => {
             throw new Error('Component not valid');
         }
 
+        root = cmp;
         /** We need to traverse the tree as some component down the tree might have rendered Components */
         if (cmp && cmp?.props?.children) {
             for (var i = 0; i < cmp?.props?.children.length; i++) {
@@ -61,11 +62,11 @@ const render = async (component, props, connectionInfo) => {
         }
         if (typeof cmp !== 'function')
             cmp = stack.shift();
-    } while (typeof cmp === 'function');
+    } while (cmp);
 
-    Object.assign(tree, cmp);
+    Object.assign(tree, root);
     /** The resolved tree */
-    return cmp;
+    return root;
 }
 
 
