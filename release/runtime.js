@@ -83,7 +83,7 @@ const render = async (component, props, connectionInfo) => {
     }
 
     if (typeof cmp !== 'function') cmp = stack.shift();
-  } while (typeof cmp === 'function');
+  } while (cmp);
 
   Object.assign(tree, root);
   /** The resolved tree */
