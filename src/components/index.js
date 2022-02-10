@@ -28,7 +28,10 @@ const Router = (props) => {
     Router.context = {
         props
     };
-    return props.children
+    return {
+        component: 'Router',
+        props
+    }
 }
 
 const Route = (props) => {
@@ -44,7 +47,10 @@ const Route = (props) => {
         return null;
     }
 
-    return props.children;
+    return {
+        component: 'Route',
+        props,
+    }
 }
 
 const ClientComponent = (props) => {
