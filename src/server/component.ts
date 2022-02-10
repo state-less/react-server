@@ -25,9 +25,9 @@ const isEqual = (arrA, arrB) => {
 
 
 
-export const createContext = () => {
+export const createContext = (defaultValue) => {
     const listeners = [];
-    let value = null;
+    let value = defaultValue;
     const ref = {
         get value() {
             return value;

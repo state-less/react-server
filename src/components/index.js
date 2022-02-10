@@ -5,7 +5,14 @@ const { Store } = require('../server/state');
 const internal = new Store({autoCreate:true});
 
 const Generic = key => props => ({component: key, props})
-const Server = Generic('Server');
+
+const Server = (props) => {
+    return {
+        v: '0.0.1',
+        component: 'Server',
+        props
+    }
+}
 
 const Router = Component((props) => {
     const {target} = props;
