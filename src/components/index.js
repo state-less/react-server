@@ -14,7 +14,7 @@ const Server = (props) => {
     }
 }
 
-const Router = Component((props) => {
+const Router = (props) => {
     const {target} = props;
 
     if (!target) {
@@ -29,9 +29,9 @@ const Router = Component((props) => {
         props
     };
     return props.children
-}, internal);
+}
 
-const Route = Component((props) => {
+const Route = (props) => {
     const {target} = props;
 
     if (!target) {
@@ -45,7 +45,7 @@ const Route = Component((props) => {
     }
 
     return props.children;
-}, internal);
+}
 
 const ClientComponent = (props) => {
     return {
