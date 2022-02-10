@@ -29,7 +29,7 @@ export interface Lifecycle{
      * @returns - Array of value and setter function.
      */
     useState <T extends any>(defaultValue: T, key: string, options?: object): [T, (value: T) => void],
-    useContext(context: Context): any;
+    useContext(context: Context): any;  
     useEffect(callback: Function, changedVariables: any[]): void
     useClientEffect(callback: Function)
     useFunction(callback: Function)

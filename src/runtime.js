@@ -27,6 +27,8 @@ const render = async (component, props, connectionInfo) => {
         } else if (typeof cmp === 'object') {
             /** Usually components are already transformed to objects and no further processing needs to be done */
             cmp = cmp
+        } else if (cmp === null) {
+            cmp = cmp;
         } else {
             throw new Error('Component not valid');
         }

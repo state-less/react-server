@@ -332,8 +332,10 @@ const Component: Lifecycle = (fn, baseStore = new Store({
                         const child = comp.props.children[i]
                         if (Array.isArray(child)) {
                             await Promise.all(child.map(renderChildren))
-                        } else {
+                        } else if (typeof child.render === 'function') {
                             comp.props.children[i] = await child.render(null, socket)
+                        } else {
+                            logger.warning`No render function for child ${JSON.stringify(child)} in comp ${key}`;
                         }
                     }
                 }
