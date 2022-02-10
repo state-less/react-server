@@ -75,6 +75,7 @@ const Component = (fn, baseStore = new _state.Store({
     /** Component scope. This scope is valid once per rendered component and doesn't change during rerenders */
     let lastStates = [];
     const stateValues = new Map();
+    let savedParent;
     return async (props = null, key, options, clientProps, socket = {
       id: SERVER_ID
     }, parent) => {
@@ -95,6 +96,7 @@ const Component = (fn, baseStore = new _state.Store({
       let functions = [[]];
       let dependencies = [];
       logger = componentLogger.scope(`${key}:${socket.id}`);
+      if (parent) savedParent = parent;
       let jwt;
 
       try {
@@ -126,8 +128,10 @@ const Component = (fn, baseStore = new _state.Store({
       const id = Math.random();
 
       scopedUseContext = ctx => {
-        const par = findParent(parent, ctx.id);
-        if (par.value) return par.value;
+        var _par$props, _par$props2;
+
+        const par = findParent(parent || savedParent, ctx.id);
+        if (par !== null && par !== void 0 && (_par$props = par.props) !== null && _par$props !== void 0 && _par$props.value) return par === null || par === void 0 ? void 0 : (_par$props2 = par.props) === null || _par$props2 === void 0 ? void 0 : _par$props2.value;
         return null;
       };
 

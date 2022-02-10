@@ -58,7 +58,7 @@ const Component: Lifecycle = (fn, baseStore = new Store({
         /** Component scope. This scope is valid once per rendered component and doesn't change during rerenders */
         let lastStates = [];
         const stateValues = new Map();
-
+        let savedParent;
         return async (props = null, key, options, clientProps, socket = { id: SERVER_ID }, parent) => {
             let scopedUseEffect;
             let scopedUseContext;
@@ -76,7 +76,9 @@ const Component: Lifecycle = (fn, baseStore = new Store({
             let dependencies = [];
             logger = componentLogger.scope(`${key}:${socket.id}`);
 
-
+            if (parent)
+                savedParent = parent;
+                
             let jwt;
             try {
                 jwt = authenticate({ data: socket });
@@ -99,10 +101,10 @@ const Component: Lifecycle = (fn, baseStore = new Store({
             const id = Math.random();
 
             scopedUseContext = (ctx) => {
-                const par = findParent(parent, ctx.id);
+                const par = findParent(parent || savedParent, ctx.id);
 
-                if (par.value)
-                    return par.value;
+                if (par?.props?.value)
+                    return par?.props?.value;
                 
                 return null;
             }
