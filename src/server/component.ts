@@ -25,27 +25,7 @@ const isEqual = (arrA, arrB) => {
 
 
 
-export const createContext = (defaultValue) => {
-    const listeners = [];
-    let value = defaultValue;
-    const ref = {
-        get value() {
-            return value;
-        },
-        set value(v) {
-            value = v;
-            listeners.forEach(fn => 'function' === typeof fn && fn(v));
-        },
-        onChange: (fn) => {
-            listeners.push(fn);
-        },
-        Provider: (props) => {
-            ref.value = props.value;
-            return props.children;
-        }
-    };
-    return ref;
-}
+
 
 const Component: Lifecycle = (fn, baseStore) => {
     let logger;
@@ -96,8 +76,6 @@ const Component: Lifecycle = (fn, baseStore) => {
 
             }
             const { useState: useComponentState } = baseStore.scope(jwt?.address?.id || socket.id);
-            /** TODO: Think of a way to provide a component state scope */
-            // const componentState = await useComponentState(key, {}, {scope: socket.id});
             const componentState = await useComponentState(key, {});
 
             const { value: lastResult, setValue: setResult } = componentState;
@@ -289,6 +267,7 @@ const Component: Lifecycle = (fn, baseStore) => {
                 })
             }
 
+            /** This is where all the magic happens. */
             let render = async () => {
                 stateIndex = 0;
                 effectIndex = 0;
@@ -298,12 +277,13 @@ const Component: Lifecycle = (fn, baseStore) => {
                     throw new Error('Component expired.');
                 }
 
+                componentLogger.warning`Rendering component ${key}`;
                 // await cleanup()
                 const result = await fn({ ...props, key }, clientProps, socket);
                 lastStates = states;
 
                 if (!result && result !== null) {
-                    logger.log`Rendered function ${fn.toString()}`;
+                    logger.debug`Rendered function ${fn.toString()}`;
                     throw new Error('Nothing returned from render. This usually means you have forgotten to return anything from your component.')
                 }
 
@@ -345,9 +325,10 @@ const Component: Lifecycle = (fn, baseStore) => {
                 Component.scope.set(socket.id, scope)
                 scope.set(key, componentState)
 
-                //Implement publish mechanism based on configuration/environment.
-                //Render server publishes on render. That updates the cache of the fallback renderer running serverless. (that's what happens right now)
                 if (!lastResult || !lastResult.props || Object.keys(lastResult.props).length !== Object.keys(result.props).length || JSON.stringify(lastResult.props) !== JSON.stringify(result.props)) {
+                    for (let i=0; i<result.props.children.length; i++) {
+                        result.props.children[i] = await result.props.children[i].render(null, socket)
+                    }
                     const res = await setResult(result);
                 }
 
@@ -382,7 +363,10 @@ const Component: Lifecycle = (fn, baseStore) => {
         componentLogger.warning`Setting component ${key}`;
         Component.instances.set(key, bound);
         // bound.server = true;
-        return bound();
+        return {
+            ...bound(),
+            render: bound,
+        }
     }
 
 }

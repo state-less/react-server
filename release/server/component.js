@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.Component = exports.useContext = exports.useState = exports.createContext = void 0;
+exports.Component = exports.useContext = exports.useState = void 0;
 
 var _interfaces = require("../interfaces");
 
@@ -41,32 +41,6 @@ const isEqual = (arrA, arrB) => {
     return acc && cur == arrB[i];
   }, true);
 };
-
-const createContext = defaultValue => {
-  const listeners = [];
-  let value = defaultValue;
-  const ref = {
-    get value() {
-      return value;
-    },
-
-    set value(v) {
-      value = v;
-      listeners.forEach(fn => 'function' === typeof fn && fn(v));
-    },
-
-    onChange: fn => {
-      listeners.push(fn);
-    },
-    Provider: props => {
-      ref.value = props.value;
-      return props.children;
-    }
-  };
-  return ref;
-};
-
-exports.createContext = createContext;
 
 const Component = (fn, baseStore) => {
   let logger;
@@ -120,9 +94,6 @@ const Component = (fn, baseStore) => {
       const {
         useState: useComponentState
       } = baseStore.scope(((_jwt = jwt) === null || _jwt === void 0 ? void 0 : (_jwt$address = _jwt.address) === null || _jwt$address === void 0 ? void 0 : _jwt$address.id) || socket.id);
-      /** TODO: Think of a way to provide a component state scope */
-      // const componentState = await useComponentState(key, {}, {scope: socket.id});
-
       const componentState = await useComponentState(key, {});
       const {
         value: lastResult,
@@ -335,6 +306,8 @@ const Component = (fn, baseStore) => {
           if (cleanup && 'function' === typeof cleanup) cleanup();
         });
       };
+      /** This is where all the magic happens. */
+
 
       let render = async () => {
         stateIndex = 0;
@@ -343,8 +316,9 @@ const Component = (fn, baseStore) => {
 
         if (+new Date() - createdAt > ttl) {
           throw new Error('Component expired.');
-        } // await cleanup()
+        }
 
+        componentLogger.warning`Rendering component ${key}`; // await cleanup()
 
         const result = await fn({ ...props,
           key
@@ -352,7 +326,7 @@ const Component = (fn, baseStore) => {
         lastStates = states;
 
         if (!result && result !== null) {
-          logger.log`Rendered function ${fn.toString()}`;
+          logger.debug`Rendered function ${fn.toString()}`;
           throw new Error('Nothing returned from render. This usually means you have forgotten to return anything from your component.');
         }
 
@@ -409,10 +383,13 @@ const Component = (fn, baseStore) => {
 
         const scope = Component.scope.get(socket.id) || new Map();
         Component.scope.set(socket.id, scope);
-        scope.set(key, componentState); //Implement publish mechanism based on configuration/environment.
-        //Render server publishes on render. That updates the cache of the fallback renderer running serverless. (that's what happens right now)
+        scope.set(key, componentState);
 
         if (!lastResult || !lastResult.props || Object.keys(lastResult.props).length !== Object.keys(result.props).length || JSON.stringify(lastResult.props) !== JSON.stringify(result.props)) {
+          for (let i = 0; i < result.props.children.length; i++) {
+            result.props.children[i] = await result.props.children[i].render(null, socket);
+          }
+
           const res = await setResult(result);
         }
 
@@ -448,7 +425,9 @@ const Component = (fn, baseStore) => {
     componentLogger.warning`Setting component ${key}`;
     Component.instances.set(key, bound); // bound.server = true;
 
-    return bound();
+    return { ...bound(),
+      render: bound
+    };
   };
 };
 
