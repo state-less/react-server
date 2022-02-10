@@ -25,7 +25,13 @@ const isEqual = (arrA, arrB) => {
 }
 
 
-
+function findParent  (parent, id) {
+    if (parent?.component && parent?.component?.id === id)
+        return parent.component;
+    if (parent?.parent)
+        return findParent(parent.parent, id);
+    return null;
+}
 
 const Component: Lifecycle = (fn, baseStore = new Store({
     autoCreate: true
@@ -93,13 +99,12 @@ const Component: Lifecycle = (fn, baseStore = new Store({
             const id = Math.random();
 
             scopedUseContext = (ctx) => {
-                debugger;
+                const par = findParent(parent, ctx.id);
 
-                ctx.onChange(async () => {
-                    await render();
-                });
-
-                return ctx.value;
+                if (par.value)
+                    return par.value;
+                
+                return null;
             }
             scopedUseState = async (initial, stateKey, { deny = false, scope = void 0, ...rest } = {}) => {
                 if (deny) {

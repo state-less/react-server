@@ -44,6 +44,14 @@ const isEqual = (arrA, arrB) => {
   }, true);
 };
 
+function findParent(parent, id) {
+  var _parent$component;
+
+  if (parent !== null && parent !== void 0 && parent.component && (parent === null || parent === void 0 ? void 0 : (_parent$component = parent.component) === null || _parent$component === void 0 ? void 0 : _parent$component.id) === id) return parent.component;
+  if (parent !== null && parent !== void 0 && parent.parent) return findParent(parent.parent, id);
+  return null;
+}
+
 const Component = (fn, baseStore = new _state.Store({
   autoCreate: true
 })) => {
@@ -118,11 +126,9 @@ const Component = (fn, baseStore = new _state.Store({
       const id = Math.random();
 
       scopedUseContext = ctx => {
-        debugger;
-        ctx.onChange(async () => {
-          await render();
-        });
-        return ctx.value;
+        const par = findParent(parent, ctx.id);
+        if (par.value) return par.value;
+        return null;
       };
 
       scopedUseState = async (initial, stateKey, {
