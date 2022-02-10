@@ -389,13 +389,18 @@ const Component = (fn, baseStore = new _state.Store({
         Component.scope.set(socket.id, scope);
         scope.set(key, componentState);
 
-        if (!lastResult || !lastResult.props || Object.keys(lastResult.props).length !== Object.keys(result.props).length || JSON.stringify(lastResult.props) !== JSON.stringify(result.props)) {
-          for (let i = 0; i < (result === null || result === void 0 ? void 0 : (_result$props4 = result.props) === null || _result$props4 === void 0 ? void 0 : (_result$props4$childr = _result$props4.children) === null || _result$props4$childr === void 0 ? void 0 : _result$props4$childr.length); i++) {
-            var _result$props4, _result$props4$childr;
+        const renderChildren = async comp => {
+          for (let i = 0; i < (comp === null || comp === void 0 ? void 0 : (_comp$props = comp.props) === null || _comp$props === void 0 ? void 0 : (_comp$props$children = _comp$props.children) === null || _comp$props$children === void 0 ? void 0 : _comp$props$children.length); i++) {
+            var _comp$props, _comp$props$children;
 
-            result.props.children[i] = await result.props.children[i].render(null, socket);
+            const child = comp.props.children[i];
+            if (Array.isArray(child)) await Promise.all(child.map(renderChildren));
+            comp.props.children[i] = await child.render(null, socket);
           }
+        };
 
+        if (!lastResult || !lastResult.props || Object.keys(lastResult.props).length !== Object.keys(result.props).length || JSON.stringify(lastResult.props) !== JSON.stringify(result.props)) {
+          await renderChildren(result);
           const res = await setResult(result);
         }
 
