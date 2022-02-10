@@ -1,5 +1,10 @@
 "use strict";
 
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.tree = void 0;
+
 const logger = require("./lib/logger").scope('runtime');
 
 const filterComponents = child => child && child.server && 'function' == typeof child;
@@ -11,6 +16,12 @@ const reduceComponents = (lkp, cmp) => {
   return lkp;
 };
 /**
+ * Contains the rendered tree.
+ */
+
+
+const tree = {};
+/**
  * The JSX runtime. This renders the component tree.
  * @param {function} component - The root component that shall be rendered
  * @param {*} props - The props that shall be passed to the component
@@ -18,6 +29,7 @@ const reduceComponents = (lkp, cmp) => {
  * @returns 
  */
 
+exports.tree = tree;
 
 const render = async (component, props, connectionInfo) => {
   /** The current component that gets rendered */
@@ -34,7 +46,7 @@ const render = async (component, props, connectionInfo) => {
       cmp = await cmp(props, connectionInfo);
     } else if (typeof cmp === 'object') {
       /** Usually components are already transformed to objects and no further processing needs to be done */
-      cmp = cmp;
+      cmp = await cmp;
     } else if (cmp === null) {
       cmp = cmp;
     } else {
@@ -47,7 +59,7 @@ const render = async (component, props, connectionInfo) => {
       for (var i = 0; i < ((_cmp2 = cmp) === null || _cmp2 === void 0 ? void 0 : (_cmp2$props = _cmp2.props) === null || _cmp2$props === void 0 ? void 0 : _cmp2$props.children.length); i++) {
         var _cmp2, _cmp2$props, _cmp3, _cmp3$props;
 
-        const child = (_cmp3 = cmp) === null || _cmp3 === void 0 ? void 0 : (_cmp3$props = _cmp3.props) === null || _cmp3$props === void 0 ? void 0 : _cmp3$props.children[i];
+        const child = await ((_cmp3 = cmp) === null || _cmp3 === void 0 ? void 0 : (_cmp3$props = _cmp3.props) === null || _cmp3$props === void 0 ? void 0 : _cmp3$props.children[i]);
 
         if (Array.isArray(child)) {
           for (var j = 0; j < child.length; j++) {
@@ -71,8 +83,9 @@ const render = async (component, props, connectionInfo) => {
 
     if (typeof cmp !== 'function') cmp = stack.shift();
   } while (typeof cmp === 'function');
-  /** The resolved tree */
 
+  Object.assign(tree, cmp);
+  /** The resolved tree */
 
   return cmp;
 };

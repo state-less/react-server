@@ -8,6 +8,11 @@ const reduceComponents = (lkp, cmp) => {
 };
 
 /**
+ * Contains the rendered tree.
+ */
+export const tree = {};
+
+/**
  * The JSX runtime. This renders the component tree.
  * @param {function} component - The root component that shall be rendered
  * @param {*} props - The props that shall be passed to the component
@@ -26,7 +31,7 @@ const render = async (component, props, connectionInfo) => {
             cmp = await cmp(props, connectionInfo);
         } else if (typeof cmp === 'object') {
             /** Usually components are already transformed to objects and no further processing needs to be done */
-            cmp = cmp
+            cmp = await cmp
         } else if (cmp === null) {
             cmp = cmp;
         } else {
@@ -36,7 +41,7 @@ const render = async (component, props, connectionInfo) => {
         /** We need to traverse the tree as some component down the tree might have rendered Components */
         if (cmp && cmp?.props?.children) {
             for (var i = 0; i < cmp?.props?.children.length; i++) {
-                const child = cmp?.props?.children[i];
+                const child = await cmp?.props?.children[i];
                 if (Array.isArray(child)) {
                     for (var j = 0; j < child.length; j++) {
                         cmp.props.children[i][j] = await render(child[j], props, connectionInfo)
@@ -58,6 +63,7 @@ const render = async (component, props, connectionInfo) => {
             cmp = stack.shift();
     } while (typeof cmp === 'function');
 
+    Object.assign(tree, cmp);
     /** The resolved tree */
     return cmp;
 }
