@@ -330,9 +330,11 @@ const Component: Lifecycle = (fn, baseStore = new Store({
                 const renderChildren = async (comp) => {
                     for (let i = 0; i < comp?.props?.children?.length; i++) {
                         const child = comp.props.children[i]
-                        if (Array.isArray(child))
+                        if (Array.isArray(child)) {
                             await Promise.all(child.map(renderChildren))
-                        comp.props.children[i] = await child.render(null, socket)
+                        } else {
+                            comp.props.children[i] = await child.render(null, socket)
+                        }
                     }
                 }
                 if (!lastResult || !lastResult.props || Object.keys(lastResult.props).length !== Object.keys(result.props).length || JSON.stringify(lastResult.props) !== JSON.stringify(result.props)) {

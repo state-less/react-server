@@ -394,8 +394,12 @@ const Component = (fn, baseStore = new _state.Store({
             var _comp$props, _comp$props$children;
 
             const child = comp.props.children[i];
-            if (Array.isArray(child)) await Promise.all(child.map(renderChildren));
-            comp.props.children[i] = await child.render(null, socket);
+
+            if (Array.isArray(child)) {
+              await Promise.all(child.map(renderChildren));
+            } else {
+              comp.props.children[i] = await child.render(null, socket);
+            }
           }
         };
 
