@@ -1,6 +1,7 @@
 import { useDebugValue } from "react";
 import { Lifecycle, CacheBehaviour } from "../interfaces";
 import { authenticate } from '../util';
+import { Store } from "./state";
 
 const { v4: uuidv4, v4 } = require("uuid");
 const { EVENT_STATE_SET, NETWORK_FIRST, SERVER_ID, CACHE_FIRST } = require("../consts");
@@ -26,8 +27,7 @@ const isEqual = (arrA, arrB) => {
 
 
 
-
-const Component: Lifecycle = (fn, baseStore) => {
+const Component: Lifecycle = (fn, baseStore = new Store) => {
     let logger;
 
     if (!baseStore) {

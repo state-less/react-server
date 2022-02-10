@@ -9,6 +9,8 @@ var _interfaces = require("../interfaces");
 
 var _util = require("../util");
 
+var _state = require("./state");
+
 const {
   v4: uuidv4,
   v4
@@ -42,7 +44,7 @@ const isEqual = (arrA, arrB) => {
   }, true);
 };
 
-const Component = (fn, baseStore) => {
+const Component = (fn, baseStore = new _state.Store()) => {
   let logger;
 
   if (!baseStore) {
