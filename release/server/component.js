@@ -401,8 +401,10 @@ const Component = (fn, baseStore = new _state.Store({
         scope.set(key, componentState);
 
         const renderChildren = async comp => {
+          var _comp$props;
+
           if (!comp) return;
-          let children = await (comp === null || comp === void 0 ? void 0 : comp.props.children);
+          let children = await (comp === null || comp === void 0 ? void 0 : (_comp$props = comp.props) === null || _comp$props === void 0 ? void 0 : _comp$props.children);
 
           if (children && !Array.isArray(children)) {
             if (children.render) comp.props.children = await children.render(null, socket, {

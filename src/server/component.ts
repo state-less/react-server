@@ -78,7 +78,7 @@ const Component: Lifecycle = (fn, baseStore = new Store({
 
             if (parent)
                 savedParent = parent;
-                
+
             let jwt;
             try {
                 jwt = authenticate({ data: socket });
@@ -339,7 +339,7 @@ const Component: Lifecycle = (fn, baseStore = new Store({
                 const renderChildren = async (comp) => {
                     if (!comp)
                         return
-                    let children = await comp?.props.children;
+                    let children = await comp?.props?.children;
                     if (children && !Array.isArray(children)) {
                         if (children.render)
                             comp.props.children = await children.render(null, socket, { component: result, parent });
