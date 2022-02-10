@@ -94,7 +94,7 @@ const Component: Lifecycle = (fn, baseStore = new Store({
 
             scopedUseContext = (ctx) => {
                 debugger;
-                
+
                 ctx.onChange(async () => {
                     await render();
                 });
@@ -330,8 +330,9 @@ const Component: Lifecycle = (fn, baseStore = new Store({
                 scope.set(key, componentState)
 
                 const renderChildren = async (comp) => {
-                    for (let i = 0; i < comp?.props?.children?.length; i++) {
-                        const child = comp.props.children[i]
+                    let children = await comp?.props.children;
+                    for (let i = 0; i < children?.length; i++) {
+                        const child = children[i]
                         if (Array.isArray(child)) {
                             await Promise.all(child.map(renderChildren))
                         } else if (typeof child.render === 'function') {

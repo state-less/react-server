@@ -391,10 +391,10 @@ const Component = (fn, baseStore = new _state.Store({
         scope.set(key, componentState);
 
         const renderChildren = async comp => {
-          for (let i = 0; i < (comp === null || comp === void 0 ? void 0 : (_comp$props = comp.props) === null || _comp$props === void 0 ? void 0 : (_comp$props$children = _comp$props.children) === null || _comp$props$children === void 0 ? void 0 : _comp$props$children.length); i++) {
-            var _comp$props, _comp$props$children;
+          let children = await (comp === null || comp === void 0 ? void 0 : comp.props.children);
 
-            const child = comp.props.children[i];
+          for (let i = 0; i < (children === null || children === void 0 ? void 0 : children.length); i++) {
+            const child = children[i];
 
             if (Array.isArray(child)) {
               await Promise.all(child.map(renderChildren));
