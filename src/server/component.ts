@@ -330,8 +330,12 @@ const Component: Lifecycle = (fn, baseStore = new Store({
                 scope.set(key, componentState)
 
                 const renderChildren = async (comp) => {
+                    if (!comp)
+                        return
                     let children = await comp?.props.children;
                     if (!Array.isArray(children)) {
+                        if (comp.render)
+                            comp.props.children = await comp.render();
                         return renderChildren(children);
                     }
                     for (let i = 0; i < children?.length; i++) {
@@ -339,7 +343,7 @@ const Component: Lifecycle = (fn, baseStore = new Store({
                         if (Array.isArray(child)) {
                             await Promise.all(child.map(renderChildren))
                         } else if (typeof child.render === 'function') {
-                            comp.props.children[i] = await child.render(null, socket, {component:result, parent})
+                            comp.props.children[i] = await child.render(null, socket, { component: result, parent })
                         } else {
                             logger.warning`No render function for child ${JSON.stringify(child)} in comp ${key}`;
                         }
