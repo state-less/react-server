@@ -3,7 +3,9 @@ const {WebSocketRenderer} = require('./components/WebSocketRenderer');
 const {render} = require('./runtime');
 const { DynamoDBState, DynamodbStore } = require('./server/state/DynamoDBState');
 const { WebsocketStream } = require('./Stream');
-const {Component, createContext, useState, useContext} = require('./server/component')
+const {Component, useState, useContext} = require('./server/component');
+const { createContext } = require('./util/context');
+
 module.exports = {
     WebsocketStream, 
     DynamoDBState, 

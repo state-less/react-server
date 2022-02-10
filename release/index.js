@@ -26,10 +26,13 @@ const {
 
 const {
   Component,
-  createContext,
   useState,
   useContext
 } = require('./server/component');
+
+const {
+  createContext
+} = require('./util/context');
 
 module.exports = {
   WebsocketStream,
