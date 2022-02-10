@@ -1,5 +1,5 @@
 import { Lifecycle } from "../interfaces";
-export declare const createContext: () => {
+export declare const createContext: (defaultValue: any) => {
     value: any;
     onChange: (fn: any) => void;
     Provider: (props: any) => any;

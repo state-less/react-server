@@ -42,9 +42,9 @@ const isEqual = (arrA, arrB) => {
   }, true);
 };
 
-const createContext = () => {
+const createContext = defaultValue => {
   const listeners = [];
-  let value = null;
+  let value = defaultValue;
   const ref = {
     get value() {
       return value;
@@ -448,7 +448,7 @@ const Component = (fn, baseStore) => {
     componentLogger.warning`Setting component ${key}`;
     Component.instances.set(key, bound); // bound.server = true;
 
-    return bound;
+    return bound();
   };
 };
 

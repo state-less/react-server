@@ -23,7 +23,14 @@ const Generic = key => props => ({
   props
 });
 
-const Server = Generic('Server');
+const Server = props => {
+  return {
+    v: '0.0.1',
+    component: 'Server',
+    props
+  };
+};
+
 const Router = Component(props => {
   const {
     target

@@ -382,7 +382,7 @@ const Component: Lifecycle = (fn, baseStore) => {
         componentLogger.warning`Setting component ${key}`;
         Component.instances.set(key, bound);
         // bound.server = true;
-        return bound;
+        return bound();
     }
 
 }
