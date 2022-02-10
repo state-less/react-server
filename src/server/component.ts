@@ -333,8 +333,8 @@ const Component: Lifecycle = (fn, baseStore = new Store({
                     if (!comp)
                         return
                     let children = await comp?.props.children;
-                    if (!Array.isArray(children)) {
-                        if (comp.render)
+                    if (children && !Array.isArray(children)) {
+                        if (children.render)
                             comp.props.children = await children.render(null, socket, { component: result, parent });
                         return //renderChildren(children);
                     }
@@ -350,6 +350,7 @@ const Component: Lifecycle = (fn, baseStore = new Store({
                     }
                 }
                 if (!lastResult || !lastResult.props || Object.keys(lastResult.props).length !== Object.keys(result.props).length || JSON.stringify(lastResult.props) !== JSON.stringify(result.props)) {
+                    /** This should ONLY be called for components that affect their child tree like Proivder */
                     await renderChildren(result);
                     const res = await setResult(result);
                 }

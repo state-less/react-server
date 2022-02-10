@@ -394,8 +394,8 @@ const Component = (fn, baseStore = new _state.Store({
           if (!comp) return;
           let children = await (comp === null || comp === void 0 ? void 0 : comp.props.children);
 
-          if (!Array.isArray(children)) {
-            if (comp.render) comp.props.children = await children.render(null, socket, {
+          if (children && !Array.isArray(children)) {
+            if (children.render) comp.props.children = await children.render(null, socket, {
               component: result,
               parent
             });
@@ -419,6 +419,7 @@ const Component = (fn, baseStore = new _state.Store({
         };
 
         if (!lastResult || !lastResult.props || Object.keys(lastResult.props).length !== Object.keys(result.props).length || JSON.stringify(lastResult.props) !== JSON.stringify(result.props)) {
+          /** This should ONLY be called for components that affect their child tree like Proivder */
           await renderChildren(result);
           const res = await setResult(result);
         }
