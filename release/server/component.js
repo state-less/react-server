@@ -434,7 +434,7 @@ const Component = (fn, baseStore = new _state.Store({
     };
   })();
 
-  return (props, key, options = {}) => {
+  return async (props, key, options = {}) => {
     const createdAt = +new Date();
     let bound = component.bind(null, props, key, { ...options,
       createdAt
@@ -442,7 +442,7 @@ const Component = (fn, baseStore = new _state.Store({
     componentLogger.warning`Setting component ${key}`;
     Component.instances.set(key, bound); // bound.server = true;
 
-    return { ...bound(),
+    return { ...(await bound()),
       render: bound
     };
   };

@@ -369,14 +369,14 @@ const Component: Lifecycle = (fn, baseStore = new Store({
         }
     })()
 
-    return (props, key, options = {}) => {
+    return async (props, key, options = {}) => {
         const createdAt = +new Date;
         let bound = component.bind(null, props, key, { ...options, createdAt });
         componentLogger.warning`Setting component ${key}`;
         Component.instances.set(key, bound);
         // bound.server = true;
         return {
-            ...bound(),
+            ...await bound(),
             render: bound,
         }
     }
