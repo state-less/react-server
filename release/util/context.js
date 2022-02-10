@@ -5,10 +5,12 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.createContext = void 0;
 
+var _uuid = require("uuid");
+
 const createContext = defaultValue => {
   const listeners = [];
   let value = defaultValue;
-  const id = v4();
+  const id = (0, _uuid.v4)();
   const ref = {
     id,
 
