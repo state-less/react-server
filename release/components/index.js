@@ -63,7 +63,7 @@ const Route = props => {
     return null;
   }
 
-  if (target.includes(Router.context.props.target)) {
+  if (!target.includes(Router.context.props.target)) {
     logger.notice`Not rendering route. Target '${target}' doesn't match Router target '${Router.context}'`;
     return null;
   }

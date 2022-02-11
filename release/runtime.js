@@ -66,12 +66,12 @@ const render = async (component, props, connectionInfo) => {
 
         if (Array.isArray(child)) {
           for (var j = 0; j < child.length; j++) {
-            cmp.props.children[i][j] = await render(child[j], props, connectionInfo);
+            children[i][j] = await render(child[j], props, connectionInfo);
           }
         }
 
         if (child && typeof child !== 'function') continue;
-        cmp.props.children[i] = await render(child, props, connectionInfo);
+        children[i] = await render(child, props, connectionInfo);
       }
     }
 
