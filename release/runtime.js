@@ -74,15 +74,13 @@ const render = async (component, props, connectionInfo) => {
 
         if (Array.isArray(child)) {
           for (var j = 0; j < child.length; j++) {
-            var _children$i$j, _children$i$j$props, _children$i$j2, _children$i$j2$props;
+            var _children$i$j;
 
             children[i][j] = await render(child[j], props, connectionInfo);
-            if ((_children$i$j = children[i][j]) !== null && _children$i$j !== void 0 && (_children$i$j$props = _children$i$j.props) !== null && _children$i$j$props !== void 0 && _children$i$j$props.key) parentMap[(_children$i$j2 = children[i][j]) === null || _children$i$j2 === void 0 ? void 0 : (_children$i$j2$props = _children$i$j2.props) === null || _children$i$j2$props === void 0 ? void 0 : _children$i$j2$props.key] = cmp;
+            if ((_children$i$j = children[i][j]) !== null && _children$i$j !== void 0 && _children$i$j.key) parentMap[children[i][j].key] = cmp;
           }
         } else {
-          var _child$props;
-
-          if (child !== null && child !== void 0 && (_child$props = child.props) !== null && _child$props !== void 0 && _child$props.key) parentMap[child.props.key] = cmp;
+          if (child !== null && child !== void 0 && child.key) parentMap[child.key] = cmp;
         } // if (child && typeof child !== 'function')
         //     continue;
 

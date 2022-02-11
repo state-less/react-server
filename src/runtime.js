@@ -53,12 +53,12 @@ const render = async (component, props, connectionInfo) => {
                 if (Array.isArray(child)) {
                     for (var j = 0; j < child.length; j++) {
                         children[i][j] = await render(child[j], props, connectionInfo)
-                        if (children[i][j]?.props?.key)
-                            parentMap[children[i][j]?.props?.key] = cmp;
+                        if (children[i][j]?.key)
+                            parentMap[children[i][j].key] = cmp;
                     }
                 } else {
-                    if (child?.props?.key)
-                        parentMap[child.props.key] = cmp;
+                    if (child?.key)
+                        parentMap[child.key] = cmp;
                 }
                 // if (child && typeof child !== 'function')
                 //     continue;
