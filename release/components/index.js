@@ -87,6 +87,8 @@ const Action = props => {
   const {
     children: name,
     disabled,
+    key,
+    use,
     ...rest
   } = props;
   return {
@@ -94,7 +96,8 @@ const Action = props => {
     props: {
       name,
       disabled,
-      handler: rest
+      boundHandler: rest,
+      handler: Object.keys(rest)
     }
   };
 };

@@ -81,8 +81,8 @@ const render = async (component, props, connectionInfo) => {
       }
     }
 
-    if (cmp && cmp.component) {
-      if (cmp.component === 'ClientComponent') continue; // throw new Error("client")
+    if (cmp && cmp.component) {// if (cmp.component === 'ClientComponent') continue;
+      // throw new Error("client")
     }
 
     if (Array.isArray(cmp)) {

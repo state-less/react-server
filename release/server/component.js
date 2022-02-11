@@ -347,7 +347,7 @@ const Component = (fn, baseStore = new _state.Store({
         }
 
         if (result && result.component === 'ClientComponent') {
-          var _result$props, _result$props2, _result$props3, _result$props3$childr;
+          var _result$props, _result$props2;
 
           for (const stateReferenceKey in result.props) {
             const stateValue = result.props[stateReferenceKey];
@@ -374,15 +374,14 @@ const Component = (fn, baseStore = new _state.Store({
 
           if ((_result$props = result.props) !== null && _result$props !== void 0 && _result$props.children && !Array.isArray((_result$props2 = result.props) === null || _result$props2 === void 0 ? void 0 : _result$props2.children)) {
             result.props.children = [result.props.children];
-          }
+          } // const actions = result.props?.children?.filter((action) => {
+          //     return action.component === 'Action';
+          // }).forEach((action) => {
+          //     action.props.boundHandler = action.props.handler
+          //     action.props.boundHandler = action.props.handler
+          //     action.props.handler = Object.keys(action.props.handler);
+          // })
 
-          const actions = (_result$props3 = result.props) === null || _result$props3 === void 0 ? void 0 : (_result$props3$childr = _result$props3.children) === null || _result$props3$childr === void 0 ? void 0 : _result$props3$childr.filter(action => {
-            return action.component === 'Action';
-          }).forEach(action => {
-            action.props.boundHandler = action.props.handler;
-            action.props.boundHandler = action.props.handler;
-            action.props.handler = Object.keys(action.props.handler);
-          });
         } else if (result) {
           for (const lookupReference in result.states) {
             const stateValue = result.states[lookupReference];
