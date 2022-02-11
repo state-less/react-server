@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.Component = exports.useContext = exports.useState = void 0;
+exports.Component = exports.Lifecycle = exports.useContext = exports.useState = void 0;
 
 var _runtime = require("../runtime");
 
@@ -56,7 +56,7 @@ function findParent(key, id) {
   return null;
 }
 
-const Component = (fn, baseStore = new _state.Store({
+const Lifecycle = (fn, baseStore = new _state.Store({
   autoCreate: true
 })) => {
   let logger;
@@ -138,6 +138,10 @@ const Component = (fn, baseStore = new _state.Store({
         var _par$props, _par$props2;
 
         const par = findParent(parent || savedParent, ctx.id);
+        ctx.onRender(key, () => {
+          logger.warning`Rerendering Component because Provider updated`;
+          setImmediate(render);
+        });
         if (par !== null && par !== void 0 && (_par$props = par.props) !== null && _par$props !== void 0 && _par$props.value) return par === null || par === void 0 ? void 0 : (_par$props2 = par.props) === null || _par$props2 === void 0 ? void 0 : _par$props2.value;
         return null;
       };
@@ -180,7 +184,7 @@ const Component = (fn, baseStore = new _state.Store({
         let scopedKey = ((_states$stateIndex = states[stateIndex]) === null || _states$stateIndex === void 0 ? void 0 : _states$stateIndex.key) || stateKey || uuidv4();
         const state = states[stateIndex] || (await useState(scopedKey, initial, {
           temp: !stateKey,
-          cache: Component.defaultCacheBehaviour,
+          cache: Lifecycle.defaultCacheBehaviour,
           ...rest
         }));
         let {
@@ -200,12 +204,12 @@ const Component = (fn, baseStore = new _state.Store({
 
           await setValue(value); // const was = Component.useEffect;
 
-          Component.useEffect = scopedUseEffect;
-          Component.useClientEffect = scopedUseClientEffect;
-          Component.useState = scopedUseState;
-          Component.useClientState = scopedUseClientState;
-          Component.useFunction = scopedUseFunction;
-          Component.useContext = scopedUseContext;
+          Lifecycle.useEffect = scopedUseEffect;
+          Lifecycle.useClientEffect = scopedUseClientEffect;
+          Lifecycle.useState = scopedUseState;
+          Lifecycle.useClientState = scopedUseClientState;
+          Lifecycle.useFunction = scopedUseFunction;
+          Lifecycle.useContext = scopedUseContext;
 
           try {
             // setImmediate(() => {
@@ -227,7 +231,7 @@ const Component = (fn, baseStore = new _state.Store({
       };
 
       scopedUseClientState = (...args) => {
-        if (Component.isServer(socket)) {
+        if (Lifecycle.isServer(socket)) {
           if (states[stateIndex]) {
             states[stateIndex] = states[stateIndex];
             stateIndex++;
@@ -242,7 +246,7 @@ const Component = (fn, baseStore = new _state.Store({
       };
 
       scopedUseEffect = (fn, deps = [], notifyClient) => {
-        if (!Component.isServer(socket)) return;
+        if (!Lifecycle.isServer(socket)) return;
         const [lastDeps = [], cleanup] = effects[effectIndex] || [];
 
         if (!isEqual(lastDeps, deps) || !lastDeps.length) {
@@ -259,7 +263,7 @@ const Component = (fn, baseStore = new _state.Store({
       };
 
       scopedUseClientEffect = (fn, deps) => {
-        if (Component.isServer(socket)) return;
+        if (Lifecycle.isServer(socket)) return;
         const [lastDeps, cleanup] = clientEffects[clientEffectIndex - 1] || [];
 
         if (!deps || !isEqual(lastDeps, deps)) {
@@ -403,8 +407,8 @@ const Component = (fn, baseStore = new _state.Store({
           }
         }
 
-        const scope = Component.scope.get(socket.id) || new Map();
-        Component.scope.set(socket.id, scope);
+        const scope = Lifecycle.scope.get(socket.id) || new Map();
+        Lifecycle.scope.set(socket.id, scope);
         scope.set(key, componentState);
 
         const renderChildren = async comp => {
@@ -447,14 +451,14 @@ const Component = (fn, baseStore = new _state.Store({
         return result;
       };
 
-      Component.setTimeout = scopedTimeout;
-      Component.useEffect = scopedUseEffect;
-      Component.useClientEffect = scopedUseClientEffect;
-      Component.useState = scopedUseState;
-      Component.destroy = scopedDestroy;
-      Component.useClientState = scopedUseClientState;
-      Component.useFunction = scopedUseFunction;
-      Component.useContext = scopedUseContext;
+      Lifecycle.setTimeout = scopedTimeout;
+      Lifecycle.useEffect = scopedUseEffect;
+      Lifecycle.useClientEffect = scopedUseClientEffect;
+      Lifecycle.useState = scopedUseState;
+      Lifecycle.destroy = scopedDestroy;
+      Lifecycle.useClientState = scopedUseClientState;
+      Lifecycle.useFunction = scopedUseFunction;
+      Lifecycle.useContext = scopedUseContext;
       const rendered = await render();
 
       if (rendered) {
@@ -473,7 +477,7 @@ const Component = (fn, baseStore = new _state.Store({
       createdAt
     });
     componentLogger.warning`Setting component ${key}`;
-    Component.instances.set(key, bound); // bound.server = true;
+    Lifecycle.instances.set(key, bound); // bound.server = true;
 
     return { ...(await bound()),
       render: bound
@@ -481,15 +485,15 @@ const Component = (fn, baseStore = new _state.Store({
   };
 };
 
-exports.Component = Component;
-Component.useState = null;
-Component.useEffect = null;
-Component.useClientEffect = null;
-Component.useFunction = null;
-Component.useContext = null;
-Component.useClientState = null;
-Component.setTimeout = null;
-Component.destroy = null;
+exports.Component = exports.Lifecycle = Lifecycle;
+Lifecycle.useState = null;
+Lifecycle.useEffect = null;
+Lifecycle.useClientEffect = null;
+Lifecycle.useFunction = null;
+Lifecycle.useContext = null;
+Lifecycle.useClientState = null;
+Lifecycle.setTimeout = null;
+Lifecycle.destroy = null;
 /**
  * @typedef ReactServerComponent
  * @type {Object}
@@ -501,20 +505,20 @@ Component.destroy = null;
  * @type {Map<string,ReactServerComponent>}
  */
 
-Component.instances = new Map();
-Component.rendered = new Map();
-Component.scope = new Map();
+Lifecycle.instances = new Map();
+Lifecycle.rendered = new Map();
+Lifecycle.scope = new Map();
 
-Component.isServer = socket => {
+Lifecycle.isServer = socket => {
   return socket.id === SERVER_ID;
 };
 
-Component.defaultCacheBehaviour = _interfaces.CacheBehaviour.CACHE_FIRST;
+Lifecycle.defaultCacheBehaviour = _interfaces.CacheBehaviour.CACHE_FIRST;
 
-const useState = (...args) => Component.useState.apply(null, args);
+const useState = (...args) => Lifecycle.useState.apply(null, args);
 
 exports.useState = useState;
 
-const useContext = (...args) => Component.useContext.apply(null, args);
+const useContext = (...args) => Lifecycle.useContext.apply(null, args);
 
 exports.useContext = useContext;

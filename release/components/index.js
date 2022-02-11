@@ -5,7 +5,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.StoreProvider = void 0;
 
-var _jsxRuntime = require("./jsx-renderer/jsx-runtime");
+var _jsxRuntime = require("../../jsx-renderer/jsx-runtime");
 
 const {
   WebsocketStream

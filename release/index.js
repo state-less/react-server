@@ -1,5 +1,17 @@
 "use strict";
 
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+Object.defineProperty(exports, "StoreProvider", {
+  enumerable: true,
+  get: function () {
+    return _components.StoreProvider;
+  }
+});
+
+var _components = require("./components");
+
 const {
   Server,
   Router,

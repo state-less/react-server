@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.parentMap = exports.tree = void 0;
+exports.render = exports.parentMap = exports.tree = void 0;
 
 const logger = require("./lib/logger").scope('runtime');
 
@@ -105,3 +105,5 @@ const render = async (component, props, connectionInfo) => {
 
   return root;
 };
+
+exports.render = render;

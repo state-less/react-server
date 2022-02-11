@@ -19,7 +19,7 @@ export const parentMap = {};
  * @param {*} connectionInfo - The connectionInfo (e.g. socket connection, http headers)
  * @returns 
  */
-const render = async (component, props, connectionInfo) => {
+export const render = async (component, props, connectionInfo) => {
     /** The current component that gets rendered */
     let cmp = component, root;
     /** Maintains a stack of components to be rendered */

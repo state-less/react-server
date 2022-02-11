@@ -1,5 +1,5 @@
 import { parentMap } from '../runtime'
-import { Lifecycle, CacheBehaviour } from "../interfaces";
+import { Lifecycle as LifecycleType, CacheBehaviour } from "../interfaces";
 import { authenticate } from '../util';
 import { Store } from "./state";
 import { storeContext } from "../context";
@@ -26,10 +26,10 @@ const isEqual = (arrA, arrB) => {
 }
 
 
-function findParent  (key, id) {
+function findParent(key, id) {
     const par = parentMap[key];
 
-    if (!par) 
+    if (!par)
         return null;
 
     if (par.id === id)
@@ -40,7 +40,7 @@ function findParent  (key, id) {
     return null;
 }
 
-const Component: Lifecycle = (fn, baseStore = new Store({
+const Lifecycle: LifecycleType = (fn, baseStore = new Store({
     autoCreate: true
 })) => {
     let logger;
@@ -99,7 +99,7 @@ const Component: Lifecycle = (fn, baseStore = new Store({
                 throw new Error('Missing StoreProvider. Did you forget to render a StoreProvider?')
 
             baseStore = storeProvider.props.value;
-            
+
             const { useState: useComponentState } = baseStore.scope(jwt?.address?.id || socket.id);
             const componentState = await useComponentState(key, {});
 
@@ -118,9 +118,14 @@ const Component: Lifecycle = (fn, baseStore = new Store({
             scopedUseContext = (ctx) => {
                 const par = findParent(parent || savedParent, ctx.id);
 
+                ctx.onRender(key, () => {
+                    logger.warning`Rerendering Component because Provider updated`
+                    setImmediate(render)
+                })
+
                 if (par?.props?.value)
                     return par?.props?.value;
-                
+
                 return null;
             }
             scopedUseState = async (initial, stateKey, { deny = false, scope = void 0, ...rest } = {}) => {
@@ -149,7 +154,7 @@ const Component: Lifecycle = (fn, baseStore = new Store({
 
                 let scopedKey = states[stateIndex]?.key || stateKey || uuidv4();
 
-                const state = states[stateIndex] || await useState(scopedKey, initial, { temp: !stateKey, cache: Component.defaultCacheBehaviour, ...rest });
+                const state = states[stateIndex] || await useState(scopedKey, initial, { temp: !stateKey, cache: Lifecycle.defaultCacheBehaviour, ...rest });
 
                 let { value, setValue } = state;
 
@@ -166,12 +171,12 @@ const Component: Lifecycle = (fn, baseStore = new Store({
                     }
                     await setValue(value);
                     // const was = Component.useEffect;
-                    Component.useEffect = scopedUseEffect;
-                    Component.useClientEffect = scopedUseClientEffect;
-                    Component.useState = scopedUseState;
-                    Component.useClientState = scopedUseClientState;
-                    Component.useFunction = scopedUseFunction;
-                    Component.useContext = scopedUseContext;
+                    Lifecycle.useEffect = scopedUseEffect;
+                    Lifecycle.useClientEffect = scopedUseClientEffect;
+                    Lifecycle.useState = scopedUseState;
+                    Lifecycle.useClientState = scopedUseClientState;
+                    Lifecycle.useFunction = scopedUseFunction;
+                    Lifecycle.useContext = scopedUseContext;
 
                     try {
                         // setImmediate(() => {
@@ -195,7 +200,7 @@ const Component: Lifecycle = (fn, baseStore = new Store({
             }
 
             scopedUseClientState = (...args) => {
-                if (Component.isServer(socket)) {
+                if (Lifecycle.isServer(socket)) {
                     if (states[stateIndex]) {
                         states[stateIndex] = states[stateIndex];
                         stateIndex++;
@@ -209,7 +214,7 @@ const Component: Lifecycle = (fn, baseStore = new Store({
             }
 
             scopedUseEffect = (fn, deps = [], notifyClient) => {
-                if (!Component.isServer(socket)) return;
+                if (!Lifecycle.isServer(socket)) return;
 
                 const [lastDeps = [], cleanup] = effects[effectIndex] || [];
                 if (!isEqual(lastDeps, deps) || !lastDeps.length) {
@@ -226,7 +231,7 @@ const Component: Lifecycle = (fn, baseStore = new Store({
             }
 
             scopedUseClientEffect = (fn, deps) => {
-                if (Component.isServer(socket)) return;
+                if (Lifecycle.isServer(socket)) return;
 
                 const [lastDeps, cleanup] = clientEffects[clientEffectIndex - 1] || [];
                 if (!deps || !isEqual(lastDeps, deps)) {
@@ -350,8 +355,8 @@ const Component: Lifecycle = (fn, baseStore = new Store({
                     }
                 }
 
-                const scope = Component.scope.get(socket.id) || new Map;
-                Component.scope.set(socket.id, scope)
+                const scope = Lifecycle.scope.get(socket.id) || new Map;
+                Lifecycle.scope.set(socket.id, scope)
                 scope.set(key, componentState)
 
                 const renderChildren = async (comp) => {
@@ -385,14 +390,14 @@ const Component: Lifecycle = (fn, baseStore = new Store({
                 return result;
             }
 
-            Component.setTimeout = scopedTimeout;
-            Component.useEffect = scopedUseEffect;
-            Component.useClientEffect = scopedUseClientEffect;
-            Component.useState = scopedUseState;
-            Component.destroy = scopedDestroy;
-            Component.useClientState = scopedUseClientState;
-            Component.useFunction = scopedUseFunction;
-            Component.useContext = scopedUseContext;
+            Lifecycle.setTimeout = scopedTimeout;
+            Lifecycle.useEffect = scopedUseEffect;
+            Lifecycle.useClientEffect = scopedUseClientEffect;
+            Lifecycle.useState = scopedUseState;
+            Lifecycle.destroy = scopedDestroy;
+            Lifecycle.useClientState = scopedUseClientState;
+            Lifecycle.useFunction = scopedUseFunction;
+            Lifecycle.useContext = scopedUseContext;
 
             const rendered = await render();
 
@@ -409,7 +414,7 @@ const Component: Lifecycle = (fn, baseStore = new Store({
         const createdAt = +new Date;
         let bound = component.bind(null, props, key, { ...options, createdAt });
         componentLogger.warning`Setting component ${key}`;
-        Component.instances.set(key, bound);
+        Lifecycle.instances.set(key, bound);
         // bound.server = true;
         return {
             ...await bound(),
@@ -419,14 +424,14 @@ const Component: Lifecycle = (fn, baseStore = new Store({
 
 }
 
-Component.useState = null;
-Component.useEffect = null;
-Component.useClientEffect = null;
-Component.useFunction = null;
-Component.useContext = null;
-Component.useClientState = null;
-Component.setTimeout = null;
-Component.destroy = null;
+Lifecycle.useState = null;
+Lifecycle.useEffect = null;
+Lifecycle.useClientEffect = null;
+Lifecycle.useFunction = null;
+Lifecycle.useContext = null;
+Lifecycle.useClientState = null;
+Lifecycle.setTimeout = null;
+Lifecycle.destroy = null;
 /**
  * @typedef ReactServerComponent
  * @type {Object}
@@ -437,14 +442,16 @@ Component.destroy = null;
  * Maintains a map of component instances.
  * @type {Map<string,ReactServerComponent>}
  */
-Component.instances = new Map();
-Component.rendered = new Map();
-Component.scope = new Map();
-Component.isServer = (socket) => {
+Lifecycle.instances = new Map();
+Lifecycle.rendered = new Map();
+Lifecycle.scope = new Map();
+Lifecycle.isServer = (socket) => {
     return socket.id === SERVER_ID
 }
-Component.defaultCacheBehaviour = CacheBehaviour.CACHE_FIRST;
+Lifecycle.defaultCacheBehaviour = CacheBehaviour.CACHE_FIRST;
 
-export const useState = (...args) => Component.useState.apply(null, args);
-export const useContext = (...args) => Component.useContext.apply(null, args);
-export { Component };
+export const useState = (...args) => Lifecycle.useState.apply(null, args);
+export const useContext = (...args) => Lifecycle.useContext.apply(null, args);
+
+export { Lifecycle }
+export { Lifecycle as Component };

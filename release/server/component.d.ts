@@ -1,5 +1,6 @@
-import { Lifecycle } from "../interfaces";
-declare const Component: Lifecycle;
+import { Lifecycle as LifecycleType } from "../interfaces";
+declare const Lifecycle: LifecycleType;
 export declare const useState: (...args: any[]) => any;
 export declare const useContext: (...args: any[]) => any;
-export { Component };
+export { Lifecycle };
+export { Lifecycle as Component };

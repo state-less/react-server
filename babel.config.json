@@ -12,7 +12,7 @@
         {
           "throwIfNamespace": false, // defaults to true
           "runtime": "automatic", // defaults to classic
-          "importSource": "./jsx-renderer" // defaults to react
+          "importSource": "../../jsx-renderer" // defaults to react
         }
       ],
 
