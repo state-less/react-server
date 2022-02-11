@@ -60,8 +60,8 @@ const render = async (component, props, connectionInfo) => {
                     if (child?.props?.key)
                         parentMap[child.props.key] = cmp;
                 }
-                if (child && typeof child !== 'function')
-                    continue;
+                // if (child && typeof child !== 'function')
+                //     continue;
                 children[i] = await render(child, props, connectionInfo);
             }
         }
@@ -83,5 +83,6 @@ const render = async (component, props, connectionInfo) => {
 
 
 module.exports = {
-    render
+    render,
+    parentMap
 }
