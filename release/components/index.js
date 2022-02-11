@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.StoreProvider = void 0;
+exports.Action = exports.Route = exports.Router = exports.Server = exports.Stream = exports.ClientComponent = exports.StoreProvider = void 0;
 
 var _jsxRuntime = require("../../jsx-renderer/jsx-runtime");
 
@@ -54,6 +54,8 @@ const Server = props => {
   };
 };
 
+exports.Server = Server;
+
 const Router = props => {
   const {
     target
@@ -76,6 +78,8 @@ const Router = props => {
   };
 };
 
+exports.Router = Router;
+
 const Route = props => {
   const {
     target
@@ -97,6 +101,8 @@ const Route = props => {
   };
 };
 
+exports.Route = Route;
+
 const ClientComponent = props => {
   return {
     component: 'ClientComponent',
@@ -104,6 +110,7 @@ const ClientComponent = props => {
   };
 };
 
+exports.ClientComponent = ClientComponent;
 ClientComponent.server = true;
 
 const Action = props => {
@@ -125,6 +132,8 @@ const Action = props => {
   };
 };
 
+exports.Action = Action;
+
 const Stream = (props, key) => {
   const instance = {
     component: 'Stream',
@@ -137,13 +146,6 @@ const Stream = (props, key) => {
   return instance;
 };
 
+exports.Stream = Stream;
 Stream.instances = new Map();
 Action.server = true;
-module.exports = {
-  ClientComponent,
-  Stream,
-  Server,
-  Router,
-  Route,
-  Action
-};

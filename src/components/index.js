@@ -3,16 +3,16 @@ const logger = require('../lib/logger');
 const { Component } = require('../server/component');
 const { Store } = require('../server/state');
 const { storeContext } = require('../context');
-const internal = new Store({autoCreate:true});
+const internal = new Store({ autoCreate: true });
 
 
 export const StoreProvider = (props) => {
-    const {store} = props;
+    const { store } = props;
     return <storeContext.Provider value={store}>
         {props.children}
     </storeContext.Provider>
 }
-const Generic = key => props => ({component: key, props})
+const Generic = key => props => ({ component: key, props })
 
 const Server = (props) => {
     return {
@@ -23,7 +23,7 @@ const Server = (props) => {
 }
 
 const Router = (props) => {
-    const {target} = props;
+    const { target } = props;
 
     if (!target) {
         logger.warning`Router has no target. You need to provide a target for <Route> to work. 
@@ -43,7 +43,7 @@ const Router = (props) => {
 }
 
 const Route = (props) => {
-    const {target} = props;
+    const { target } = props;
 
     if (!target) {
         logger.warning`Route has no valid target and will not render. You need to provide a target. e.g: <Router target="node" />`;
@@ -70,7 +70,7 @@ const ClientComponent = (props) => {
 ClientComponent.server = true;
 
 const Action = (props) => {
-    const {children: name, disabled,key, use, ...rest} = props;
+    const { children: name, disabled, key, use, ...rest } = props;
     return {
         component: 'Action',
         props: {
@@ -96,7 +96,7 @@ const Stream = (props, key) => {
 Stream.instances = new Map;
 Action.server = true;
 
-module.exports = {
+export {
     ClientComponent,
     Stream,
     Server,
