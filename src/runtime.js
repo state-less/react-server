@@ -11,7 +11,7 @@ const reduceComponents = (lkp, cmp) => {
  * Contains the rendered tree.
  */
 export const tree = {};
-
+export const parentMap = {};
 /**
  * The JSX runtime. This renders the component tree.
  * @param {function} component - The root component that shall be rendered
@@ -49,10 +49,16 @@ const render = async (component, props, connectionInfo) => {
         if (cmp && children) {
             for (var i = 0; i < children.length; i++) {
                 const child = await children[i];
+                
                 if (Array.isArray(child)) {
                     for (var j = 0; j < child.length; j++) {
                         children[i][j] = await render(child[j], props, connectionInfo)
+                        if (children[i][j]?.props?.key)
+                            parentMap[children[i][j]?.props?.key] = cmp;
                     }
+                } else {
+                    if (child?.props?.key)
+                        parentMap[child.props.key] = cmp;
                 }
                 if (child && typeof child !== 'function')
                     continue;
