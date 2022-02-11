@@ -315,13 +315,13 @@ const Component: Lifecycle = (fn, baseStore = new Store({
                         result.props.children = [result.props.children];
                     }
 
-                    const actions = result.props?.children?.filter((action) => {
-                        return action.component === 'Action';
-                    }).forEach((action) => {
-                        action.props.boundHandler = action.props.handler
-                        action.props.boundHandler = action.props.handler
-                        action.props.handler = Object.keys(action.props.handler);
-                    })
+                    // const actions = result.props?.children?.filter((action) => {
+                    //     return action.component === 'Action';
+                    // }).forEach((action) => {
+                    //     action.props.boundHandler = action.props.handler
+                    //     action.props.boundHandler = action.props.handler
+                    //     action.props.handler = Object.keys(action.props.handler);
+                    // })
                 } else if (result) {
                     for (const lookupReference in result.states) {
                         const stateValue = result.states[lookupReference];
