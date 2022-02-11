@@ -32,8 +32,8 @@ const render = async (component, props, connectionInfo) => {
         } else if (typeof cmp === 'object') {
             /** Usually components are already transformed to objects and no further processing needs to be done */
             cmp = await cmp
-        } else if (cmp === null) {
-            cmp = cmp;
+        } else if (cmp === null || typeof cmp === 'undefined') {
+            cmp = null;
         } else {
             throw new Error('Component not valid');
         }
@@ -41,7 +41,7 @@ const render = async (component, props, connectionInfo) => {
         root = cmp;
         /** We need to traverse the tree as some component down the tree might have rendered Components */
         let children = await Promise.all([cmp?.props?.children].flat())
-        if (cmp.props.children)
+        if (children && cmp?.props)
             cmp.props.children = children;
 
         if (cmp && children) {

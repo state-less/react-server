@@ -40,7 +40,7 @@ const render = async (component, props, connectionInfo) => {
   let stack = [];
 
   do {
-    var _cmp, _cmp$props;
+    var _cmp, _cmp$props, _cmp2;
 
     if (typeof cmp === 'function') {
       /** Components can return Components which will be rendered in a second pass; usually upon a client request */
@@ -48,8 +48,8 @@ const render = async (component, props, connectionInfo) => {
     } else if (typeof cmp === 'object') {
       /** Usually components are already transformed to objects and no further processing needs to be done */
       cmp = await cmp;
-    } else if (cmp === null) {
-      cmp = cmp;
+    } else if (cmp === null || typeof cmp === 'undefined') {
+      cmp = null;
     } else {
       throw new Error('Component not valid');
     }
@@ -58,7 +58,7 @@ const render = async (component, props, connectionInfo) => {
     /** We need to traverse the tree as some component down the tree might have rendered Components */
 
     let children = await Promise.all([(_cmp = cmp) === null || _cmp === void 0 ? void 0 : (_cmp$props = _cmp.props) === null || _cmp$props === void 0 ? void 0 : _cmp$props.children].flat());
-    if (cmp.props.children) cmp.props.children = children;
+    if (children && (_cmp2 = cmp) !== null && _cmp2 !== void 0 && _cmp2.props) cmp.props.children = children;
 
     if (cmp && children) {
       for (var i = 0; i < children.length; i++) {
