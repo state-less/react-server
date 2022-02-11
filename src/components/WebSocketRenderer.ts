@@ -88,6 +88,7 @@ const WebSocketServer = (props: WebSocketServerProps): typeof WebSocket.Server =
         ...extend
     });
 
+    
     return wss;
 }
 
@@ -108,6 +109,9 @@ const emit = (socket, data) => {
 
 const componentCache = {};
 const handleRender = ({ server, secret, streams, store, authFactors, ...rest }) => {
+    server.on('close', () => {
+        process.exit(0);
+    })
     server.on('connection', (socket, req) => {
         const handler = ConnectionHandler(broker, store, 'DISCONNECT');
 

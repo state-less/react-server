@@ -186,6 +186,9 @@ const handleRender = ({
   authFactors,
   ...rest
 }) => {
+  server.on('close', () => {
+    process.exit(0);
+  });
   server.on('connection', (socket, req) => {
     const handler = ConnectionHandler(broker, store, 'DISCONNECT');
 
