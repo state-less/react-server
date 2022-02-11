@@ -95,10 +95,11 @@ const Lifecycle: LifecycleType = (fn, baseStore = new Store({
 
             const storeProvider = findParent(key, storeContext.id);
 
-            if (!storeProvider)
-                throw new Error('Missing StoreProvider. Did you forget to render a StoreProvider?')
-
-            baseStore = storeProvider.props.value;
+            if (storeProvider) {
+                baseStore = storeProvider.props.value;
+            } else {
+                logger.warning`Missing store provider in component ${key}. Using fallback.`
+            }
 
             const { useState: useComponentState } = baseStore.scope(jwt?.address?.id || socket.id);
             const componentState = await useComponentState(key, {});
