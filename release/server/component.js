@@ -5,6 +5,8 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.Component = exports.useContext = exports.useState = void 0;
 
+var _runtime = require("../runtime");
+
 var _interfaces = require("../interfaces");
 
 var _util = require("../util");
@@ -44,11 +46,11 @@ const isEqual = (arrA, arrB) => {
   }, true);
 };
 
-function findParent(parent, id) {
-  var _parent$component;
-
-  if (parent !== null && parent !== void 0 && parent.component && (parent === null || parent === void 0 ? void 0 : (_parent$component = parent.component) === null || _parent$component === void 0 ? void 0 : _parent$component.id) === id) return parent.component;
-  if (parent !== null && parent !== void 0 && parent.parent) return findParent(parent.parent, id);
+function findParent(key, id) {
+  const par = _runtime.parentMap[key];
+  if (!par) return null;
+  if (par.id === id) return par;
+  if (par !== null && par !== void 0 && par.key) return findParent(par.key, id);
   return null;
 }
 

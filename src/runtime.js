@@ -80,9 +80,3 @@ const render = async (component, props, connectionInfo) => {
     /** The resolved tree */
     return root;
 }
-
-
-module.exports = {
-    render,
-    parentMap
-}

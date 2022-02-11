@@ -105,8 +105,3 @@ const render = async (component, props, connectionInfo) => {
 
   return root;
 };
-
-module.exports = {
-  render,
-  parentMap
-};

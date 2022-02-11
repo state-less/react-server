@@ -1,4 +1,4 @@
-import { useDebugValue } from "react";
+import { parentMap } from '../runtime'
 import { Lifecycle, CacheBehaviour } from "../interfaces";
 import { authenticate } from '../util';
 import { Store } from "./state";
@@ -25,11 +25,17 @@ const isEqual = (arrA, arrB) => {
 }
 
 
-function findParent  (parent, id) {
-    if (parent?.component && parent?.component?.id === id)
-        return parent.component;
-    if (parent?.parent)
-        return findParent(parent.parent, id);
+function findParent  (key, id) {
+    const par = parentMap[key];
+
+    if (!par) 
+        return null;
+
+    if (par.id === id)
+        return par;
+
+    if (par?.key)
+        return findParent(par.key, id);
     return null;
 }
 
