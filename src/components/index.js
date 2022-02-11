@@ -2,8 +2,16 @@ const { WebsocketStream } = require('../Stream');
 const logger = require('../lib/logger');
 const { Component } = require('../server/component');
 const { Store } = require('../server/state');
+const { storeContext } = require('../context');
 const internal = new Store({autoCreate:true});
 
+
+export const StoreProvider = (props) => {
+    const {store} = props;
+    return <storeContext.Provider value={store}>
+        {props.children}
+    </storeContext.Provider>
+}
 const Generic = key => props => ({component: key, props})
 
 const Server = (props) => {

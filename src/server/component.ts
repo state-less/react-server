@@ -2,6 +2,7 @@ import { parentMap } from '../runtime'
 import { Lifecycle, CacheBehaviour } from "../interfaces";
 import { authenticate } from '../util';
 import { Store } from "./state";
+import { storeContext } from "../context";
 
 const { v4: uuidv4, v4 } = require("uuid");
 const { EVENT_STATE_SET, NETWORK_FIRST, SERVER_ID, CACHE_FIRST } = require("../consts");
@@ -91,6 +92,14 @@ const Component: Lifecycle = (fn, baseStore = new Store({
             } catch (e) {
 
             }
+
+            const storeProvider = findParent(key, storeContext.id);
+
+            if (!storeProvider)
+                throw new Error('Missing StoreProvider. Did you forget to render a StoreProvider?')
+
+            baseStore = storeProvider.props.value;
+            
             const { useState: useComponentState } = baseStore.scope(jwt?.address?.id || socket.id);
             const componentState = await useComponentState(key, {});
 

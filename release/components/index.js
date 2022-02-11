@@ -1,5 +1,12 @@
 "use strict";
 
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.StoreProvider = void 0;
+
+var _jsxRuntime = require("./jsx-renderer/jsx-runtime");
+
 const {
   WebsocketStream
 } = require('../Stream');
@@ -14,9 +21,25 @@ const {
   Store
 } = require('../server/state');
 
+const {
+  storeContext
+} = require('../context');
+
 const internal = new Store({
   autoCreate: true
 });
+
+const StoreProvider = props => {
+  const {
+    store
+  } = props;
+  return (0, _jsxRuntime.jsx)(storeContext.Provider, {
+    value: store,
+    children: props.children
+  });
+};
+
+exports.StoreProvider = StoreProvider;
 
 const Generic = key => props => ({
   component: key,

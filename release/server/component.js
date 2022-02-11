@@ -13,6 +13,8 @@ var _util = require("../util");
 
 var _state = require("./state");
 
+var _context = require("../context");
+
 const {
   v4: uuidv4,
   v4
@@ -107,6 +109,9 @@ const Component = (fn, baseStore = new _state.Store({
         });
       } catch (e) {}
 
+      const storeProvider = findParent(key, _context.storeContext.id);
+      if (!storeProvider) throw new Error('Missing StoreProvider. Did you forget to render a StoreProvider?');
+      baseStore = storeProvider.props.value;
       const {
         useState: useComponentState
       } = baseStore.scope(((_jwt = jwt) === null || _jwt === void 0 ? void 0 : (_jwt$address = _jwt.address) === null || _jwt$address === void 0 ? void 0 : _jwt$address.id) || socket.id);
