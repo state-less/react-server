@@ -40,9 +40,11 @@ const render = async (component, props, connectionInfo) => {
 
         root = cmp;
         /** We need to traverse the tree as some component down the tree might have rendered Components */
-        let children = await Promise.all([cmp?.props?.children].flat())
-        if (children && cmp?.props?.children)
+        let children = cmp?.props?.children
+        if (children) {
+            children = await Promise.all([cmp?.props?.children].flat())
             cmp.props.children = children;
+        }
 
         if (cmp && children) {
             for (var i = 0; i < children.length; i++) {
