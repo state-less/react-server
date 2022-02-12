@@ -351,7 +351,7 @@ const Lifecycle = (fn, baseStore = new _state.Store({
 
         componentLogger.warning`Rendering component ${key}`; // await cleanup()
 
-        if (props !== null && props !== void 0 && props.children) props.children = await props.children;
+        if (props !== null && props !== void 0 && props.children) props.children = await (Array.isArray(props.children) ? Promise.all(props.children) : props.children);
         const result = await fn({ ...props,
           key
         }, clientProps, socket);

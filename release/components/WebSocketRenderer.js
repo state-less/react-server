@@ -177,6 +177,8 @@ const emit = (socket, data) => {
 
 
 const componentCache = {};
+const messageQueue = [];
+let currentPromise;
 
 const handleRender = ({
   server,
@@ -604,13 +606,37 @@ const handleRender = ({
           }));
         }
       };
+
+      const queueMessage = async data => {
+        messageQueue.push(data);
+        logger.info`Queuing message. [${messageQueue.length}]`;
+        await flushQueue();
+      };
+
+      const flushQueue = async () => {
+        if (currentPromise) {
+          logger.warning`Already flushiung queue`;
+          return;
+        }
+
+        logger.info`Flushing queue.`;
+
+        for (const data of messageQueue) {
+          currentPromise = onMessage(data);
+          await currentPromise;
+          logger.info`Processed Message`;
+        }
+
+        logger.info`Flushed queue going idle. ${messageQueue.length}`;
+        currentPromise = null;
+      };
       /**
        * This is the entrypoint. Every socket message get's handled here. 
        * This is where rendering happens, actions get run.
        */
 
 
-      socket.on('message', onMessage);
+      socket.on('message', queueMessage);
       /**
        * Exit 
        */
