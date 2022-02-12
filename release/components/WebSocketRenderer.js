@@ -621,11 +621,12 @@ const handleRender = ({
 
         logger.info`Flushing queue.`;
 
-        for (const data of messageQueue) {
+        do {
+          const data = messageQueue.shift();
           currentPromise = onMessage(data);
           await currentPromise;
           logger.info`Processed Message`;
-        }
+        } while (messageQueue.length);
 
         logger.info`Flushed queue going idle. ${messageQueue.length}`;
         currentPromise = null;
