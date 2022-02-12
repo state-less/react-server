@@ -314,6 +314,10 @@ const Lifecycle: LifecycleType = (fn, baseStore = new Store({
                 if (props?.children)
                     props.children = await (Array.isArray(props.children)?Promise.all(props.children):props.children);
 
+                fn.useState = scopedUseState;
+                fn.useEffect = scopedUseEffect;
+                fn.useContext = scopedUseContext;
+
                 const result = await fn({ ...props, key }, clientProps, socket);
                 lastStates = states;
 
@@ -451,8 +455,14 @@ Lifecycle.isServer = (socket) => {
 }
 Lifecycle.defaultCacheBehaviour = CacheBehaviour.CACHE_FIRST;
 
-export const useState = (...args) => Lifecycle.useState.apply(null, args);
-export const useContext = (...args) => Lifecycle.useContext.apply(null, args);
+export const useState = function useState (...args) {
+    const scopedUseState : any = useState.caller;
+    return scopedUseState.useState.apply(args);
+}
+export const useContext = function useContext (...args) {
+    const scopedUseContext : any = useContext.caller;
+    return scopedUseContext.useContext.apply(args);
+}
 
 export { Lifecycle }
 export { Lifecycle as Component };

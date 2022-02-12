@@ -351,7 +351,10 @@ const Lifecycle = (fn, baseStore = new _state.Store({
 
         componentLogger.warning`Rendering component ${key}`; // await cleanup()
 
-        if (props !== null && props !== void 0 && props.children) props.children = await props.children;
+        if (props !== null && props !== void 0 && props.children) props.children = await (Array.isArray(props.children) ? Promise.all(props.children) : props.children);
+        fn.useState = scopedUseState;
+        fn.useEffect = scopedUseEffect;
+        fn.useContext = scopedUseContext;
         const result = await fn({ ...props,
           key
         }, clientProps, socket);
@@ -520,10 +523,16 @@ Lifecycle.isServer = socket => {
 
 Lifecycle.defaultCacheBehaviour = _interfaces.CacheBehaviour.CACHE_FIRST;
 
-const useState = (...args) => Lifecycle.useState.apply(null, args);
+const useState = function useState(...args) {
+  const scopedUseState = useState.caller;
+  return scopedUseState.useState.apply(args);
+};
 
 exports.useState = useState;
 
-const useContext = (...args) => Lifecycle.useContext.apply(null, args);
+const useContext = function useContext(...args) {
+  const scopedUseContext = useContext.caller;
+  return scopedUseContext.useContext.apply(args);
+};
 
 exports.useContext = useContext;
