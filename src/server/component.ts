@@ -312,7 +312,7 @@ const Lifecycle: LifecycleType = (fn, baseStore = new Store({
                 componentLogger.warning`Rendering component ${key}`;
                 // await cleanup()
                 if (props?.children)
-                    props.children = await props.children;
+                    props.children = await (Array.isArray(props.children)?Promise.all(props.children):props.children);
 
                 const result = await fn({ ...props, key }, clientProps, socket);
                 lastStates = states;
