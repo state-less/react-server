@@ -1,3 +1,5 @@
+import { ERR_NO_ROUTER_CONTEXT } from '../consts';
+
 const { WebsocketStream } = require('../Stream');
 const logger = require('../lib/logger');
 const { Component } = require('../server/component');
@@ -49,6 +51,9 @@ const Route = (props) => {
         logger.warning`Route has no valid target and will not render. You need to provide a target. e.g: <Router target="node" />`;
         return null;
     }
+
+    if (!Router.context.props.target)
+        throw new Error(ERR_NO_ROUTER_CONTEXT)
 
     if (!target.includes(Router.context.props.target)) {
         logger.notice`Not rendering route. Target '${target}' doesn't match Router target '${Router.context}'`

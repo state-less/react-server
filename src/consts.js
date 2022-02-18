@@ -25,4 +25,6 @@ export const SCOPE_SERVER = '$server';
 export const SCOPE_COMPONENT = '$component';
 
 export const ERR_MISSING_KEY = `Missing property 'key' in component props.`
+export const ERR_NOT_AUTHORIZED = 'Not authorized';
+export const ERR_NO_ROUTER_CONTEXT = 'Cannot render a route outside the context of a router. Are you missing a router?'
 export const DESC_MISSING_KEY = `A key is required to be able to map the client component to a Server component.`
