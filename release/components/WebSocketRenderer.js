@@ -13,6 +13,8 @@ var _socket2 = require("../actions/socket");
 
 var _socket3 = require("../factories/socket");
 
+var _defaults = require("../lib/defaults");
+
 function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
@@ -22,9 +24,9 @@ const logger = require("../lib/logger");
 const {
   failure,
   success
-} = require('../lib/response-lib/websocket');
+} = require("../lib/response-lib/websocket");
 
-const WebSocket = require('ws');
+const WebSocket = require("ws");
 
 const {
   WebsocketBroker
@@ -51,13 +53,13 @@ const {
   Component
 } = require("../server/component");
 
-const crypto = require('crypto');
+const crypto = require("crypto");
 
-const jwt = require('jsonwebtoken');
+const jwt = require("jsonwebtoken");
 
 const {
   recover
-} = require('../lib/web3-util');
+} = require("../lib/web3-util");
 
 const {
   Streams
@@ -65,65 +67,54 @@ const {
 
 const {
   Stream
-} = require('../components');
+} = require("../components");
 
 /**
- * An object containing the active connections to the server.
+ * Contains active connections to the server
  */
 const activeConnections = {};
 exports.activeConnections = activeConnections;
 const broker = new WebsocketBroker({
   activeConnections
 });
-/**
- * @typedef WebSocketRendererProps
- * @property {string} secret - A private key or secret used to sign JWT
- * @property {Object} store - The **root** store used by the renderer. 
- * @property {Object} children - The children
- * @returns 
- */
 
-/**
- * The WebSocketRenderer Component.
- * @param {WebSocketRendererProps} props 
- * @returns 
- */
-
-const WebSocketRenderer = async props => {
+const WebSocketRenderer = props => {
   const {
     children,
+    key,
     store,
     secret,
     authFactors
   } = props;
-  const server = WebSocketServer(props);
-  handleRender({
-    server,
-    secret,
-    streams: null,
-    store,
-    authFactors
-  });
-  return {
-    type: 'ServerComponent',
-    key: 'server',
-    props,
-    children,
-    server,
-    handler: (...args) => handleRender({
+  const server = createWebsocketServer(props);
+  Component.useEffect(() => {
+    handleRender({
       server,
       secret,
       streams: null,
       store,
-      authFactors,
-      ...args
-    })
+      authFactors
+    });
+  }, []);
+  return {
+    type: WebSocketRenderer,
+    key,
+    props,
+    children,
+    server // handler: (...args) =>
+    //   handleRender({
+    //     server,
+    //     secret,
+    //     streams: null,
+    //     store,
+    //     authFactors,
+    //     ...args,
+    //   }),
+
   };
 };
 
-WebSocketRenderer.server = true;
-
-const WebSocketServer = props => {
+const createWebsocketServer = props => {
   const {
     port = 8080,
     children
@@ -131,31 +122,7 @@ const WebSocketServer = props => {
   const extend = {
     port
   };
-  const wss = new WebSocket.Server({
-    perMessageDeflate: {
-      zlibDeflateOptions: {
-        // See zlib defaults.
-        chunkSize: 1024,
-        memLevel: 7,
-        level: 3
-      },
-      zlibInflateOptions: {
-        chunkSize: 10 * 1024
-      },
-      // Other options settable:
-      clientNoContextTakeover: true,
-      // Defaults to negotiated value.
-      serverNoContextTakeover: true,
-      // Defaults to negotiated value.
-      serverMaxWindowBits: 10,
-      // Defaults to negotiated value.
-      // Below options specified as default values.
-      concurrencyLimit: 10,
-      // Limits zlib concurrency for perf.
-      threshold: 1024 // Size (in bytes) below which messages
-      // should not be compressed.
-
-    },
+  const wss = new WebSocket.Server({ ..._defaults.wssDefaults,
     ...extend
   });
   return wss;
@@ -188,11 +155,11 @@ const handleRender = ({
   authFactors,
   ...rest
 }) => {
-  server.on('close', () => {
+  server.on("close", () => {
     process.exit(0);
   });
-  server.on('connection', (socket, req) => {
-    const handler = ConnectionHandler(broker, store, 'DISCONNECT');
+  server.on("connection", (socket, req) => {
+    const handler = ConnectionHandler(broker, store, "DISCONNECT");
 
     try {
       let challenge,
@@ -201,11 +168,11 @@ const handleRender = ({
       (0, _socket.validateSecWebSocketKey)(req);
       const clientId = (0, _socket.getSecWebSocketKey)(req);
       const connectionInfo = {
-        endpoint: 'localhost',
+        endpoint: "localhost",
         id: clientId
       };
       activeConnections[clientId] = socket;
-      store.on('setValue', () => {
+      store.on("setValue", () => {
         process.exit(0);
       });
 
@@ -215,7 +182,7 @@ const handleRender = ({
       /**
        * Handles socket messages meant for react-server.
        * @param {string} data - The stringified message data
-       * @returns 
+       * @returns
        */
 
 
@@ -265,7 +232,7 @@ const handleRender = ({
             id
           });
           stream.stream.write({
-            foo: 'bar'
+            foo: "bar"
           }, {
             id
           });
@@ -282,28 +249,28 @@ const handleRender = ({
           const strat = strategies[strategy];
 
           try {
-            if (phase === 'logout') identities = {};
+            if (phase === "logout") identities = {};
 
-            if (phase === 'register') {
+            if (phase === "register") {
               if (!(headers !== null && headers !== void 0 && headers.Authorization)) {
                 socket.send(success({
-                  message: 'Not authorized'
+                  message: "Not authorized"
                 }, {
-                  action: 'invalidate',
-                  routeKey: 'auth',
-                  phase: 'response',
-                  type: 'error',
+                  action: "invalidate",
+                  routeKey: "auth",
+                  phase: "response",
+                  type: "error",
                   id
                 }));
               } else {
                 let token;
 
                 try {
-                  token = jwt.verify(headers.Authorization.split(' ')[1], secret);
+                  token = jwt.verify(headers.Authorization.split(" ")[1], secret);
                   const identity = token[strategy];
                   if (!identity) throw new Error();
                   const registered = await strat.register(token, store);
-                  identities['compound'] = registered.compound;
+                  identities["compound"] = registered.compound;
                   const jwtToken = jwt.sign({
                     exp: Math.floor(Date.now() / 1000) + 60 * 60,
                     iat: Date.now() / 1000,
@@ -312,69 +279,69 @@ const handleRender = ({
                     ...identities
                   }, secret);
                   socket.send(success(jwtToken, {
-                    action: 'auth',
-                    phase: 'response',
-                    routeKey: 'auth',
-                    type: 'response',
+                    action: "auth",
+                    phase: "response",
+                    routeKey: "auth",
+                    type: "response",
                     identities,
                     id
                   }));
                 } catch (e) {
                   socket.send(success({
-                    message: 'Invalid token'
+                    message: "Invalid token"
                   }, {
-                    action: 'invalidate',
-                    routeKey: 'auth',
-                    phase: 'response',
-                    type: 'error',
+                    action: "invalidate",
+                    routeKey: "auth",
+                    phase: "response",
+                    type: "error",
                     id
                   }));
                 }
               }
             }
 
-            if (phase === 'challenge') {
+            if (phase === "challenge") {
               if (headers !== null && headers !== void 0 && headers.Authorization && !strat) {
                 let token;
 
                 try {
-                  token = jwt.verify(headers.Authorization.split(' ')[1], secret);
+                  token = jwt.verify(headers.Authorization.split(" ")[1], secret);
 
                   for (const key in token) {
                     if (strategies[key]) identities[key] = token[key];
                   }
 
                   socket.send(success(token, {
-                    action: 'auth',
-                    phase: 'response',
-                    routeKey: 'auth',
-                    type: 'response',
+                    action: "auth",
+                    phase: "response",
+                    routeKey: "auth",
+                    type: "response",
                     address: token.address,
                     id
                   }));
                 } catch (e) {
                   socket.send(success(token, {
-                    action: 'invalidate',
-                    phase: 'response',
-                    routeKey: 'auth',
-                    type: 'response',
+                    action: "invalidate",
+                    phase: "response",
+                    routeKey: "auth",
+                    type: "response",
                     id
                   }));
                 }
               } else {
-                let challenge = 'Following strategies available';
+                let challenge = "Following strategies available";
                 if (strat) challenge = await strat.challenge(json, store);
                 socket.send(success(challenge, {
-                  action: 'auth',
-                  phase: 'challenge',
-                  routeKey: 'auth',
-                  type: 'response',
+                  action: "auth",
+                  phase: "challenge",
+                  routeKey: "auth",
+                  type: "response",
                   id
                 }));
               }
             }
 
-            if (phase === 'response') {
+            if (phase === "response") {
               const {
                 challenge,
                 response,
@@ -385,10 +352,10 @@ const handleRender = ({
                 socket.send(failure({
                   message: 'Invalid strategy: "' + strategy + '"'
                 }, {
-                  action: 'invalidate',
-                  routeKey: 'auth',
-                  phase: 'response',
-                  type: 'error',
+                  action: "invalidate",
+                  routeKey: "auth",
+                  phase: "response",
+                  type: "error",
                   id
                 }));
               } else {
@@ -396,9 +363,9 @@ const handleRender = ({
                 const recoveredToken = await strat.recover(json, store);
 
                 if (recoveredToken.compound) {
-                  const mfaState = await store.scope('public.mfa').scope(recoveredToken.compound.id).useState('2fa');
+                  const mfaState = await store.scope("public.mfa").scope(recoveredToken.compound.id).useState("2fa");
 
-                  if (typeof mfaState.value === 'object') {
+                  if (typeof mfaState.value === "object") {
                     for (const key in mfaState.value) {
                       if (mfaState.value[key]) solvedFactors[key] = false;
                     }
@@ -427,27 +394,27 @@ const handleRender = ({
 
                 if (!Object.values(solvedFactors).reduce((a, b) => a && b)) {
                   crypto.randomBytes(8, function (err, buffer) {
-                    const rand = buffer.toString('hex');
+                    const rand = buffer.toString("hex");
                     socket.send(success(token, {
-                      action: 'auth',
-                      phase: 'response',
-                      routeKey: 'auth',
-                      type: 'response',
+                      action: "auth",
+                      phase: "response",
+                      routeKey: "auth",
+                      type: "response",
                       id
                     }));
                     socket.send(success(`Please sign this message to prove your identity: ${rand}`, {
-                      action: 'auth',
-                      phase: 'challenge',
-                      routeKey: 'auth',
-                      type: 'response'
+                      action: "auth",
+                      phase: "challenge",
+                      routeKey: "auth",
+                      type: "response"
                     }));
                   });
                 } else {
                   socket.send(success(token, {
-                    action: 'auth',
-                    phase: 'response',
-                    routeKey: 'auth',
-                    type: 'response',
+                    action: "auth",
+                    phase: "response",
+                    routeKey: "auth",
+                    type: "response",
                     identities,
                     id
                   }));
@@ -463,9 +430,9 @@ const handleRender = ({
               message,
               stack
             }, {
-              action: 'call',
-              routeKey: 'call',
-              type: 'error',
+              action: "call",
+              routeKey: "call",
+              type: "error",
               id
             }));
           }
@@ -495,10 +462,10 @@ const handleRender = ({
               message,
               stack
             }, {
-              action: 'call',
-              routeKey: 'call',
-              phase: 'render',
-              type: 'error',
+              action: "call",
+              routeKey: "call",
+              phase: "render",
+              type: "error",
               id
             }));
           }
@@ -510,15 +477,15 @@ const handleRender = ({
           });
 
           if (!action) {
-            throw new Error('Action ${name} not available');
+            throw new Error("Action ${name} not available");
           } else if (!action.props.boundHandler[handler]) {
-            throw new Error('No handler ${handler} defined for action ${action}');
+            throw new Error("No handler ${handler} defined for action ${action}");
           }
 
           logger.info`Invoking function ${name}`;
 
           try {
-            if (action.props.boundHandler.use && typeof action.props.boundHandler.use === 'function') {
+            if (action.props.boundHandler.use && typeof action.props.boundHandler.use === "function") {
               const useRes = await action.props.boundHandler.use({
                 socket,
                 connectionInfo,
@@ -531,8 +498,8 @@ const handleRender = ({
               connectionInfo
             }, ...args);
             socket.send(success(res, {
-              action: 'call',
-              routeKey: 'call',
+              action: "call",
+              routeKey: "call",
               id
             }));
           } catch (e) {
@@ -544,9 +511,9 @@ const handleRender = ({
               message,
               stack
             }, {
-              action: 'call',
-              routeKey: 'call',
-              type: 'error',
+              action: "call",
+              routeKey: "call",
+              type: "error",
               id
             }));
           }
@@ -562,7 +529,7 @@ const handleRender = ({
             options,
             defaultValue
           } = json;
-          const handler = ConnectionHandler(broker, store, 'USE_STATE');
+          const handler = ConnectionHandler(broker, store, "USE_STATE");
           const state = await handler(connectionInfo, {
             key,
             scope,
@@ -586,7 +553,7 @@ const handleRender = ({
             value,
             id
           } = json;
-          const handler = ConnectionHandler(broker, store, 'USE_STATE');
+          const handler = ConnectionHandler(broker, store, "USE_STATE");
           const state = await handler(connectionInfo, {
             key: key ? key : id,
             scope,
@@ -632,17 +599,17 @@ const handleRender = ({
         currentPromise = null;
       };
       /**
-       * This is the entrypoint. Every socket message get's handled here. 
+       * This is the entrypoint. Every socket message get's handled here.
        * This is where rendering happens, actions get run.
        */
 
 
-      socket.on('message', queueMessage);
+      socket.on("message", queueMessage);
       /**
-       * Exit 
+       * Exit
        */
 
-      socket.on('close', onClose);
+      socket.on("close", onClose);
     } catch (e) {
       socket.send(failure((0, _socket3.ErrorMessage)(e), (0, _socket2.SocketErrorAction)()));
     }

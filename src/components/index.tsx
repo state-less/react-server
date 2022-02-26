@@ -1,5 +1,12 @@
 import { ERR_NO_ROUTER_CONTEXT } from "../consts";
 import { toArray } from "../lib/util";
+import {
+  PropsWithChildren,
+  ReactServer$ServerElement,
+  ReactServerComponent,
+  ReactServerElement,
+  RouterComponent,
+} from "../types";
 
 const { WebsocketStream } = require("../Stream");
 const logger = require("../lib/logger");
@@ -19,30 +26,27 @@ export const StoreProvider = (props) => {
 const Generic = (key) => (props) => ({ component: key, props });
 
 const ServerSymbol = Symbol("react-server.component");
-const Server = (props) => {
-  const { children } = props;
+const Server: ReactServerComponent<
+  PropsWithChildren,
+  ReactServer$ServerElement
+> = (props) => {
+  const { children, key } = props;
 
-  const components = toArray(children).reduce((lkp, cmp) => {
+  const elements = toArray(children).reduce((lkp, cmp) => {
     const { key } = cmp;
     lkp[key] = cmp;
   }, {});
 
   return {
     v: "0.0.1",
-    component: "Server",
-    components,
+    key,
+    type: Server,
+    elements,
     props,
   };
 };
 
-type RouterProps = {
-  target: string;
-};
-
-const Router: {
-  (props): any;
-  context: { props: RouterProps } | null;
-} = (props) => {
+const Router: RouterComponent = (props) => {
   const { target } = props;
 
   if (!target) {
@@ -56,16 +60,18 @@ const Router: {
   Router.context = {
     props,
   };
+
   return {
-    component: "Router",
+    key: props.key,
+    type: Router,
     props,
   };
 };
 
 Router.context = null;
 
-const Route = (props) => {
-  const { target } = props;
+const Route: ReactServerComponent = (props) => {
+  const { target, key } = props;
 
   if (!target) {
     logger.warning`Route has no valid target and will not render. You need to provide a target. e.g: <Router target="node" />`;
@@ -80,23 +86,27 @@ const Route = (props) => {
   }
 
   return {
-    component: "Route",
+    type: Route,
+    key,
     props,
   };
 };
 
-const ClientComponent = (props) => {
+const ClientComponent: ReactServerComponent = (props) => {
   return {
+    type: ClientComponent,
     component: "ClientComponent",
+    key: props.key,
     props,
   };
 };
-ClientComponent.server = true;
 
-const Action = (props) => {
+const Action: ReactServerComponent = (props) => {
   const { children: name, disabled, key, use, ...rest } = props;
   return {
+    type: Action,
     component: "Action",
+    key,
     props: {
       name,
       disabled,
@@ -106,18 +116,18 @@ const Action = (props) => {
   };
 };
 
-const Stream = (props, key) => {
+export const StreamInstances = new Map();
+const Stream: ReactServerComponent = (props) => {
+  const { key } = props;
   const instance = {
+    type: Stream,
+    key,
     component: "Stream",
     stream: new WebsocketStream(),
-    props: {
-      key,
-    },
+    props,
   };
-  Stream.instances.set(key, instance);
+  StreamInstances.set(key, instance);
   return instance;
 };
-Stream.instances = new Map();
-Action.server = true;
 
 export { ClientComponent, Stream, Server, Router, Route, Action };

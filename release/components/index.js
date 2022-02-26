@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.Action = exports.Route = exports.Router = exports.Server = exports.Stream = exports.ClientComponent = exports.StoreProvider = void 0;
+exports.Action = exports.Route = exports.Router = exports.Server = exports.Stream = exports.ClientComponent = exports.StreamInstances = exports.StoreProvider = void 0;
 
 var _consts = require("../consts");
 
@@ -54,9 +54,10 @@ const ServerSymbol = Symbol("react-server.component");
 
 const Server = props => {
   const {
-    children
+    children,
+    key
   } = props;
-  const components = (0, _util.toArray)(children).reduce((lkp, cmp) => {
+  const elements = (0, _util.toArray)(children).reduce((lkp, cmp) => {
     const {
       key
     } = cmp;
@@ -64,8 +65,9 @@ const Server = props => {
   }, {});
   return {
     v: "0.0.1",
-    component: "Server",
-    components,
+    key,
+    type: Server,
+    elements,
     props
   };
 };
@@ -89,7 +91,8 @@ const Router = props => {
     props
   };
   return {
-    component: "Router",
+    key: props.key,
+    type: Router,
     props
   };
 };
@@ -99,7 +102,8 @@ Router.context = null;
 
 const Route = props => {
   const {
-    target
+    target,
+    key
   } = props;
 
   if (!target) {
@@ -115,7 +119,8 @@ const Route = props => {
   }
 
   return {
-    component: "Route",
+    type: Route,
+    key,
     props
   };
 };
@@ -124,13 +129,14 @@ exports.Route = Route;
 
 const ClientComponent = props => {
   return {
+    type: ClientComponent,
     component: "ClientComponent",
+    key: props.key,
     props
   };
 };
 
 exports.ClientComponent = ClientComponent;
-ClientComponent.server = true;
 
 const Action = props => {
   const {
@@ -141,7 +147,9 @@ const Action = props => {
     ...rest
   } = props;
   return {
+    type: Action,
     component: "Action",
+    key,
     props: {
       name,
       disabled,
@@ -152,19 +160,22 @@ const Action = props => {
 };
 
 exports.Action = Action;
+const StreamInstances = new Map();
+exports.StreamInstances = StreamInstances;
 
-const Stream = (props, key) => {
+const Stream = props => {
+  const {
+    key
+  } = props;
   const instance = {
+    type: Stream,
+    key,
     component: "Stream",
     stream: new WebsocketStream(),
-    props: {
-      key
-    }
+    props
   };
-  Stream.instances.set(key, instance);
+  StreamInstances.set(key, instance);
   return instance;
 };
 
 exports.Stream = Stream;
-Stream.instances = new Map();
-Action.server = true;

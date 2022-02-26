@@ -1,51 +1,11 @@
 /// <reference types="react" />
+import { PropsWithChildren, ReactServer$ServerElement, ReactServerComponent, RouterComponent } from "../types";
 export declare const StoreProvider: (props: any) => JSX.Element;
-declare const Server: (props: any) => {
-    v: string;
-    component: string;
-    components: any;
-    props: any;
-};
-declare type RouterProps = {
-    target: string;
-};
-declare const Router: {
-    (props: any): any;
-    context: {
-        props: RouterProps;
-    } | null;
-};
-declare const Route: (props: any) => {
-    component: string;
-    props: any;
-};
-declare const ClientComponent: {
-    (props: any): {
-        component: string;
-        props: any;
-    };
-    server: boolean;
-};
-declare const Action: {
-    (props: any): {
-        component: string;
-        props: {
-            name: any;
-            disabled: any;
-            boundHandler: any;
-            handler: string[];
-        };
-    };
-    server: boolean;
-};
-declare const Stream: {
-    (props: any, key: any): {
-        component: string;
-        stream: any;
-        props: {
-            key: any;
-        };
-    };
-    instances: Map<any, any>;
-};
+declare const Server: ReactServerComponent<PropsWithChildren, ReactServer$ServerElement>;
+declare const Router: RouterComponent;
+declare const Route: ReactServerComponent;
+declare const ClientComponent: ReactServerComponent;
+declare const Action: ReactServerComponent;
+export declare const StreamInstances: Map<any, any>;
+declare const Stream: ReactServerComponent;
 export { ClientComponent, Stream, Server, Router, Route, Action };

@@ -1,9 +1,32 @@
-import { ReactElement } from "react";
+/// <reference types="react" />
 import { Store } from "../server/state";
-export interface ReactServerComponent extends ReactElement {
-    children: any;
+export declare type ReactServerChild = ReactServerElement | null;
+export declare type ReactServerChildren = ReactServerChild[] | ReactServerChild | null;
+export interface PropsWithChildren {
+    [index: string]: any;
+    key: string;
+    children?: ReactServerChildren;
 }
-export interface RenderableComponent extends ReactServerComponent {
+export interface ReactServerComponent<P = PropsWithChildren, R = ReactServerElement> {
+    (props: P): R;
+}
+declare type RouterProps = PropsWithChildren & {
+    target: string;
+};
+export interface RouterComponent extends ReactServerComponent<RouterProps> {
+    context: {
+        props: RouterProps;
+    } | null;
+}
+export interface ReactServer$ServerElement extends ReactServerElement {
+    v: string;
+    elements: ReactServerElement[];
+}
+export interface ReactServerElement extends JSX.Element {
+    /** @deprecated */
+    component?: string;
+}
+export interface RenderableComponent extends ReactServerComponent<PropsWithChildren> {
     handler: Function;
 }
 export interface ServerComponent extends RenderableComponent {
@@ -11,6 +34,9 @@ export interface ServerComponent extends RenderableComponent {
 }
 export interface WebsocketServer {
 }
+export declare type WebSocketServerProps = PropsWithChildren & {
+    port?: number;
+};
 /**
  * Properties for the WebsocketRenderer component
  *
@@ -24,3 +50,4 @@ export interface WebSocketRendererProps {
     store: Store;
     children?: ReactServerComponent[];
 }
+export {};
