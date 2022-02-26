@@ -17,7 +17,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-const isFunction = fn => 'function' === typeof fn;
+const isFunction = fn => "function" === typeof fn;
 
 class Broker {
   constructor(options) {
@@ -44,13 +44,13 @@ class SocketIOBroker extends Broker {
 
   getScope(socket, options) {
     let {
-      scope = 'client'
+      scope = "client"
     } = options;
-    return scope === 'client' ? socket.id : scope;
+    return scope === "client" ? socket.id : scope;
   }
 
   emitError(socket, options, message) {
-    socket.emit(_consts.EVENT_STATE_ERROR + ':' + options.clientId, {
+    socket.emit(_consts.EVENT_STATE_ERROR + ":" + options.clientId, {
       error: message,
       ...options
     });
@@ -65,7 +65,7 @@ class SocketIOBroker extends Broker {
       id,
       value
     } = state;
-    socket.emit(_consts.EVENT_STATE_CREATE + ':' + options.clientId, {
+    socket.emit(_consts.EVENT_STATE_CREATE + ":" + options.clientId, {
       id,
       value,
       ...options
@@ -90,7 +90,7 @@ class SocketIOBroker extends Broker {
         stack
       } : null
     };
-    socket.emit(_consts.EVENT_STATE_SET + ':' + id, syncObject);
+    socket.emit(_consts.EVENT_STATE_SET + ":" + id, syncObject);
   }
 
 }
@@ -142,7 +142,7 @@ class Store {
       const action = this.actions.get(key);
 
       if (!isFunction(action)) {
-        throw new Error('Attemp to call action ${key} failed. Action is not of type function');
+        throw new Error("Attemp to call action ${key} failed. Action is not of type function");
       }
 
       const result = action(...args);
@@ -196,7 +196,7 @@ class Store {
     return new StoreConstructor(options);
   }
   /**
-   * 
+   *
    * @param {String} key - The key of the subscope
    * @param  {...any} args - Additional args passed to the store constructor.
    * @returns {Store} - A new store instance
@@ -215,7 +215,7 @@ class Store {
     }
 
     if (/\./.test(key)) {
-      key = key.split('.');
+      key = key.split(".");
       if (key[0] === this.key) return this.scope(key.slice(1), options);
     }
 
@@ -310,7 +310,7 @@ class Store {
   validateUseStateArgs(key, def, options = {}, ...args) {
     this.emit(_consts.EVENT_STATE_USE, key, def, ...args); // const {scope, ...rest} = options;
 
-    if (typeof key !== 'string') {}
+    if (typeof key !== "string") {}
 
     if (def !== null && def !== void 0 && def.scope) {} // if (scope) {
     //     return this.scope(scope).useState(key, def, {...rest}, ...args);
@@ -326,12 +326,16 @@ class Store {
     if (this.autoCreate) return this.createState(key, def, options, ...args);
   }
 
+  useStateSync(key, def, options, ...args) {
+    return this.useState(key, def, options, ...args);
+  }
+
   throwNotAvailble(key) {
     throw new Error(`Attempt to use non-existent state '${key}' failed.`);
   }
 
   action(key, callback) {
-    if ('function' !== typeof callback) throw new Error('Expected callback to be of type function.');
+    if ("function" !== typeof callback) throw new Error("Expected callback to be of type function.");
     this.actions.set(key, callback);
   }
 
@@ -373,7 +377,7 @@ class State {
 
   setValue(value, initial = false) {
     this.value = value;
-    this.emit('setValue', value);
+    this.emit("setValue", value);
     return State.sync(this);
   }
 
@@ -414,7 +418,7 @@ State.sync = instance => {
   instance.brokers.forEach((entry, i) => {
     const [broker, args] = entry;
 
-    if (typeof broker === 'function') {
+    if (typeof broker === "function") {
       broker(instance, ...args);
     } else if (broker instanceof Broker) {
       broker.sync(instance, args[0]);

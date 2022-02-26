@@ -112,6 +112,7 @@ const SyncComponent = (props = {}, options, clientProps, socket = {
   return rendered;
 };
 
+/** Component wrapper that manages the lifecycle of components */
 const Lifecycle = (fn, baseStore = new _state.Store({
   autoCreate: true
 })) => {
@@ -179,7 +180,7 @@ const Lifecycle = (fn, baseStore = new _state.Store({
     }
 
     const {
-      useState: useComponentState
+      useStateSync: useComponentState
     } = baseStore.scope(((_jwt = jwt) === null || _jwt === void 0 ? void 0 : (_jwt$address = _jwt.address) === null || _jwt$address === void 0 ? void 0 : _jwt$address.id) || socket.id);
     const componentState = useComponentState(key, {});
     const {

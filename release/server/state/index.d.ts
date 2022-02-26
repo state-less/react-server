@@ -61,6 +61,7 @@ declare class Store {
     requestState: (key: any, options: any, ...args: any[]) => boolean;
     validateUseStateArgs(key: any, def: any, options?: UseStateOptions, ...args: any[]): void;
     useState(key: any, def: any, options?: UseStateOptions, ...args: any[]): State | Promise<State>;
+    useStateSync(key: any, def: any, options: any, ...args: any[]): State | Promise<State>;
     throwNotAvailble(key: any): void;
     action(key: any, callback: any): void;
     exec: (key: any, args: any, ...extra: any[]) => any;
@@ -87,4 +88,4 @@ declare class State {
     sync(broker: any, ...args: any[]): any;
     unsync(broker: any, filterFn: any): void;
 }
-export { State, SocketIOBroker, Store, Broker, };
+export { State, SocketIOBroker, Store, Broker };

@@ -138,9 +138,10 @@ type ComponentOptions = {
   Component: FunctionComponent;
 };
 
+/** Component wrapper that manages the lifecycle of components */
 const Lifecycle: LifecycleType = (
   fn,
-  baseStore = new Store({
+  baseStore: Store = new Store({
     autoCreate: true,
   })
 ) => {
@@ -210,7 +211,7 @@ const Lifecycle: LifecycleType = (
       logger.warning`Missing store provider in component ${key}. Using fallback.`;
     }
 
-    const { useState: useComponentState } = baseStore.scope(
+    const { useStateSync: useComponentState } = baseStore.scope(
       jwt?.address?.id || socket.id
     );
 
