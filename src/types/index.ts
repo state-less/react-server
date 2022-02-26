@@ -1,12 +1,12 @@
 import { ReactElement } from "react";
 import { Store } from "../server/state";
 
-export type ReactServerChild = ReactServerElement | null;
+export type ReactServerChild = ReactServerElement | string | null;
 export type ReactServerChildren = ReactServerChild[] | ReactServerChild | null;
 
 export interface PropsWithChildren {
   [index: string]: any;
-  key: string;
+  key?: string;
   children?: ReactServerChildren;
 }
 export interface ReactServerComponent<

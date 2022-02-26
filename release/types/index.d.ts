@@ -1,10 +1,10 @@
 /// <reference types="react" />
 import { Store } from "../server/state";
-export declare type ReactServerChild = ReactServerElement | null;
+export declare type ReactServerChild = ReactServerElement | string | null;
 export declare type ReactServerChildren = ReactServerChild[] | ReactServerChild | null;
 export interface PropsWithChildren {
     [index: string]: any;
-    key: string;
+    key?: string;
     children?: ReactServerChildren;
 }
 export interface ReactServerComponent<P = PropsWithChildren, R = ReactServerElement> {
