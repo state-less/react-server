@@ -60,8 +60,8 @@ declare class Store {
     onRequestState: (key: any, options: any, ...args: any[]) => boolean;
     requestState: (key: any, options: any, ...args: any[]) => boolean;
     validateUseStateArgs(key: any, def: any, options?: UseStateOptions, ...args: any[]): void;
-    useState(key: any, def: any, options?: UseStateOptions, ...args: any[]): State | Promise<State>;
-    useStateSync(key: any, def: any, options: any, ...args: any[]): State | Promise<State>;
+    useState(key: any, def: any, options?: UseStateOptions, ...args: any[]): any;
+    useStateSync(key: any, def: any, options: any, ...args: any[]): any;
     throwNotAvailble(key: any): void;
     action(key: any, callback: any): void;
     exec: (key: any, args: any, ...extra: any[]) => any;
