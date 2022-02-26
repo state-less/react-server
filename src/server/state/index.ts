@@ -307,7 +307,8 @@ class Store {
   useState(key, def, options: UseStateOptions = {}, ...args) {
     this.validateUseStateArgs(key, def, options, ...args);
 
-    if (this.has(key) && this.key === options.scope) return this.get(key);
+    if ((this as Store).has(key) && this.key === options.scope)
+      return (this as Store).get(key);
 
     if (this.autoCreate) return this.createState(key, def, options, ...args);
   }
