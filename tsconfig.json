@@ -1,16 +1,15 @@
 {
-    "compilerOptions": {
-        "jsx": "preserve",
-        "target": "es6",
-        // Ensure that .d.ts files are created by tsc, but not .js files
-        "declaration": true,
-        "emitDeclarationOnly": true,
-        // Ensure that Babel can safely transpile files in the TypeScript project
-        "isolatedModules": true,
-        "outDir": "./release/",
-        "moduleResolution": "Node"
-    },
-    "include": [
-        "src"
-    ]
+  "compilerOptions": {
+    "jsx": "preserve",
+    "target": "es6",
+    // Ensure that .d.ts files are created by tsc, but not .js files
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    // Ensure that Babel can safely transpile files in the TypeScript project
+    "isolatedModules": true,
+    "outDir": "./release/",
+    "moduleResolution": "Node",
+    "lib": ["ES2019", "DOM"]
+  },
+  "include": ["src"]
 }

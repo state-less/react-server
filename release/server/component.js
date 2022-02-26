@@ -15,11 +15,13 @@ var _state = require("./state");
 
 var _context = require("../context");
 
-var _util2 = _interopRequireDefault(require("util"));
+var util = _interopRequireWildcard(require("util"));
 
 var _util3 = require("../lib/util");
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 
 const {
   v4: uuidv4,
@@ -858,7 +860,10 @@ const Lifecycle = (fn, baseStore = new _state.Store({
 
   const createdAt = +new Date();
 
-  const syncRender = (props, options = {}) => {
+  const syncRender = (props, options = {
+    key: v4(),
+    createdAt: +new Date()
+  }) => {
     const bound = SyncComponent.bind(null, props, { ...options,
       createdAt
     });
@@ -869,7 +874,10 @@ const Lifecycle = (fn, baseStore = new _state.Store({
     };
   };
 
-  const asyncRender = async (props, options = {}) => {
+  const asyncRender = async (props, options = {
+    key: v4(),
+    createdAt: +new Date()
+  }) => {
     let bound = AsyncComponent.bind(null, props, { ...options,
       createdAt
     });
@@ -882,7 +890,7 @@ const Lifecycle = (fn, baseStore = new _state.Store({
     };
   };
 
-  return _util2.default.types.isAsyncFunction(fn) ? asyncRender : syncRender;
+  return util.types.isAsyncFunction(fn) ? asyncRender : syncRender;
 };
 
 exports.Component = exports.Lifecycle = Lifecycle;

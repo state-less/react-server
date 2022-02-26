@@ -34,7 +34,14 @@ const Server = (props) => {
   };
 };
 
-const Router = (props) => {
+type RouterProps = {
+  target: string;
+};
+
+const Router: {
+  (props): any;
+  context: { props: RouterProps } | null;
+} = (props) => {
   const { target } = props;
 
   if (!target) {
@@ -53,6 +60,8 @@ const Router = (props) => {
     props,
   };
 };
+
+Router.context = null;
 
 const Route = (props) => {
   const { target } = props;

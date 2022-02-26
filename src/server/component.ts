@@ -3,8 +3,14 @@ import { Lifecycle as LifecycleType, CacheBehaviour } from "../interfaces";
 import { authenticate } from "../util";
 import { Store } from "./state";
 import { storeContext } from "../context";
-import util from "util";
+import * as util from "util";
 import { propsChanged } from "../lib/util";
+
+type ReactServerElementOptions = {
+  key: string;
+  store?: Store;
+  createdAt: number;
+};
 
 const { v4: uuidv4, v4 } = require("uuid");
 const {
@@ -883,7 +889,10 @@ const Lifecycle: LifecycleType = (
   };
 
   const createdAt = +new Date();
-  const syncRender = (props, options = {}) => {
+  const syncRender = (
+    props,
+    options: ReactServerElementOptions = { key: v4(), createdAt: +new Date() }
+  ) => {
     const bound = SyncComponent.bind(null, props, { ...options, createdAt });
 
     return {
@@ -893,7 +902,10 @@ const Lifecycle: LifecycleType = (
     };
   };
 
-  const asyncRender = async (props, options = {}) => {
+  const asyncRender = async (
+    props,
+    options: ReactServerElementOptions = { key: v4(), createdAt: +new Date() }
+  ) => {
     let bound = AsyncComponent.bind(null, props, {
       ...options,
       createdAt,

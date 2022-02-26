@@ -93,6 +93,7 @@ const Router = props => {
 };
 
 exports.Router = Router;
+Router.context = null;
 
 const Route = props => {
   const {

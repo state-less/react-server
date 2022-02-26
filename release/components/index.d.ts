@@ -6,9 +6,14 @@ declare const Server: (props: any) => {
     components: any;
     props: any;
 };
-declare const Router: (props: any) => {
-    component: string;
-    props: any;
+declare type RouterProps = {
+    target: string;
+};
+declare const Router: {
+    (props: any): any;
+    context: {
+        props: RouterProps;
+    } | null;
 };
 declare const Route: (props: any) => {
     component: string;
