@@ -119,6 +119,7 @@ class Store {
 
     Object.assign(this, { key, parent, autoCreate, onRequestState, broker });
     this.useState = this.useState.bind(this);
+    this.useStateSync = this.useStateSync.bind(this);
   }
 
   has(key: string): boolean | Promise<boolean> {

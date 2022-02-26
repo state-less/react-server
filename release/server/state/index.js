@@ -179,6 +179,7 @@ class Store {
       broker
     });
     this.useState = this.useState.bind(this);
+    this.useStateSync = this.useStateSync.bind(this);
   }
 
   has(key) {
