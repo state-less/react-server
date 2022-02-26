@@ -1,4 +1,5 @@
 import { ERR_NO_ROUTER_CONTEXT } from "../consts";
+import { toArray } from "../lib/util";
 
 const { WebsocketStream } = require("../Stream");
 const logger = require("../lib/logger");
@@ -21,7 +22,7 @@ const ServerSymbol = Symbol("react-server.component");
 const Server = (props) => {
   const { children } = props;
 
-  const components = children.reduce((lkp, cmp) => {
+  const components = toArray(children).reduce((lkp, cmp) => {
     const { key } = cmp;
     lkp[key] = cmp;
   }, {});

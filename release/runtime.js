@@ -30,7 +30,7 @@ const isElement = object => {
   return typeof object.type === "function" && object.props;
 };
 
-const render = async (component, props, connectionInfo) => {
+const render = async (component, props, connectionInfo, parent = null) => {
   /** The current component that gets rendered */
   let cmp = component,
       root;

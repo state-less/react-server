@@ -5,3 +5,8 @@ export const propsChanged = (lastProps, props) => {
     JSON.stringify(lastProps) !== JSON.stringify(props)
   );
 };
+
+export const toArray = (children) => {
+  if (Array.isArray(children)) return children;
+  if (!Array.isArray(children)) return [children];
+};

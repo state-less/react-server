@@ -7,6 +7,8 @@ exports.Action = exports.Route = exports.Router = exports.Server = exports.Strea
 
 var _consts = require("../consts");
 
+var _util = require("../lib/util");
+
 var _jsxRuntime = require("../../jsx-renderer/jsx-runtime");
 
 const {
@@ -54,7 +56,7 @@ const Server = props => {
   const {
     children
   } = props;
-  const components = children.reduce((lkp, cmp) => {
+  const components = (0, _util.toArray)(children).reduce((lkp, cmp) => {
     const {
       key
     } = cmp;

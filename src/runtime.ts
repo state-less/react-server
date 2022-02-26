@@ -21,7 +21,12 @@ const isElement = (object: any) => {
   return typeof object.type === "function" && object.props;
 };
 
-export const render = async (component, props, connectionInfo) => {
+export const render = async (
+  component,
+  props,
+  connectionInfo,
+  parent = null
+) => {
   /** The current component that gets rendered */
   let cmp = component,
     root;
