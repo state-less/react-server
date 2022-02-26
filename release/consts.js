@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.DESC_MISSING_KEY = exports.ERR_MISSING_KEY = exports.SCOPE_COMPONENT = exports.SCOPE_SERVER = exports.SCOPE_CLIENT = exports.ACTION_SET_STATE = exports.ACTION_USE_STATE = exports.ACTION_CALL = exports.ACTION_AUTH = exports.ACTION_STREAM = exports.ACTION_RENDER = exports.SERVER_ID = exports.NETWORK_FIRST = exports.CACHE_FIRST = exports.EVENT_SCOPE_CREATE = exports.EVENT_STATE_ERROR = exports.EVENT_STATE_REQUEST = exports.EVENT_STATE_CREATE = exports.EVENT_STATE_SET = exports.EVENT_STATE_DECLINE = exports.EVENT_STATE_PERMIT = exports.EVENT_STATE_USE = void 0;
+exports.DESC_MISSING_KEY = exports.ERR_NO_ROUTER_CONTEXT = exports.ERR_NOT_AUTHORIZED = exports.ERR_MISSING_KEY = exports.SCOPE_COMPONENT = exports.SCOPE_SERVER = exports.SCOPE_CLIENT = exports.ACTION_SET_STATE = exports.ACTION_USE_STATE = exports.ACTION_CALL = exports.ACTION_AUTH = exports.ACTION_STREAM = exports.ACTION_RENDER = exports.SERVER_ID = exports.NETWORK_FIRST = exports.CACHE_FIRST = exports.EVENT_SCOPE_CREATE = exports.EVENT_STATE_ERROR = exports.EVENT_STATE_REQUEST = exports.EVENT_STATE_CREATE = exports.EVENT_STATE_SET = exports.EVENT_STATE_DECLINE = exports.EVENT_STATE_PERMIT = exports.EVENT_STATE_USE = void 0;
 const EVENT_STATE_USE = 'useState';
 exports.EVENT_STATE_USE = EVENT_STATE_USE;
 const EVENT_STATE_PERMIT = 'permitState';
@@ -46,5 +46,9 @@ const SCOPE_COMPONENT = '$component';
 exports.SCOPE_COMPONENT = SCOPE_COMPONENT;
 const ERR_MISSING_KEY = `Missing property 'key' in component props.`;
 exports.ERR_MISSING_KEY = ERR_MISSING_KEY;
+const ERR_NOT_AUTHORIZED = 'Not authorized';
+exports.ERR_NOT_AUTHORIZED = ERR_NOT_AUTHORIZED;
+const ERR_NO_ROUTER_CONTEXT = 'Cannot render a route outside the context of a router. Are you missing a router?';
+exports.ERR_NO_ROUTER_CONTEXT = ERR_NO_ROUTER_CONTEXT;
 const DESC_MISSING_KEY = `A key is required to be able to map the client component to a Server component.`;
 exports.DESC_MISSING_KEY = DESC_MISSING_KEY;

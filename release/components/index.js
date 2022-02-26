@@ -5,25 +5,27 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.Action = exports.Route = exports.Router = exports.Server = exports.Stream = exports.ClientComponent = exports.StoreProvider = void 0;
 
+var _consts = require("../consts");
+
 var _jsxRuntime = require("../../jsx-renderer/jsx-runtime");
 
 const {
   WebsocketStream
-} = require('../Stream');
+} = require("../Stream");
 
-const logger = require('../lib/logger');
+const logger = require("../lib/logger");
 
 const {
   Component
-} = require('../server/component');
+} = require("../server/component");
 
 const {
   Store
-} = require('../server/state');
+} = require("../server/state");
 
 const {
   storeContext
-} = require('../context');
+} = require("../context");
 
 const internal = new Store({
   autoCreate: true
@@ -46,10 +48,22 @@ const Generic = key => props => ({
   props
 });
 
+const ServerSymbol = Symbol("react-server.component");
+
 const Server = props => {
+  const {
+    children
+  } = props;
+  const components = children.reduce((lkp, cmp) => {
+    const {
+      key
+    } = cmp;
+    lkp[key] = cmp;
+  }, {});
   return {
-    v: '0.0.1',
-    component: 'Server',
+    v: "0.0.1",
+    component: "Server",
+    components,
     props
   };
 };
@@ -73,7 +87,7 @@ const Router = props => {
     props
   };
   return {
-    component: 'Router',
+    component: "Router",
     props
   };
 };
@@ -90,13 +104,15 @@ const Route = props => {
     return null;
   }
 
+  if (!Router.context.props.target) throw new Error(_consts.ERR_NO_ROUTER_CONTEXT);
+
   if (!target.includes(Router.context.props.target)) {
     logger.notice`Not rendering route. Target '${target}' doesn't match Router target '${Router.context}'`;
     return null;
   }
 
   return {
-    component: 'Route',
+    component: "Route",
     props
   };
 };
@@ -105,7 +121,7 @@ exports.Route = Route;
 
 const ClientComponent = props => {
   return {
-    component: 'ClientComponent',
+    component: "ClientComponent",
     props
   };
 };
@@ -122,7 +138,7 @@ const Action = props => {
     ...rest
   } = props;
   return {
-    component: 'Action',
+    component: "Action",
     props: {
       name,
       disabled,
@@ -136,7 +152,7 @@ exports.Action = Action;
 
 const Stream = (props, key) => {
   const instance = {
-    component: 'Stream',
+    component: "Stream",
     stream: new WebsocketStream(),
     props: {
       key

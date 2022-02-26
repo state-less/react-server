@@ -4,6 +4,7 @@ import { authenticate } from "../util";
 import { Store } from "./state";
 import { storeContext } from "../context";
 import util from "util";
+import { propsChanged } from "../lib/util";
 
 const { v4: uuidv4, v4 } = require("uuid");
 const {
@@ -19,11 +20,39 @@ const { assertIsValid } = require("../util");
 let componentLogger = _logger.scope("state-server.component");
 let lifecycle = _logger.scope("state-server.lifecycle");
 
-// const CACHE_FIRST = 'CACHE_FIRST';
-// const NETWORK_FIRST = 'NETWORK_FIRST';
-// const SERVER_ID = 'base';
+const RenderChildren = ({ key, result, socket }) =>
+  async function renderChildren(comp) {
+    if (!comp) return;
+    let children = await comp?.props?.children;
+    if (children && !Array.isArray(children)) {
+      if (children.render)
+        comp.props.children = await children.render(null, socket, {
+          component: result,
+          parent,
+        });
+      return; //renderChildren(children);
+    }
+    for (let i = 0; i < children?.length; i++) {
+      const child = children[i];
+      if (Array.isArray(child)) {
+        await Promise.all(child.map(renderChildren));
+      } else if (typeof child.render === "function") {
+        comp.props.children[i] = await child.render(null, socket, {
+          component: result,
+          parent,
+        });
+      } else {
+        componentLogger.warning`No render function for child ${JSON.stringify(
+          child
+        )} in comp ${key}`;
+      }
+    }
+  };
+const cannotSetClientStateError = () => {
+  throw new Error("Cannot set access client state from server");
+};
 
-const isEqual = (arrA, arrB) => {
+const arrayIsEqual = (arrA, arrB) => {
   if (!Array.isArray(arrA) && Array.isArray(arrB)) return false;
   if (!Array.isArray(arrB) && Array.isArray(arrA)) return false;
   return arrA.reduce((acc, cur, i) => {
@@ -132,7 +161,328 @@ const Lifecycle: LifecycleType = (
   const stateValues = new Map();
   let savedParent;
 
-  const asyncComponent = async (
+  let scopedUseEffect,
+    scopedUseContext,
+    scopedDestroy,
+    scopedUseClientEffect,
+    scopedUseState,
+    scopedUseClientState,
+    scopedUseFunction,
+    scopedTimeout,
+    states = [],
+    effects = [],
+    clientEffects = [],
+    promises = [],
+    functions = [[]],
+    dependencies = [],
+    jwt;
+
+  const SyncComponent = (
+    props = null,
+    options: ComponentOptions,
+    clientProps,
+    socket = { id: SERVER_ID }
+  ) => {
+    let {
+      key,
+      ttl = Infinity,
+      createdAt,
+      store = baseStore.scope(key),
+    } = options;
+
+    logger = componentLogger.scope(`${key}:${socket.id}`);
+
+    try {
+      jwt = authenticate({ data: socket });
+    } catch (e) {}
+
+    const storeProvider = findParent(key, storeContext.id);
+
+    if (storeProvider) {
+      baseStore = storeProvider.props.value;
+    } else {
+      logger.warning`Missing store provider in component ${key}. Using fallback.`;
+    }
+
+    const { useState: useComponentState } = baseStore.scope(
+      jwt?.address?.id || socket.id
+    );
+
+    const componentState = useComponentState(key, {});
+
+    const { value: lastResult, setValue: setResult } = componentState;
+
+    //Logger that sends anything to the client rendering the current component.
+    lifecycle = logger;
+
+    scopedUseContext = (ctx) => {
+      const par = findParent(key, ctx.id);
+
+      ctx.onRender(key, () => {
+        logger.warning`Rerendering Component because Provider updated`;
+        setImmediate(render);
+      });
+
+      if (par?.props?.value) return par?.props?.value;
+
+      return null;
+    };
+
+    scopedUseState = async (
+      initial,
+      stateKey,
+      { deny = false, scope = void 0, ...rest } = {}
+    ) => {
+      if (deny) {
+        return [
+          null,
+          () => {
+            throw new Error("Attempt to set unauthenticated state");
+          },
+        ];
+      }
+
+      let scopedStore;
+      if (/^@/.test(stateKey)) {
+        //Allow crossreferences between component scopes
+        stateKey = stateKey.replace("@", "");
+        scopedStore = baseStore.scope(
+          stateKey.split(".").slice(0, -1).join(".")
+        );
+        if (scope) {
+          scopedStore = scopedStore.scope(scope);
+        }
+        stateKey = stateKey.split(".").slice(0, -1)[0];
+      } else if (scope) {
+        scopedStore = store.scope(scope);
+      } else {
+        scopedStore = store;
+      }
+
+      lastStoreRef = scopedStore;
+
+      const { useState } = lastStoreRef;
+
+      let scopedKey = states[stateIndex]?.key || stateKey || uuidv4();
+
+      const state =
+        states[stateIndex] ||
+        useState(scopedKey, initial, {
+          temp: !stateKey,
+          cache: Lifecycle.defaultCacheBehaviour,
+          ...rest,
+        });
+
+      let { value, setValue } = state;
+
+      /** So I'm not sure how I can store unique references to null values. For now it's a restriction */
+      if (
+        !(value instanceof Object) &&
+        value !== null &&
+        typeof value !== "undefined"
+      )
+        value = Object(value);
+
+      stateValues.set(value, state);
+      let mounted = true;
+
+      const boundSetValue = async function (value, dirty = false) {
+        if (mounted === false && !dirty) {
+          throw new Error(
+            `setState called on unmounted component. Be sure to remove all listeners and asynchronous function in the cleanup function of the effect.`
+          );
+        }
+        setValue(value);
+        // const was = Component.useEffect;
+        Lifecycle.useEffect = scopedUseEffect;
+        Lifecycle.useClientEffect = scopedUseClientEffect;
+        Lifecycle.useState = scopedUseState;
+        Lifecycle.useClientState = scopedUseClientState;
+        Lifecycle.useFunction = scopedUseFunction;
+        Lifecycle.useContext = scopedUseContext;
+
+        try {
+          render();
+        } catch (e) {
+          throw e;
+        }
+        mounted = false;
+      };
+
+      states[stateIndex] = state;
+
+      stateIndex++;
+
+      return [value, boundSetValue, state];
+    };
+
+    scopedUseClientState = (...args) => {
+      if (Lifecycle.isServer(socket)) {
+        if (states[stateIndex]) {
+          states[stateIndex] = states[stateIndex];
+          stateIndex++;
+          return states[stateIndex];
+        }
+        stateIndex++;
+
+        return [null, cannotSetClientStateError];
+      }
+      return scopedUseState(...args);
+    };
+
+    scopedUseEffect = (fn, deps = [], notifyClient) => {
+      if (!Lifecycle.isServer(socket)) return;
+
+      const [lastDeps = [], cleanup] = effects[effectIndex] || [];
+      if (!arrayIsEqual(lastDeps, deps) || !lastDeps.length) {
+        if (cleanup && "function" === typeof cleanup) {
+          cleanup();
+        }
+        let nextCleanup = fn() || (() => {});
+        effects[effectIndex] = [deps, nextCleanup];
+      } else {
+      }
+
+      effectIndex++;
+    };
+
+    scopedUseClientEffect = (fn, deps) => {
+      if (Lifecycle.isServer(socket)) return;
+
+      const [lastDeps, cleanup] = clientEffects[clientEffectIndex - 1] || [];
+      if (!deps || !arrayIsEqual(lastDeps, deps)) {
+        if (cleanup && "function" === typeof cleanup) cleanup();
+
+        const nextCleanup = fn() || (() => {});
+        clientEffects[clientEffectIndex] = [deps, nextCleanup];
+      } else {
+      }
+
+      clientEffectIndex++;
+    };
+
+    scopedDestroy = async () => {
+      const { deleteState } = lastStoreRef;
+      const promises = lastStates.map((state) => {
+        const { key } = state;
+        return deleteState(key);
+      });
+      await Promise.all(promises);
+      await baseStore.deleteState(key);
+      return true;
+    };
+
+    /** Runs effect cleanups and flags states for deletion */
+    let cleanup = () => {
+      //No previous render. Cleanup not necessary
+      if (!lastStoreRef) return;
+
+      const { deleteState } = lastStoreRef;
+      states.forEach((state) => {
+        const { temp, persist } = state.options;
+        if (temp || !persist) {
+          deleteState(state.key);
+        }
+      });
+
+      clientEffects.forEach((cleanup) => {
+        if (cleanup && "function" === typeof cleanup) cleanup();
+      });
+      effects.forEach((cleanup) => {
+        if (cleanup && "function" === typeof cleanup) cleanup();
+      });
+    };
+
+    /** This is where all the magic happens. */
+    let render = () => {
+      stateIndex = 0;
+      effectIndex = 0;
+      fnIndex = 0;
+
+      if (+new Date() - createdAt > ttl) {
+        throw new Error("Component expired.");
+      }
+
+      componentLogger.warning`Rendering component ${key}`;
+
+      const result = fn({ ...props, key }, clientProps, socket);
+      lastStates = states;
+
+      if (!result && result !== null) {
+        logger.debug`Rendered function ${fn.toString()}`;
+        throw new Error(
+          "Nothing returned from render. This usually means you have forgotten to return anything from your component."
+        );
+      }
+
+      if (result && result.component === "ClientComponent") {
+        for (const stateReferenceKey in result.props) {
+          const stateValue = result.props[stateReferenceKey];
+          if (stateValues.has(stateValue)) {
+            const { createdAt, scope, value, defaultValue, key, id } =
+              stateValues.get(stateValue);
+            if (id)
+              result.props[stateReferenceKey] = {
+                createdAt,
+                scope,
+                value,
+                defaultValue,
+                key,
+                id,
+              };
+          }
+        }
+
+        if (result.props?.children && !Array.isArray(result.props?.children)) {
+          result.props.children = [result.props.children];
+        }
+      } else if (result) {
+        for (const lookupReference in result.states) {
+          const stateValue = result.states[lookupReference];
+
+          if (stateValues.has(stateValue)) {
+            const { key: stateKey, scope } = stateValues.get(stateValue);
+
+            if (lookupReference)
+              result.states[lookupReference] = [stateKey, scope];
+          }
+        }
+      }
+
+      //   const scope = Lifecycle.scope.get(socket.id) || new Map();
+      //   Lifecycle.scope.set(socket.id, scope);
+      //   scope.set(key, componentState);
+
+      if (propsChanged(lastResult?.props, result?.props)) {
+        /** This should ONLY be called for components that affect their child tree like Proivder */
+        // await renderChildren(result);
+        setResult(result);
+      }
+
+      return result;
+    };
+
+    Lifecycle.setTimeout = scopedTimeout;
+    Lifecycle.useEffect = scopedUseEffect;
+    Lifecycle.useClientEffect = scopedUseClientEffect;
+    Lifecycle.useState = scopedUseState;
+    Lifecycle.destroy = scopedDestroy;
+    Lifecycle.useClientState = scopedUseClientState;
+    Lifecycle.useFunction = scopedUseFunction;
+    Lifecycle.useContext = scopedUseContext;
+
+    const rendered = render();
+
+    if (rendered) {
+      rendered.key = key;
+    } else if (rendered === null) {
+      logger.warning`Nothing rendered at: ${new Error().stack}`;
+    }
+
+    return rendered;
+  };
+
+  const AsyncComponent = async (
     props = null,
     options: ComponentOptions,
     clientProps,
@@ -315,7 +665,7 @@ const Lifecycle: LifecycleType = (
       if (!Lifecycle.isServer(socket)) return;
 
       const [lastDeps = [], cleanup] = effects[effectIndex] || [];
-      if (!isEqual(lastDeps, deps) || !lastDeps.length) {
+      if (!arrayIsEqual(lastDeps, deps) || !lastDeps.length) {
         if (cleanup && "function" === typeof cleanup) {
           cleanup();
         }
@@ -331,7 +681,7 @@ const Lifecycle: LifecycleType = (
       if (Lifecycle.isServer(socket)) return;
 
       const [lastDeps, cleanup] = clientEffects[clientEffectIndex - 1] || [];
-      if (!deps || !isEqual(lastDeps, deps)) {
+      if (!deps || !arrayIsEqual(lastDeps, deps)) {
         if (cleanup && "function" === typeof cleanup) cleanup();
 
         const nextCleanup = fn() || (() => {});
@@ -532,17 +882,19 @@ const Lifecycle: LifecycleType = (
     return rendered;
   };
 
-//   return (props, { key, store }) => ({
-//     type: fn,
-//     props,
-//     key,
-//     store,
-//   });
+  const createdAt = +new Date();
+  const syncRender = (props, options = {}) => {
+    const bound = SyncComponent.bind(null, props, { ...options, createdAt });
 
-  return async (props, options = {}) => {
-    const createdAt = +new Date();
+    return {
+      type: bound,
+      key: options.key,
+      props,
+    };
+  };
 
-    let bound = asyncComponent.bind(null, props, {
+  const asyncRender = async (props, options = {}) => {
+    let bound = AsyncComponent.bind(null, props, {
       ...options,
       createdAt,
     });
@@ -550,10 +902,13 @@ const Lifecycle: LifecycleType = (
     Lifecycle.instances.set(options.key, bound);
     // bound.server = true;
     return {
-      ...(await bound()),
-      render: bound,
+      type: bound,
+      key: options.key,
+      props,
     };
   };
+
+  return util.types.isAsyncFunction(fn) ? asyncRender : syncRender;
 };
 
 Lifecycle.useState = null;
