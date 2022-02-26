@@ -49,6 +49,7 @@ declare class Store {
      */
     scope(key: any, options?: {}): any;
     path(...keys: any[]): void;
+    createStateSync(key: any, def: any, options: any, ...args: any[]): any;
     createState(key: any, def: any, options?: UseStateOptions, ...args: any[]): State | Promise<State>;
     deleteState: (key: any) => void;
     /**
