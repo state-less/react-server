@@ -49,6 +49,7 @@ declare class Store {
      */
     scope(key: any, options?: {}): any;
     path(...keys: any[]): void;
+    /** Can be implemented in async subclasses to provide a way of initializing a state in a synchron manner */
     createStateSync(key: any, def: any, options: any, ...args: any[]): any;
     createState(key: any, def: any, options?: UseStateOptions, ...args: any[]): State | Promise<State>;
     deleteState: (key: any) => void;
