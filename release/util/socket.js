@@ -45,12 +45,12 @@ exports.validateSecWebSocketKey = validateSecWebSocketKey;
 function setupWsHeartbeat(wss) {
   function noop() {}
 
-  function heartbeat() {
-    this.isAlive = true;
-  }
-
   socketUtilLogger.debug`Setting up heartbeats.`;
   wss.on("connection", function connection(ws) {
+    function heartbeat() {
+      this.isAlive = true;
+    }
+
     ws.isAlive = true;
     ws.on("pong", heartbeat);
     ws.on("message", msg => {
