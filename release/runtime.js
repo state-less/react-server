@@ -5,8 +5,6 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.render = exports.parentMap = exports.tree = void 0;
 
-const logger = require("./lib/logger").scope("runtime");
-
 const filterComponents = child => child && child.server && "function" == typeof child;
 
 const filterRenderer = child => child && child.server && child.handler && "function" == typeof child.handler;

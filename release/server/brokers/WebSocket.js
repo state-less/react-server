@@ -1,16 +1,14 @@
 "use strict";
 
-const logger = require('../../lib/logger');
-
 const {
   success
-} = require('../../lib/response-lib/websocket');
+} = require("../../lib/response-lib/websocket");
 
 const {
   Broker
-} = require('../state');
+} = require("../state");
 
-const EVENT_STATE_SET = 'setState';
+const EVENT_STATE_SET = "setState";
 
 class WebsocketBroker extends Broker {
   /**
@@ -30,13 +28,13 @@ class WebsocketBroker extends Broker {
 
   getScope(socket, options) {
     let {
-      scope = '$client'
+      scope = "$client"
     } = options;
-    return scope === '$client' ? socket.id : scope;
+    return scope === "$client" ? socket.id : scope;
   }
 
   emitError(socket, options, message) {
-    socket.emit(EVENT_STATE_ERROR + ':' + options.clientId, {
+    socket.emit(EVENT_STATE_ERROR + ":" + options.clientId, {
       error: message,
       ...options
     });
@@ -51,7 +49,7 @@ class WebsocketBroker extends Broker {
       id,
       value
     } = state;
-    socket.emit(EVENT_STATE_CREATE + ':' + options.clientId, {
+    socket.emit(EVENT_STATE_CREATE + ":" + options.clientId, {
       id,
       value,
       ...options
@@ -85,7 +83,7 @@ class WebsocketBroker extends Broker {
       stack
     } : null;
     const data = success(syncObject, {
-      action: 'setValue',
+      action: "setValue",
       requestId
     });
     const socket = activeConnections[clientId];

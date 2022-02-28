@@ -4,6 +4,7 @@ import { authenticate } from "../util";
 import { Store } from "./state";
 import { storeContext } from "../context";
 import * as util from "util";
+import _logger from "../lib/logger";
 import { propsChanged } from "../lib/util";
 
 type ReactServerElementOptions = {
@@ -20,7 +21,6 @@ const {
   CACHE_FIRST,
 } = require("../consts");
 
-const _logger = require("../lib/logger");
 const { assertIsValid } = require("../util");
 
 let componentLogger = _logger.scope("state-server.component");

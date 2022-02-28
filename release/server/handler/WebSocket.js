@@ -1,21 +1,21 @@
 "use strict";
 
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
 const {
   useAsyncState,
   getScopedStore,
   getAuthorization
-} = require('./');
-
-const _logger = require('../../lib/logger');
-
-const logger = _logger.scope('state-server.aws.handler');
+} = require("./");
 
 const {
   v4
-} = require('uuid');
+} = require("uuid");
 
 const ConnectionHandler = (broker, store, eventType) => {
-  if (eventType === 'USE_STATE') {
+  if (eventType === "USE_STATE") {
     return async (connectionInfo, data = {}) => {
       const {
         key,
@@ -30,20 +30,20 @@ const ConnectionHandler = (broker, store, eventType) => {
 
       const authorized = getAuthorization(scopedStore, key, data, connectionInfo);
       const state = await useAsyncState(scopedStore, key, defaultValue, {
-        cache: 'CACHE_FIRST',
+        cache: "CACHE_FIRST",
         ...options,
         connectionInfo,
         throwIfNotAvailable: true
       });
 
-      if (eventType === 'DISCONNECT') {
+      if (eventType === "DISCONNECT") {
         await state.unsync(broker, connectionInfo);
       } else {
         await state.sync(broker, { ...connectionInfo,
           requestId,
           requestType
         });
-        if (requestType === 'request') await state.publish(broker, { ...connectionInfo,
+        if (requestType === "request") await state.publish(broker, { ...connectionInfo,
           requestId,
           requestType
         });
@@ -53,23 +53,23 @@ const ConnectionHandler = (broker, store, eventType) => {
     };
   }
 
-  if (eventType === 'SUBSCRIBE') {
+  if (eventType === "SUBSCRIBE") {
     return client => {
-      client.on('open', socket => {
-        store.on('createState', (store, state, key, ...args) => {
+      client.on("open", socket => {
+        store.on("createState", (store, state, key, ...args) => {
           const subId = v4();
           const action = {
-            "action": "useState",
-            "key": state.key,
-            "scope": store.key,
-            "requestId": subId,
-            "options": {}
+            action: "useState",
+            key: state.key,
+            scope: store.key,
+            requestId: subId,
+            options: {}
           };
           client.send(JSON.stringify(action));
-          client.on('message', data => {
+          client.on("message", data => {
             const json = JSON.parse(data);
 
-            if (json.action === 'setValue') {
+            if (json.action === "setValue") {
               const body = JSON.parse(json.body);
 
               if (body.id === state.id) {
@@ -96,7 +96,7 @@ const ConnectionHandler = (broker, store, eventType) => {
       connectionInfo
     });
 
-    if (eventType === 'DISCONNECT') {
+    if (eventType === "DISCONNECT") {
       await state.unsync(broker, connectionInfo);
     } else {
       await state.sync(broker, connectionInfo);

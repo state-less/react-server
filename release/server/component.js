@@ -17,7 +17,11 @@ var _context = require("../context");
 
 var util = _interopRequireWildcard(require("util"));
 
+var _logger2 = _interopRequireDefault(require("../lib/logger"));
+
 var _util3 = require("../lib/util");
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
 
@@ -35,15 +39,13 @@ const {
   CACHE_FIRST
 } = require("../consts");
 
-const _logger = require("../lib/logger");
-
 const {
   assertIsValid
 } = require("../util");
 
-let componentLogger = _logger.scope("state-server.component");
+let componentLogger = _logger2.default.scope("state-server.component");
 
-let lifecycle = _logger.scope("state-server.lifecycle");
+let lifecycle = _logger2.default.scope("state-server.lifecycle");
 
 const RenderChildren = ({
   key,

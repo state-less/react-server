@@ -1,5 +1,5 @@
-const baseLogger = require("../lib/logger");
-const { DESC_MISSING_KEY } = require("../consts");
+import baseLogger from "../lib/logger";
+import { DESC_MISSING_KEY } from "../consts";
 
 const logger = baseLogger.scope("util");
 
@@ -27,4 +27,3 @@ export const authenticate = ({ data }) => {
 
   return jwt.verify(token, SECRET);
 };
-

@@ -5,13 +5,13 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.authenticate = exports.validateComponentArgs = exports.assertIsValid = void 0;
 
-const baseLogger = require("../lib/logger");
+var _logger = _interopRequireDefault(require("../lib/logger"));
 
-const {
-  DESC_MISSING_KEY
-} = require("../consts");
+var _consts = require("../consts");
 
-const logger = baseLogger.scope("util");
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+const logger = _logger.default.scope("util");
 
 const assertIsValid = (isValid, message) => {
   if (!isValid) throw new Error(message);
@@ -21,7 +21,7 @@ exports.assertIsValid = assertIsValid;
 
 const validateComponentArgs = (props, key, options, socket) => {
   if (!key) {
-    logger.warning`Error validating component args. ${DESC_MISSING_KEY}`;
+    logger.warning`Error validating component args. ${_consts.DESC_MISSING_KEY}`;
     return ERR_MISSING_KEY;
   }
 

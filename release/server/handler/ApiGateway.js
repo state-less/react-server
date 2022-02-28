@@ -1,14 +1,16 @@
 "use strict";
 
+var _logger2 = _interopRequireDefault(require("../../lib/logger"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
 const {
   useAsyncState,
   getScopedStore,
   getAuthorization
-} = require('./');
+} = require("./");
 
-const _logger = require('../../lib/logger');
-
-const logger = _logger.scope('state-server.aws.handler');
+const logger = _logger2.default.scope("state-server.aws.handler");
 
 const ConnectionHandler = (broker, store, eventType) => async (connectionInfo, data = {}) => {
   const {
@@ -20,13 +22,13 @@ const ConnectionHandler = (broker, store, eventType) => async (connectionInfo, d
   const scopedStore = getScopedStore(broker, store, data, connectionInfo);
   const authorized = getAuthorization(scopedStore, key, data, connectionInfo);
   const state = await useAsyncState(scopedStore, key, defaultValue, {
-    cache: 'NETWORK_FIRST',
+    cache: "NETWORK_FIRST",
     ...options,
     connectionInfo,
     throwIfNotAvailable: true
   });
 
-  if (eventType === 'DISCONNECT') {
+  if (eventType === "DISCONNECT") {
     await state.unsync(broker, connectionInfo);
   } else {
     await state.sync(broker, connectionInfo);

@@ -7,9 +7,9 @@ import {
   ReactServerElement,
   RouterComponent,
 } from "../types";
+import logger from "../lib/logger";
 
 const { WebsocketStream } = require("../Stream");
-const logger = require("../lib/logger");
 const { Component } = require("../server/component");
 const { Store } = require("../server/state");
 const { storeContext } = require("../context");

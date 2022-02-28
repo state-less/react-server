@@ -9,13 +9,15 @@ var _consts = require("../consts");
 
 var _util = require("../lib/util");
 
+var _logger = _interopRequireDefault(require("../lib/logger"));
+
 var _jsxRuntime = require("../../jsx-renderer/jsx-runtime");
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 const {
   WebsocketStream
 } = require("../Stream");
-
-const logger = require("../lib/logger");
 
 const {
   Component
@@ -80,7 +82,7 @@ const Router = props => {
   } = props;
 
   if (!target) {
-    logger.warning`Router has no target. You need to provide a target for <Route> to work. 
+    _logger.default.warning`Router has no target. You need to provide a target for <Route> to work. 
         Usually you would use an environment variable. e.g. <Router target={process.env.TARGET}/>`;
     throw new Error("Missing 'target' prop in Router component.");
   } //Dirty workaround to provide children with props without cloning them.
@@ -107,14 +109,14 @@ const Route = props => {
   } = props;
 
   if (!target) {
-    logger.warning`Route has no valid target and will not render. You need to provide a target. e.g: <Router target="node" />`;
+    _logger.default.warning`Route has no valid target and will not render. You need to provide a target. e.g: <Router target="node" />`;
     return null;
   }
 
   if (!Router.context.props.target) throw new Error(_consts.ERR_NO_ROUTER_CONTEXT);
 
   if (!target.includes(Router.context.props.target)) {
-    logger.notice`Not rendering route. Target '${target}' doesn't match Router target '${Router.context}'`;
+    _logger.default.notice`Not rendering route. Target '${target}' doesn't match Router target '${Router.context}'`;
     return null;
   }
 

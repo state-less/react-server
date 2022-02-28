@@ -1,4 +1,4 @@
-const logger = require("../lib/logger");
+import logger from "../lib/logger";
 const { failure, success } = require("../lib/response-lib/websocket");
 
 const WebSocket = require("ws");

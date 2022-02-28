@@ -1,12 +1,14 @@
 "use strict";
 
-const ee = require('event-emitter');
+var _logger2 = _interopRequireDefault(require("../../lib/logger"));
 
-const _logger = require('../../lib/logger');
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-const logger = _logger.scope('state-server.handler');
+const ee = require("event-emitter");
 
-const sendPing = (broker, socket) => broker.emit(socket, 'ping', +new Date());
+const logger = _logger2.default.scope("state-server.handler");
+
+const sendPing = (broker, socket) => broker.emit(socket, "ping", +new Date());
 
 const getScope = (broker, socket, options) => broker.getScope(socket, options);
 
@@ -45,8 +47,8 @@ const handleSetState = (broker, store, socket) => (data, options = {}) => {
 const SocketIoHandler = (broker, store = new Store()) => socket => {
   const states = new Map();
   sendPing(broker, socket);
-  socket.on('setState', handleSetState(broker, store, socket));
-  socket.on('useState', (key, def, options = {}) => {
+  socket.on("setState", handleSetState(broker, store, socket));
+  socket.on("useState", (key, def, options = {}) => {
     const scope = broker.getScope(socket, options);
     const scopedStore = store.scope(scope, options, socket);
     const {
@@ -77,7 +79,7 @@ const SocketIoHandler = (broker, store = new Store()) => socket => {
       broker.emitError(socket, options, `Request to use state ${key} declined.`);
     }
   });
-  socket.on('call', (key, args, options = {}) => {
+  socket.on("call", (key, args, options = {}) => {
     const {
       exec
     } = store.scope(broker.getScope(socket, options));
@@ -85,7 +87,7 @@ const SocketIoHandler = (broker, store = new Store()) => socket => {
     logger.warning`Result ${result}`;
     broker.emit(socket, `called:${key}`, result);
   });
-  socket.on('disconnect', () => {
+  socket.on("disconnect", () => {
     logger.warning`Client ${socket.id} disconnected. ${states.get(socket)}`;
     const syncedStates = states.get(socket);
     logger.log`Synced ${syncedStates}`;

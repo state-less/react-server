@@ -1,4 +1,3 @@
-const logger = require("../src/lib/logger");
 const { Component: Lifecycle } = require("../release/server/component");
 const { storeContext } = require("../release/context");
 const { v4 } = require("uuid");

@@ -5,6 +5,8 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.activeConnections = void 0;
 
+var _logger = _interopRequireDefault(require("../lib/logger"));
+
 var _socket = require("../util/socket");
 
 var strategies = _interopRequireWildcard(require("../strategies"));
@@ -19,7 +21,7 @@ function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return 
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 
-const logger = require("../lib/logger");
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 const {
   failure,
@@ -196,7 +198,7 @@ const handleRender = ({
         try {
           json = JSON.parse(data);
         } catch (e) {
-          logger.error`Invalid data passed to JSON.parse: '${data}'`;
+          _logger.default.error`Invalid data passed to JSON.parse: '${data}'`;
           return;
         }
 
@@ -483,7 +485,7 @@ const handleRender = ({
             throw new Error("No handler ${handler} defined for action ${action}");
           }
 
-          logger.info`Invoking function ${name}`;
+          _logger.default.info`Invoking function ${name}`;
 
           try {
             if (action.props.boundHandler.use && typeof action.props.boundHandler.use === "function") {
@@ -577,26 +579,26 @@ const handleRender = ({
 
       const queueMessage = async data => {
         messageQueue.push(data);
-        logger.info`Queuing message. [${messageQueue.length}]`;
+        _logger.default.info`Queuing message. [${messageQueue.length}]`;
         await flushQueue();
       };
 
       const flushQueue = async () => {
         if (currentPromise) {
-          logger.warning`Already flushiung queue`;
+          _logger.default.warning`Already flushiung queue`;
           return;
         }
 
-        logger.info`Flushing queue.`;
+        _logger.default.info`Flushing queue.`;
 
         do {
           const data = messageQueue.shift();
           currentPromise = onMessage(data);
           await currentPromise;
-          logger.info`Processed Message`;
+          _logger.default.info`Processed Message`;
         } while (messageQueue.length);
 
-        logger.info`Flushed queue going idle. ${messageQueue.length}`;
+        _logger.default.info`Flushed queue going idle. ${messageQueue.length}`;
         currentPromise = null;
       };
       /**

@@ -1,5 +1,3 @@
-const logger = require("./lib/logger").scope("runtime");
-
 const filterComponents = (child) =>
   child && child.server && "function" == typeof child;
 const filterRenderer = (child) =>
