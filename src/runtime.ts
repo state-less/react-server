@@ -34,7 +34,7 @@ export const render = async (
   do {
     if (isElement(cmp)) {
       /** A normal component is similar to JSX.Element */
-      cmp = await cmp.type(props, connectionInfo);
+      cmp = await cmp.type(props, connectionInfo, parent);
     } else if (typeof cmp === "function") {
       /** Components can return Components which will be rendered in a second pass; usually upon a client request */
       cmp = await cmp(props, connectionInfo);
@@ -61,7 +61,7 @@ export const render = async (
 
         if (Array.isArray(child)) {
           for (var j = 0; j < child.length; j++) {
-            children[i][j] = await render(child[j], props, connectionInfo);
+            children[i][j] = await render(child[j], props, connectionInfo, cmp);
             if (children[i][j]?.key) parentMap[children[i][j].key] = cmp;
           }
         } else {

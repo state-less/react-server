@@ -66,8 +66,8 @@ const arrayIsEqual = (arrA, arrB) => {
   }, true);
 };
 
-function findParent(key, id) {
-  const par = parentMap[key];
+function findParent(key, id, optionalParent?) {
+  const par = parentMap[key] || optionalParent;
 
   if (!par) return null;
 
@@ -493,7 +493,8 @@ const Lifecycle: LifecycleType = (
     props = null,
     options: ComponentOptions,
     clientProps,
-    socket = { id: SERVER_ID }
+    socket = { id: SERVER_ID },
+    parent
   ) => {
     let scopedUseEffect,
       scopedUseContext,
@@ -524,7 +525,7 @@ const Lifecycle: LifecycleType = (
       jwt = authenticate({ data: socket });
     } catch (e) {}
 
-    const storeProvider = findParent(key, storeContext.id);
+    const storeProvider = findParent(key, storeContext.id, parent);
 
     if (storeProvider) {
       baseStore = storeProvider.props.value;

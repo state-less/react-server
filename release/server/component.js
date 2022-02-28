@@ -93,8 +93,8 @@ const arrayIsEqual = (arrA, arrB) => {
   }, true);
 };
 
-function findParent(key, id) {
-  const par = _runtime.parentMap[key];
+function findParent(key, id, optionalParent) {
+  const par = _runtime.parentMap[key] || optionalParent;
   if (!par) return null;
   if (par.id === id) return par;
   if (par !== null && par !== void 0 && par.key) return findParent(par.key, id);
@@ -469,7 +469,7 @@ const Lifecycle = (fn, baseStore = new _state.Store({
 
   const AsyncComponent = async (props = null, options, clientProps, socket = {
     id: SERVER_ID
-  }) => {
+  }, parent) => {
     var _jwt2, _jwt2$address;
 
     let scopedUseEffect,
@@ -501,7 +501,7 @@ const Lifecycle = (fn, baseStore = new _state.Store({
       });
     } catch (e) {}
 
-    const storeProvider = findParent(key, _context.storeContext.id);
+    const storeProvider = findParent(key, _context.storeContext.id, parent);
 
     if (storeProvider) {
       baseStore = storeProvider.props.value;

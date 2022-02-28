@@ -41,7 +41,7 @@ const render = async (component, props, connectionInfo, parent = null) => {
 
     if (isElement(cmp)) {
       /** A normal component is similar to JSX.Element */
-      cmp = await cmp.type(props, connectionInfo);
+      cmp = await cmp.type(props, connectionInfo, parent);
     } else if (typeof cmp === "function") {
       /** Components can return Components which will be rendered in a second pass; usually upon a client request */
       cmp = await cmp(props, connectionInfo);
@@ -74,7 +74,7 @@ const render = async (component, props, connectionInfo, parent = null) => {
           for (var j = 0; j < child.length; j++) {
             var _children$i$j;
 
-            children[i][j] = await render(child[j], props, connectionInfo);
+            children[i][j] = await render(child[j], props, connectionInfo, cmp);
             if ((_children$i$j = children[i][j]) !== null && _children$i$j !== void 0 && _children$i$j.key) parentMap[children[i][j].key] = cmp;
           }
         } else {
