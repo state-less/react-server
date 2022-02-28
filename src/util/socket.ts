@@ -1,3 +1,4 @@
+import WebSocket from "ws";
 import { assertIsValid } from ".";
 import { logger } from "../lib/logger";
 import { heart } from "../static/heartbeat";
@@ -22,7 +23,9 @@ export const validateSecWebSocketKey = (req) => {
  * Will ping clients in a interval and terminate broken connections
  * @see https://gist.github.com/thiagof/aba7791ef9504c1184769ce401f478dc
  */
-export function setupWsHeartbeat(wss) {
+export function setupWsHeartbeat(
+  wss: WebSocket.Server<WebSocket.WebSocket & { isAlive: boolean }>
+) {
   function noop() {}
   function heartbeat() {
     this.isAlive = true;
@@ -36,12 +39,13 @@ export function setupWsHeartbeat(wss) {
   });
 
   heart.createEvent(30, function ping() {
-    logger.debug`Sending heartbeat to ${wss.clients.length} sockets.`;
+    logger.debug`Sending heartbeat to ${wss.clients.entries.length} sockets.`;
     wss.clients.forEach(function each(ws) {
       // client did not respond the ping (pong)
       if (ws.isAlive === false) return ws.terminate();
 
       ws.isAlive = false;
+      
       ws.ping(noop);
     });
   });

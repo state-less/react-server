@@ -9,7 +9,8 @@
     "isolatedModules": true,
     "outDir": "./release/",
     "moduleResolution": "Node",
-    "lib": ["ES2019", "DOM"]
+    "lib": ["ES2019", "DOM"],
+    "allowSyntheticDefaultImports": true
   },
   "include": ["src"]
 }

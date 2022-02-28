@@ -53,7 +53,7 @@ function setupWsHeartbeat(wss) {
   });
 
   _heartbeat.heart.createEvent(30, function ping() {
-    _logger.logger.debug`Sending heartbeat to ${wss.clients.length} sockets.`;
+    _logger.logger.debug`Sending heartbeat to ${wss.clients.entries.length} sockets.`;
     wss.clients.forEach(function each(ws) {
       // client did not respond the ping (pong)
       if (ws.isAlive === false) return ws.terminate();

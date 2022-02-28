@@ -7,6 +7,8 @@ exports.activeConnections = void 0;
 
 var _logger = _interopRequireDefault(require("../lib/logger"));
 
+var _ws = _interopRequireDefault(require("ws"));
+
 var _socket = require("../util/socket");
 
 var strategies = _interopRequireWildcard(require("../strategies"));
@@ -27,8 +29,6 @@ const {
   failure,
   success
 } = require("../lib/response-lib/websocket");
-
-const WebSocket = require("ws");
 
 const {
   WebsocketBroker
@@ -124,10 +124,9 @@ const createWebsocketServer = props => {
   const extend = {
     port
   };
-  const ws = new WebSocket.Server({ ..._defaults.wssDefaults,
+  const ws = new _ws.default.Server({ ..._defaults.wssDefaults,
     ...extend
   });
-  (0, _socket.setupWsHeartbeat)(ws);
   return ws;
 };
 
@@ -163,6 +162,7 @@ const handleRender = ({
   });
   server.on("connection", (socket, req) => {
     const handler = ConnectionHandler(broker, store, "DISCONNECT");
+    (0, _socket.setupWsHeartbeat)(server);
 
     try {
       let challenge,

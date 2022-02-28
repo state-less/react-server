@@ -1,7 +1,7 @@
 import logger from "../lib/logger";
-const { failure, success } = require("../lib/response-lib/websocket");
+import WebSocket from "ws";
 
-const WebSocket = require("ws");
+const { failure, success } = require("../lib/response-lib/websocket");
 const { WebsocketBroker } = require("../server/brokers/WebSocket");
 const { render } = require("../runtime");
 const { ConnectionHandler } = require("../server/handler/WebSocket");
@@ -78,7 +78,7 @@ const WebSocketRenderer: ReactServerComponent<WebSocketServerProps> = (
 
 const createWebsocketServer = (
   props: WebSocketServerProps
-): typeof WebSocket.Server => {
+): WebSocket.Server<WebSocket.WebSocket> => {
   const { port = 8080, children } = props;
 
   const extend = { port };
@@ -86,8 +86,6 @@ const createWebsocketServer = (
     ...wssDefaults,
     ...extend,
   });
-
-  setupWsHeartbeat(ws);
 
   return ws;
 };
@@ -123,6 +121,7 @@ const handleRender = ({
   });
   server.on("connection", (socket, req) => {
     const handler = ConnectionHandler(broker, store, "DISCONNECT");
+    setupWsHeartbeat(server);
 
     try {
       let challenge,
