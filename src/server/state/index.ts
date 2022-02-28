@@ -219,7 +219,7 @@ class Store {
 
   /** Can be implemented in async subclasses to provide a way of initializing a state in a synchron manner */
   createStateSync(key, def, options, ...args) {
-    return Store.prototype.createState.call(key, def, options, ...args);
+    return Store.prototype.createState.call(this, key, def, options, ...args);
   }
 
   createState(

@@ -272,7 +272,7 @@ class Store {
 
 
   createStateSync(key, def, options, ...args) {
-    return Store.prototype.createState.call(key, def, options, ...args);
+    return Store.prototype.createState.call(this, key, def, options, ...args);
   }
 
   createState(key, def, options = {}, ...args) {
