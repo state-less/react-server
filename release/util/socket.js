@@ -10,7 +10,7 @@ var _ = require(".");
 
 var _logger = require("../lib/logger");
 
-var _heartbeat = require("./heartbeat");
+var _heartbeat = require("../static/heartbeat");
 
 /**
  * Interface to retrieve the sec-websocket-key in case the implementation might change
