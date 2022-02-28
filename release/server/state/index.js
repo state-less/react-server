@@ -330,7 +330,7 @@ class Store {
   useState(key, def, options = {}, ...args) {
     this.validateUseStateArgs(key, def, options, ...args);
     if (Store.prototype.has.call(this, key) && this.key === options.scope) return Store.prototype.get.call(this, key);
-    if (this.autoCreate) return Store.prototype.createState.call(this, key, def, options, ...args);
+    if (this.autoCreate) return this.createStateSync(key, def, options, ...args);
   }
 
   useStateSync(key, def, options, ...args) {

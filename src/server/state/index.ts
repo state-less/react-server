@@ -316,7 +316,7 @@ class Store {
       return Store.prototype.get.call(this, key);
 
     if (this.autoCreate)
-      return Store.prototype.createState.call(this, key, def, options, ...args);
+      return this.createStateSync(key, def, options, ...args);
   }
 
   useStateSync(key, def, options, ...args) {

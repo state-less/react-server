@@ -422,7 +422,7 @@ const Lifecycle: LifecycleType = (
         );
       }
 
-      if (result && result.component === "ClientComponent") {
+      if (result) {
         for (const stateReferenceKey in result.props) {
           const stateValue = result.props[stateReferenceKey];
           if (stateValues.has(stateValue)) {

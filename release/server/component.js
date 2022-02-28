@@ -391,7 +391,7 @@ const Lifecycle = (fn, baseStore = new _state.Store({
         throw new Error("Nothing returned from render. This usually means you have forgotten to return anything from your component.");
       }
 
-      if (result && result.component === "ClientComponent") {
+      if (result) {
         var _result$props, _result$props2;
 
         for (const stateReferenceKey in result.props) {
