@@ -40,7 +40,7 @@ import {
 } from "../types";
 import { wssDefaults } from "../lib/defaults";
 import { PropsWithChildren } from "react";
-
+import { setupWsHeartbeat } from "../util/socket";
 /**
  * Contains active connections to the server
  */
@@ -82,12 +82,14 @@ const createWebsocketServer = (
   const { port = 8080, children } = props;
 
   const extend = { port };
-  const wss = new WebSocket.Server({
+  const ws = new WebSocket.Server({
     ...wssDefaults,
     ...extend,
   });
 
-  return wss;
+  setupWsHeartbeat(ws);
+
+  return ws;
 };
 
 const emit = (socket, data) => {

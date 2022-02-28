@@ -122,10 +122,11 @@ const createWebsocketServer = props => {
   const extend = {
     port
   };
-  const wss = new WebSocket.Server({ ..._defaults.wssDefaults,
+  const ws = new WebSocket.Server({ ..._defaults.wssDefaults,
     ...extend
   });
-  return wss;
+  (0, _socket.setupWsHeartbeat)(ws);
+  return ws;
 };
 
 const emit = (socket, data) => {

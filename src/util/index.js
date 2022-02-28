@@ -1,12 +1,11 @@
-const baseLogger = require('../lib/logger');
+const baseLogger = require("../lib/logger");
 const { DESC_MISSING_KEY } = require("../consts");
 
-const logger = baseLogger.scope('util');
+const logger = baseLogger.scope("util");
 
 export const assertIsValid = (isValid, message) => {
-  if (!isValid)
-    throw new Error(message);
-}
+  if (!isValid) throw new Error(message);
+};
 
 export const validateComponentArgs = (props, key, options, socket) => {
   if (!key) {
@@ -14,14 +13,18 @@ export const validateComponentArgs = (props, key, options, socket) => {
     return ERR_MISSING_KEY;
   }
   return true;
-}
+};
 
 export const authenticate = ({ data }) => {
-  if (!data?.headers?.Authorization || !data?.headers?.Authorization?.includes('Bearer')) {
-    throw new Error('Not authorized');
+  if (
+    !data?.headers?.Authorization ||
+    !data?.headers?.Authorization?.includes("Bearer")
+  ) {
+    throw new Error("Not authorized");
   }
 
-  const token = data.headers.Authorization.split(' ').pop();
+  const token = data.headers.Authorization.split(" ").pop();
 
-  return jwt.verify(token, SECRET)
-}
+  return jwt.verify(token, SECRET);
+};
+
