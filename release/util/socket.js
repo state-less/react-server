@@ -8,6 +8,8 @@ exports.validateSecWebSocketKey = exports.getSecWebSocketKey = void 0;
 
 var _ = require(".");
 
+var _heartbeat = require("./heartbeat");
+
 /**
  * Interface to retrieve the sec-websocket-key in case the implementation might change
  * @param {*} req - Websocket request
@@ -46,7 +48,8 @@ function setupWsHeartbeat(wss) {
     ws.isAlive = true;
     ws.on("pong", heartbeat);
   });
-  const interval = setInterval(function ping() {
+
+  _heartbeat.heart.createEvent(30, function ping() {
     wss.clients.forEach(function each(ws) {
       // client did not respond the ping (pong)
       if (ws.isAlive === false) return ws.terminate();

@@ -1,18 +1,23 @@
 "use strict";
 
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.logger = void 0;
+
 const {
   Logger
-} = require('l0g'); // const {Color} = require('l0g/formatters/Color');
+} = require("l0g"); // const {Color} = require('l0g/formatters/Color');
 
 
 const {
   Inspect
-} = require('l0g/formatters/Inspect');
+} = require("l0g/formatters/Inspect");
 
 const {
   ConsoleTransport,
   Table
-} = require('l0g/transports/ConsoleTransport'); // const {FileTransport}= require('l0g/transports/FileTransport');
+} = require("l0g/transports/ConsoleTransport"); // const {FileTransport}= require('l0g/transports/FileTransport');
 // const {SocketTransport}= require('l0g/transports/SocketTransport');
 // const {ReloadConfigFeature} = require('l0g/features/ReloadConfigFeature.js');
 // const util = require('util');
@@ -22,7 +27,7 @@ const {
 const {
   LOG_LEVEL,
   LOG_LEVEL_HTTP
-} = require('./consts'); // const reloadConfigFeature = new ReloadConfigFeature();
+} = require("./consts"); // const reloadConfigFeature = new ReloadConfigFeature();
 
 
 const features = [//   reloadConfigFeature
@@ -32,10 +37,10 @@ const features = [//   reloadConfigFeature
 let State;
 
 const setState = v => State = v;
-/** 
- * I wish I had more time to write this project. 
- * The logger needs to be rewritten or replaced. 
- * I wanted a logger that's able to use colors, works in node.js and web-browsers 
+/**
+ * I wish I had more time to write this project.
+ * The logger needs to be rewritten or replaced.
+ * I wanted a logger that's able to use colors, works in node.js and web-browsers
  * and provides a way to format messages on a per object basis.
  */
 
@@ -44,7 +49,7 @@ const setState = v => State = v;
  * This way we can simply pass the whole object to the logger and change the output/formatting later.
  * If we need more detail in a debug scenario we can change the logging behaviour here.
  * That way we don't have to update single logging calls.
- * This is useful to format errors, objects, numbers strings. 
+ * This is useful to format errors, objects, numbers strings.
  * You can also format a single object using its reference.
  * Each transport has its own formatter.
  */
@@ -58,7 +63,7 @@ const SHOW_ID = false;
 
 const isState = obj => obj instanceof State;
 
-const formatState = obj => `State[${obj.key}] ${SHOW_ID ? `(${obj.id}) ` : ''}[${Array.isArray(obj.value) ? obj.value.length : obj.value}]`; //Format web push subscriptions keys.
+const formatState = obj => `State[${obj.key}] ${SHOW_ID ? `(${obj.id}) ` : ""}[${Array.isArray(obj.value) ? obj.value.length : obj.value}]`; //Format web push subscriptions keys.
 
 
 const isSubscription = obj => obj && obj.endpoint && obj.keys && obj.keys.auth;
@@ -79,22 +84,22 @@ const formatSocket = obj => `Socket[${obj.id}]`;
 
 
 const statusColors = {
-  200: 'green',
-  300: 'blue',
-  400: 'orange',
-  500: 'red'
+  200: "green",
+  300: "blue",
+  400: "orange",
+  500: "red"
 };
 const timingColors = {
-  0: 'green',
-  200: 'yellow',
-  500: 'orange',
-  1000: 'red'
+  0: "green",
+  200: "yellow",
+  500: "orange",
+  1000: "red"
 };
 
 const isResponseTime = obj => obj && obj.req && obj.res && obj.time;
 /**
- * Format responseTime arguments when passed to the logger. 
- * Formats an object in the form {req, res, time}; 
+ * Format responseTime arguments when passed to the logger.
+ * Formats an object in the form {req, res, time};
  * That way its easier to classify it as such
  */
 
@@ -142,9 +147,9 @@ const formatResponseTime = obj => {
 // if (LOG_LEVEL === 'debug') {
 //     Color.formatMap.get(Color.isObject).unshift((v) => util.inspect(v, false, 1, true));
 // }
-//The Color formatter of the logger uses Maps to map functions to functions. 
+//The Color formatter of the logger uses Maps to map functions to functions.
 //The key (a function or regexp) determines whether an object should be formatted by the mapped function.
-//In retrospect I don't like this  because you need to create a new Map if you want to extend the default behaviour. 
+//In retrospect I don't like this  because you need to create a new Map if you want to extend the default behaviour.
 //But I don't have enough time to rewrite all the modules i made for this demo.
 
 /**
@@ -163,7 +168,7 @@ const formatResponseTime = obj => {
 //     return `${ts} ${scope} ${level}: ${message}`
 // }, {
 //     //The format map used to format log messages on a per object basis
-//     formatMap, 
+//     formatMap,
 //     //The chalk color level. 1 = 256
 //     chalkLevel: 3
 // });
@@ -179,17 +184,17 @@ const transports = [new ConsoleTransport({
   formatter: new Inspect()
 }) // new FileTransport('main.log', {formatter: new Inspect}),
 ];
-const logger = new Logger('debug', {
+const logger = new Logger("debug", {
   transports,
   features
-}); //Add a http level to the loglevel set. - This way we can control the log level of http logs individually. 
+}); //Add a http level to the loglevel set. - This way we can control the log level of http logs individually.
 
+exports.logger = logger;
 logger.levels.http = LOG_LEVEL_HTTP; // Color.colors.key.level.http = 'purple';
 //We need to provide the logging function ourselves. There's no setter on the levels object. Maybe i should add a addLogLevel method.
 
-logger.http = (...args) => logger.setLe('http').log(...args);
+logger.http = (...args) => logger.setLe("http").log(...args);
 
-logger.setState = setState;
-module.exports = logger; // logger.formatter = formatter;
+logger.setState = setState; // logger.formatter = formatter;
 
 Logger.scope = /.*/;
