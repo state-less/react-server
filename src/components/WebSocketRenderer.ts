@@ -1,5 +1,5 @@
 import logger from "../lib/logger";
-import WebSocket from "ws";
+import WebSocket, { WebSocketServer } from "ws";
 
 const { failure, success } = require("../lib/response-lib/websocket");
 const { WebsocketBroker } = require("../server/brokers/WebSocket");
@@ -30,7 +30,7 @@ import {
   SocketErrorAction,
 } from "../actions/socket";
 import { ErrorMessage } from "../factories/socket";
-import { State } from "../server/state";
+import { State, Store } from "../server/state";
 import {
   ReactServerComponent,
   RenderableComponent,
@@ -41,6 +41,8 @@ import {
 import { wssDefaults } from "../lib/defaults";
 import { PropsWithChildren } from "react";
 import { setupWsHeartbeat } from "../util/socket";
+import { ConnectionInfo } from "../types/socket";
+import { HandleRenderOptions } from "../types/WebSocketRenderer";
 /**
  * Contains active connections to the server
  */
@@ -51,7 +53,7 @@ const broker = new WebsocketBroker({ activeConnections });
 const WebSocketRenderer: ReactServerComponent<WebSocketServerProps> = (
   props
 ) => {
-  const { children, key, store, secret, authFactors } = props;
+  const { children, key, store, secret, authFactors, onConnect } = props;
   const server = createWebsocketServer(props);
 
   Component.useEffect(() => {
@@ -114,14 +116,19 @@ const handleRender = ({
   streams,
   store,
   authFactors,
+  onConnect,
   ...rest
-}) => {
+}: HandleRenderOptions) => {
+  server.on("listening", () => {
+    setupWsHeartbeat(server);
+  });
   server.on("close", () => {
+    logger.warning`Socket Server closed. Exiting...`;
     process.exit(0);
   });
+
   server.on("connection", (socket, req) => {
     const handler = ConnectionHandler(broker, store, "DISCONNECT");
-    setupWsHeartbeat(server);
 
     try {
       let challenge,
@@ -136,9 +143,9 @@ const handleRender = ({
 
       activeConnections[clientId] = socket;
 
-      store.on("setValue", () => {
-        process.exit(0);
-      });
+      if (typeof onConnect === "function") {
+        onConnect(connectionInfo);
+      }
 
       const onClose = () => {
         handler(connectionInfo);

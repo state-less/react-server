@@ -86,7 +86,8 @@ const WebSocketRenderer = props => {
     key,
     store,
     secret,
-    authFactors
+    authFactors,
+    onConnect
   } = props;
   const server = createWebsocketServer(props);
   Component.useEffect(() => {
@@ -155,14 +156,18 @@ const handleRender = ({
   streams,
   store,
   authFactors,
+  onConnect,
   ...rest
 }) => {
+  server.on("listening", () => {
+    (0, _socket.setupWsHeartbeat)(server);
+  });
   server.on("close", () => {
+    _logger.default.warning`Socket Server closed. Exiting...`;
     process.exit(0);
   });
   server.on("connection", (socket, req) => {
     const handler = ConnectionHandler(broker, store, "DISCONNECT");
-    (0, _socket.setupWsHeartbeat)(server);
 
     try {
       let challenge,
@@ -175,9 +180,10 @@ const handleRender = ({
         id: clientId
       };
       activeConnections[clientId] = socket;
-      store.on("setValue", () => {
-        process.exit(0);
-      });
+
+      if (typeof onConnect === "function") {
+        onConnect(connectionInfo);
+      }
 
       const onClose = () => {
         handler(connectionInfo);

@@ -26,7 +26,7 @@ export const validateSecWebSocketKey = (req) => {
  * @see https://gist.github.com/thiagof/aba7791ef9504c1184769ce401f478dc
  */
 export function setupWsHeartbeat(
-  wss: WebSocket.Server<WebSocket.WebSocket & { isAlive: boolean }>
+  wss: WebSocket.Server<WebSocket.WebSocket & { isAlive?: boolean }>
 ) {
   function noop() {}
   function heartbeat() {
