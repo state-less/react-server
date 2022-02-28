@@ -2,6 +2,8 @@ import WebSocket from "ws";
 import { assertIsValid } from ".";
 import { logger } from "../lib/logger";
 import { heart } from "../static/heartbeat";
+
+const socketUtilLogger = logger.scope("util.socket");
 /**
  * Interface to retrieve the sec-websocket-key in case the implementation might change
  * @param {*} req - Websocket request
@@ -31,7 +33,7 @@ export function setupWsHeartbeat(
     this.isAlive = true;
   }
 
-  logger.debug`Setting up heartbeats.`;
+  socketUtilLogger.debug`Setting up heartbeats.`;
 
   wss.on("connection", function connection(ws) {
     ws.isAlive = true;
@@ -39,13 +41,16 @@ export function setupWsHeartbeat(
   });
 
   heart.createEvent(30, function ping() {
-    logger.debug`Sending heartbeat to ${wss.clients.entries.length} sockets.`;
+    socketUtilLogger.debug`Sending heartbeat to ${wss.clients.entries.length} sockets.`;
     wss.clients.forEach(function each(ws) {
       // client did not respond the ping (pong)
-      if (ws.isAlive === false) return ws.terminate();
+      if (ws.isAlive === false) {
+        socketUtilLogger.warning`Client timed out. Terminating connection.`;
+        return ws.terminate();
+      }
 
       ws.isAlive = false;
-      
+
       ws.ping(noop);
     });
   });
