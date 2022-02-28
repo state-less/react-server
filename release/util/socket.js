@@ -8,6 +8,8 @@ exports.validateSecWebSocketKey = exports.getSecWebSocketKey = void 0;
 
 var _ = require(".");
 
+var _logger = require("../lib/logger");
+
 var _heartbeat = require("./heartbeat");
 
 /**
@@ -44,12 +46,14 @@ function setupWsHeartbeat(wss) {
     this.isAlive = true;
   }
 
+  _logger.logger.debug`Setting up heartbeats.`;
   wss.on("connection", function connection(ws) {
     ws.isAlive = true;
     ws.on("pong", heartbeat);
   });
 
   _heartbeat.heart.createEvent(30, function ping() {
+    _logger.logger.debug`Sending heartbeat to ${wss.clients.length} sockets.`;
     wss.clients.forEach(function each(ws) {
       // client did not respond the ping (pong)
       if (ws.isAlive === false) return ws.terminate();

@@ -87,6 +87,7 @@ const createWebsocketServer = (
     ...extend,
   });
 
+  setupWsHeartbeat(ws);
 
   return ws;
 };
