@@ -42,7 +42,6 @@ export function setupWsHeartbeat(wss) {
         ws.isAlive = false;
         ws.ping(noop);
       });
-    },
-    30000
+    }
   );
 }
