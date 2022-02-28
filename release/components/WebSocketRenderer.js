@@ -201,6 +201,10 @@ const handleRender = ({
          */
         let json;
 
+        if (data === "pong") {
+          return;
+        }
+
         try {
           json = JSON.parse(data);
         } catch (e) {
