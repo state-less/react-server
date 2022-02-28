@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.logger = void 0;
+exports.default = exports.logger = void 0;
 
 const {
   Logger
@@ -110,35 +110,21 @@ const getRangeValue = obj => (value, def) => {
 };
 
 const getStatusColor = getRangeValue(statusColors);
-const getTimingColor = getRangeValue(timingColors);
+const getTimingColor = getRangeValue(timingColors); // const formatResponseTime = (obj) => {
+//   let { req, res, time } = obj;
+//   const { method, url } = req;
+//   let { statusCode } = res;
+//   const statusColor = getStatusColor(statusCode, undefined);
+//   if (statusColor) {
+//     statusCode = chalk[statusColor](statusCode);
+//   }
+//   const timingColor = getTimingColor(time, undefined);
+//   if (timingColor) {
+//     time = chalk[timingColor](time.toFixed(2));
+//   }
+//   return `${statusCode} ${method} ${url} - ${time}ms`;
+// };
 
-const formatResponseTime = obj => {
-  let {
-    req,
-    res,
-    time
-  } = obj;
-  const {
-    method,
-    url
-  } = req;
-  let {
-    statusCode
-  } = res;
-  const statusColor = getStatusColor(statusCode);
-
-  if (statusColor) {
-    statusCode = chalk[statusColor](statusCode);
-  }
-
-  const timingColor = getTimingColor(time);
-
-  if (timingColor) {
-    time = chalk[timingColor](time.toFixed(2));
-  }
-
-  return `${statusCode} ${method} ${url} - ${time}ms`;
-};
 /**
  * Inspect objects when log level is set to debug
  * The Color formatter colorizes objects by default.
@@ -179,7 +165,6 @@ const formatResponseTime = obj => {
  * FileTransport to log to a file. - Unfortunately I didn't have the time to add log rotation/timestamps.
  */
 
-
 const transports = [new ConsoleTransport({
   formatter: new Inspect()
 }) // new FileTransport('main.log', {formatter: new Inspect}),
@@ -187,9 +172,11 @@ const transports = [new ConsoleTransport({
 const logger = new Logger("debug", {
   transports,
   features
-}); //Add a http level to the loglevel set. - This way we can control the log level of http logs individually.
-
+});
 exports.logger = logger;
+var _default = logger; //Add a http level to the loglevel set. - This way we can control the log level of http logs individually.
+
+exports.default = _default;
 logger.levels.http = LOG_LEVEL_HTTP; // Color.colors.key.level.http = 'purple';
 //We need to provide the logging function ourselves. There's no setter on the levels object. Maybe i should add a addLogLevel method.
 
