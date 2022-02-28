@@ -34,7 +34,7 @@ export function setupWsHeartbeat(
 
   wss.on("connection", function connection(ws) {
     function heartbeat() {
-      this.isAlive = true;
+      ws.isAlive = true;
     }
     ws.isAlive = true;
     ws.on("pong", heartbeat);

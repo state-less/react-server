@@ -48,7 +48,7 @@ function setupWsHeartbeat(wss) {
   socketUtilLogger.debug`Setting up heartbeats.`;
   wss.on("connection", function connection(ws) {
     function heartbeat() {
-      this.isAlive = true;
+      ws.isAlive = true;
     }
 
     ws.isAlive = true;
