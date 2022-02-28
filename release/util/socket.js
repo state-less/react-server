@@ -53,6 +53,9 @@ function setupWsHeartbeat(wss) {
   wss.on("connection", function connection(ws) {
     ws.isAlive = true;
     ws.on("pong", heartbeat);
+    ws.on("message", msg => {
+      if (msg === "pong") heartbeat();
+    });
   });
 
   _heartbeat.heart.createEvent(30, function ping() {
@@ -66,6 +69,7 @@ function setupWsHeartbeat(wss) {
 
       ws.isAlive = false;
       ws.ping(noop);
+      ws.send("ping");
     });
   });
 }
