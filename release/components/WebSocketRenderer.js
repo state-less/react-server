@@ -85,7 +85,7 @@ const broker = new WebsocketBroker({
 });
 
 const findServer = component => {
-  if (component.symbol === _.serverSymbol) {
+  if (component.constructor === _.Server) {
     return component;
   }
 

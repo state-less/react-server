@@ -19,8 +19,6 @@ export interface RouterComponent extends ReactServerComponent<RouterProps> {
     } | null;
 }
 export interface ReactServer$ServerElement extends ReactServerElement {
-    v: string;
-    elements: ReactServerElement[];
 }
 export interface ReactServerElement extends JSX.Element {
     /** @deprecated */

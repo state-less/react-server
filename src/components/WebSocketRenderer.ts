@@ -50,7 +50,7 @@ import { setupWsHeartbeat } from "../util/socket";
 import { ConnectionInfo } from "../types/socket";
 import { HandleRenderOptions } from "../types/WebSocketRenderer";
 import { ACTION_LOGOUT } from "../consts";
-import { serverSymbol } from ".";
+import { Server, serverSymbol } from ".";
 /**
  * Contains active connections to the server
  */
@@ -59,7 +59,7 @@ export const activeConnections = {};
 const broker = new WebsocketBroker({ activeConnections });
 
 const findServer = (component: ReactServerElement): ReactServerElement => {
-  if (component.symbol === serverSymbol) {
+  if (component.constructor === Server) {
     return component;
   }
   const { props: { children } = {} } = component;

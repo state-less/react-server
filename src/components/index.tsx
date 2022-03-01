@@ -38,11 +38,8 @@ const Server: ReactServerComponent<
   }, {});
 
   return {
-    v: "0.0.1",
-    key,
-    symbol: serverSymbol,
     type: Server,
-    elements,
+    key,
     props,
   };
 };

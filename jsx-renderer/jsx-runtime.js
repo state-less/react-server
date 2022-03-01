@@ -11,7 +11,13 @@ const render = (key) => {};
 
 const jsxs = (Component, props, key) => {
   const { store, ...rest } = props;
-  return Component(props, { key, store });
+  const component = Lifecycle(Component)(props, { store, key });
+  component.key = key;
+  component.constructor = Component;
+
+  lookup[key] = component;
+
+  return component;
 };
 
 const jsx = (Component, props, key = v4()) => {
