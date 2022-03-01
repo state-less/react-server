@@ -83,7 +83,7 @@ const render = async (component, props, connectionInfo, parent = null) => {
         //     continue;
 
 
-        children[i] = await render(child, props, connectionInfo);
+        children[i] = await render(child, props, connectionInfo, cmp);
       }
     }
 

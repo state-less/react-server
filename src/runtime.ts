@@ -69,7 +69,7 @@ export const render = async (
         }
         // if (child && typeof child !== 'function')
         //     continue;
-        children[i] = await render(child, props, connectionInfo);
+        children[i] = await render(child, props, connectionInfo, cmp);
       }
     }
     if (cmp && cmp.component) {
