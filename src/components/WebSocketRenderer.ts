@@ -59,12 +59,10 @@ export const activeConnections = {};
 const broker = new WebsocketBroker({ activeConnections });
 
 const findServer = (component: ReactServerElement): ReactServerElement => {
-  const {
-    props: { children },
-  } = component;
   if (component.symbol === serverSymbol) {
     return component;
   }
+  const { props: { children } = {} } = component;
   if (!children) return null;
 
   let found;

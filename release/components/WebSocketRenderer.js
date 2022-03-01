@@ -85,16 +85,15 @@ const broker = new WebsocketBroker({
 });
 
 const findServer = component => {
-  const {
-    props: {
-      children
-    }
-  } = component;
-
   if (component.symbol === _.serverSymbol) {
     return component;
   }
 
+  const {
+    props: {
+      children
+    } = {}
+  } = component;
   if (!children) return null;
   let found;
 
