@@ -174,12 +174,11 @@ const handleRender = ({
           solvedFactors = {},
           identities = {};
       (0, _socket.validateSecWebSocketKey)(req);
-      const clientId = (0, _socket.getSecWebSocketKey)(req);
       const connectionInfo = {
         endpoint: "localhost",
-        id: clientId
+        ...(0, _socket.extractConnectionInfo)(req)
       };
-      activeConnections[clientId] = socket;
+      activeConnections[connectionInfo.id] = socket;
 
       if (typeof onConnect === "function") {
         onConnect(connectionInfo);

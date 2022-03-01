@@ -6,6 +6,11 @@ import WebSocket from "ws";
  * @see - https://stackoverflow.com/questions/18265128/what-is-sec-websocket-key-for
  */
 export declare const getSecWebSocketKey: (req: any) => any;
+export declare const getRemoteAddress: (req: any) => any;
+export declare const extractConnectionInfo: (req: any) => {
+    ip: any;
+    id: any;
+};
 /**
  * Interface to make sure the sec-websocket-key
  * @param {*} req - Websocket request

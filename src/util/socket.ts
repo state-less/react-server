@@ -11,6 +11,13 @@ const socketUtilLogger = logger.scope("util.socket");
  * @see - https://stackoverflow.com/questions/18265128/what-is-sec-websocket-key-for
  */
 export const getSecWebSocketKey = (req) => req.headers["sec-websocket-key"];
+export const getRemoteAddress = (req) => req.socket.remoteAddress;
+export const extractConnectionInfo = (req) => {
+  return {
+    ip: getRemoteAddress(req),
+    id: getSecWebSocketKey(req),
+  };
+};
 
 /**
  * Interface to make sure the sec-websocket-key

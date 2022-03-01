@@ -4,7 +4,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.setupWsHeartbeat = setupWsHeartbeat;
-exports.validateSecWebSocketKey = exports.getSecWebSocketKey = void 0;
+exports.validateSecWebSocketKey = exports.extractConnectionInfo = exports.getRemoteAddress = exports.getSecWebSocketKey = void 0;
 
 var _ = require(".");
 
@@ -22,6 +22,19 @@ const socketUtilLogger = _logger.logger.scope("util.socket");
 
 
 const getSecWebSocketKey = req => req.headers["sec-websocket-key"];
+
+exports.getSecWebSocketKey = getSecWebSocketKey;
+
+const getRemoteAddress = req => req.socket.remoteAddress;
+
+exports.getRemoteAddress = getRemoteAddress;
+
+const extractConnectionInfo = req => {
+  return {
+    ip: getRemoteAddress(req),
+    id: getSecWebSocketKey(req)
+  };
+};
 /**
  * Interface to make sure the sec-websocket-key
  * @param {*} req - Websocket request
@@ -29,7 +42,7 @@ const getSecWebSocketKey = req => req.headers["sec-websocket-key"];
  */
 
 
-exports.getSecWebSocketKey = getSecWebSocketKey;
+exports.extractConnectionInfo = extractConnectionInfo;
 
 const validateSecWebSocketKey = req => {
   (0, _.assertIsValid)(getSecWebSocketKey(req), "Invalid websocket connection.");

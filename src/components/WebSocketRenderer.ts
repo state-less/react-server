@@ -21,7 +21,7 @@ const { Streams } = require("../Stream");
 const { Stream } = require("../components");
 
 import { flatReduce } from "../util/reduce";
-import { getSecWebSocketKey, validateSecWebSocketKey } from "../util/socket";
+import { extractConnectionInfo, getSecWebSocketKey, validateSecWebSocketKey } from "../util/socket";
 
 import * as strategies from "../strategies";
 import {
@@ -135,13 +135,13 @@ const handleRender = ({
         solvedFactors = {},
         identities = {};
       validateSecWebSocketKey(req);
-      const clientId = getSecWebSocketKey(req);
+      
       const connectionInfo = {
         endpoint: "localhost",
-        id: clientId,
+        ...extractConnectionInfo(req),
       };
 
-      activeConnections[clientId] = socket;
+      activeConnections[connectionInfo.id] = socket;
 
       if (typeof onConnect === "function") {
         onConnect(connectionInfo);
@@ -165,7 +165,7 @@ const handleRender = ({
         if (data === "pong") {
           return;
         }
-        
+
         try {
           json = JSON.parse(data);
         } catch (e) {
