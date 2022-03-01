@@ -91,6 +91,13 @@ const WebSocketRenderer = props => {
     authFactors,
     onConnect
   } = props;
+  const servedComponents = (Array.isArray(children) ? children : [children].filter(Boolean)).reduce((acc, child) => {
+    const {
+      key
+    } = child;
+    acc[key] = child;
+    return acc;
+  }, {});
   const server = createWebsocketServer(props);
   Component.useEffect(() => {
     handleRender({
@@ -98,7 +105,8 @@ const WebSocketRenderer = props => {
       secret,
       streams: null,
       store,
-      authFactors
+      authFactors,
+      servedComponents
     });
   }, []);
   return {
@@ -158,6 +166,7 @@ const handleRender = ({
   streams,
   store,
   authFactors,
+  servedComponents,
   onConnect,
   ...rest
 }) => {

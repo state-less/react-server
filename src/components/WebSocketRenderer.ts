@@ -36,7 +36,9 @@ import {
 import { ErrorMessage } from "../factories/socket";
 import { State, Store } from "../server/state";
 import {
+  ReactServerChild,
   ReactServerComponent,
+  ReactServerElement,
   RenderableComponent,
   ServerComponent,
   WebSocketRendererProps,
@@ -59,10 +61,27 @@ const WebSocketRenderer: ReactServerComponent<WebSocketServerProps> = (
   props
 ) => {
   const { children, key, store, secret, authFactors, onConnect } = props;
+
+  const servedComponents = (
+    Array.isArray(children) ? children : [children].filter(Boolean)
+  ).reduce((acc, child) => {
+    const { key } = child as ReactServerElement;
+
+    acc[key] = child;
+
+    return acc;
+  }, {});
   const server = createWebsocketServer(props);
 
   Component.useEffect(() => {
-    handleRender({ server, secret, streams: null, store, authFactors });
+    handleRender({
+      server,
+      secret,
+      streams: null,
+      store,
+      authFactors,
+      servedComponents,
+    });
   }, []);
 
   return {
@@ -121,6 +140,7 @@ const handleRender = ({
   streams,
   store,
   authFactors,
+  servedComponents,
   onConnect,
   ...rest
 }: HandleRenderOptions) => {
