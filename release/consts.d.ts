@@ -12,6 +12,7 @@ export declare const SERVER_ID = "server";
 export declare const ACTION_RENDER = "render";
 export declare const ACTION_STREAM = "stream";
 export declare const ACTION_AUTH = "auth";
+export declare const ACTION_LOGOUT = "logout";
 export declare const ACTION_CALL = "call";
 export declare const ACTION_USE_STATE = "useState";
 export declare const ACTION_SET_STATE = "setState";

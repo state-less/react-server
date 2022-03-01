@@ -21,7 +21,11 @@ const { Streams } = require("../Stream");
 const { Stream } = require("../components");
 
 import { flatReduce } from "../util/reduce";
-import { extractConnectionInfo, getSecWebSocketKey, validateSecWebSocketKey } from "../util/socket";
+import {
+  extractConnectionInfo,
+  getSecWebSocketKey,
+  validateSecWebSocketKey,
+} from "../util/socket";
 
 import * as strategies from "../strategies";
 import {
@@ -43,6 +47,7 @@ import { PropsWithChildren } from "react";
 import { setupWsHeartbeat } from "../util/socket";
 import { ConnectionInfo } from "../types/socket";
 import { HandleRenderOptions } from "../types/WebSocketRenderer";
+import { ACTION_LOGOUT } from "../consts";
 /**
  * Contains active connections to the server
  */
@@ -129,13 +134,12 @@ const handleRender = ({
 
   server.on("connection", (socket, req) => {
     const handler = ConnectionHandler(broker, store, "DISCONNECT");
-
+    let challenge,
+      solvedFactors = {},
+      identities = {};
     try {
-      let challenge,
-        solvedFactors = {},
-        identities = {};
       validateSecWebSocketKey(req);
-      
+
       const connectionInfo = {
         endpoint: "localhost",
         ...extractConnectionInfo(req),
@@ -197,6 +201,9 @@ const handleRender = ({
           console.log("STREAM", stream);
         }
 
+        if (action === ACTION_LOGOUT) {
+          identities = {};
+        }
         if (action === ACTION_AUTH) {
           const { id, phase, strategy, data } = json;
           const strat = strategies[strategy];
