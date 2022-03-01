@@ -31,6 +31,7 @@ export const render = async (
   /** Maintains a stack of components to be rendered */
   let stack = [];
 
+  root = cmp;
   do {
     if (isElement(cmp)) {
       /** A normal component is similar to JSX.Element */
@@ -47,7 +48,7 @@ export const render = async (
       throw new Error("Component not valid");
     }
 
-    root = cmp;
+    if (root !== cmp) parentMap[cmp.key] = root;
     /** We need to traverse the tree as some component down the tree might have rendered Components */
     let children = cmp?.props?.children;
     if (children) {

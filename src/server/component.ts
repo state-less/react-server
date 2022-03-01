@@ -913,13 +913,13 @@ const Lifecycle: LifecycleType = (
       createdAt,
     });
 
-    Lifecycle.instances.set(options.key, bound);
     // bound.server = true;
-    return {
+    const comp = {
       type: bound,
       key: options.key,
       props,
     };
+    Lifecycle.instances.set(options.key, comp);
   };
 
   return util.types.isAsyncFunction(fn) ? asyncRender : syncRender;

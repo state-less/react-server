@@ -35,6 +35,7 @@ const render = async (component, props, connectionInfo, parent = null) => {
   /** Maintains a stack of components to be rendered */
 
   let stack = [];
+  root = cmp;
 
   do {
     var _cmp, _cmp$props;
@@ -54,7 +55,7 @@ const render = async (component, props, connectionInfo, parent = null) => {
       throw new Error("Component not valid");
     }
 
-    root = cmp;
+    if (root !== cmp) parentMap[cmp.key] = root;
     /** We need to traverse the tree as some component down the tree might have rendered Components */
 
     let children = (_cmp = cmp) === null || _cmp === void 0 ? void 0 : (_cmp$props = _cmp.props) === null || _cmp$props === void 0 ? void 0 : _cmp$props.children;
