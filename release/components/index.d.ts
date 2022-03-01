@@ -1,6 +1,7 @@
 /// <reference types="react" />
 import { PropsWithChildren, ReactServer$ServerElement, ReactServerComponent, RouterComponent } from "../types";
 export declare const StoreProvider: (props: any) => JSX.Element;
+export declare const serverSymbol: unique symbol;
 declare const Server: ReactServerComponent<PropsWithChildren, ReactServer$ServerElement>;
 declare const Router: RouterComponent;
 declare const Route: ReactServerComponent;

@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.Action = exports.Route = exports.Router = exports.Server = exports.Stream = exports.ClientComponent = exports.StreamInstances = exports.StoreProvider = void 0;
+exports.Action = exports.Route = exports.Router = exports.Server = exports.Stream = exports.ClientComponent = exports.StreamInstances = exports.serverSymbol = exports.StoreProvider = void 0;
 
 var _consts = require("../consts");
 
@@ -52,7 +52,8 @@ const Generic = key => props => ({
   props
 });
 
-const ServerSymbol = Symbol("react-server.component");
+const serverSymbol = Symbol("server");
+exports.serverSymbol = serverSymbol;
 
 const Server = props => {
   const {
@@ -68,6 +69,7 @@ const Server = props => {
   return {
     v: "0.0.1",
     key,
+    symbol: serverSymbol,
     type: Server,
     elements,
     props

@@ -25,6 +25,8 @@ export interface ReactServer$ServerElement extends ReactServerElement {
 export interface ReactServerElement extends JSX.Element {
     /** @deprecated */
     component?: string;
+    symbol?: Symbol;
+    props: PropsWithChildren;
 }
 export interface RenderableComponent extends ReactServerComponent<PropsWithChildren> {
     handler: Function;

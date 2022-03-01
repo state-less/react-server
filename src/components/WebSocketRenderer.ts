@@ -50,6 +50,7 @@ import { setupWsHeartbeat } from "../util/socket";
 import { ConnectionInfo } from "../types/socket";
 import { HandleRenderOptions } from "../types/WebSocketRenderer";
 import { ACTION_LOGOUT } from "../consts";
+import { serverSymbol } from ".";
 /**
  * Contains active connections to the server
  */
@@ -57,20 +58,37 @@ export const activeConnections = {};
 
 const broker = new WebsocketBroker({ activeConnections });
 
+const findServer = (component: ReactServerElement): ReactServerElement => {
+  const {
+    props: { children },
+  } = component;
+  if (component.symbol === serverSymbol) {
+    return component;
+  }
+  if (!children) return null;
+
+  let found;
+  for (const child of [children].flat().filter(Boolean)) {
+    const cmp = findServer(child as ReactServerElement);
+    if (cmp) return cmp;
+  }
+};
 const WebSocketRenderer: ReactServerComponent<WebSocketServerProps> = (
   props
 ) => {
   const { children, key, store, secret, authFactors, onConnect } = props;
 
-  const servedComponents = (
-    Array.isArray(children) ? children : [children].filter(Boolean)
-  ).reduce((acc, child) => {
-    const { key } = child as ReactServerElement;
+  const servedComponents = [
+    findServer(children as ReactServerElement).props.children,
+  ]
+    .flat()
+    .filter(Boolean)
+    .reduce((acc, cmp: ReactServerElement) => {
+      const { key } = cmp;
+      acc[key] = cmp;
+      return acc;
+    }, {});
 
-    acc[key] = child;
-
-    return acc;
-  }, {});
   const server = createWebsocketServer(props);
 
   Component.useEffect(() => {

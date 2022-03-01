@@ -25,7 +25,7 @@ export const StoreProvider = (props) => {
 };
 const Generic = (key) => (props) => ({ component: key, props });
 
-const ServerSymbol = Symbol("react-server.component");
+export const serverSymbol = Symbol("server");
 const Server: ReactServerComponent<
   PropsWithChildren,
   ReactServer$ServerElement
@@ -40,6 +40,7 @@ const Server: ReactServerComponent<
   return {
     v: "0.0.1",
     key,
+    symbol: serverSymbol,
     type: Server,
     elements,
     props,
