@@ -96,7 +96,7 @@ const arrayIsEqual = (arrA, arrB) => {
 function findParent(key, id, optionalParent) {
   const par = _runtime.parentMap[key] || optionalParent;
   if (!par) return null;
-  if (par.id === id) return par;
+  if (par.constructor.id === id) return par;
   if (par !== null && par !== void 0 && par.key) return findParent(par.key, id);
   return null;
 }
@@ -505,6 +505,7 @@ const Lifecycle = (fn, baseStore = new _state.Store({
 
     if (storeProvider) {
       baseStore = storeProvider.props.value;
+      store = baseStore.scope(key);
     } else {
       logger.warning`Missing store provider in component ${key}. Using fallback.`;
     }
@@ -870,11 +871,13 @@ const Lifecycle = (fn, baseStore = new _state.Store({
     const bound = SyncComponent.bind(null, props, { ...options,
       createdAt
     });
-    return {
+    const comp = {
       type: bound,
       key: options.key,
       props
     };
+    Lifecycle.instances.set(options.key, comp);
+    return comp;
   };
 
   const asyncRender = async (props, options = {
@@ -891,6 +894,7 @@ const Lifecycle = (fn, baseStore = new _state.Store({
       props
     };
     Lifecycle.instances.set(options.key, comp);
+    return comp;
   };
 
   return util.types.isAsyncFunction(fn) ? asyncRender : syncRender;

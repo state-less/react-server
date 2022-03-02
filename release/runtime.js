@@ -30,44 +30,49 @@ const isElement = object => {
 
 const render = async (component, props, connectionInfo, parent = null) => {
   /** The current component that gets rendered */
-  let cmp = component,
+  let current = component,
       root;
   /** Maintains a stack of components to be rendered */
 
   let stack = [];
-  root = cmp;
+  root = current;
 
   do {
-    var _cmp, _cmp$props;
+    var _current, _current$props;
 
-    if (isElement(cmp)) {
+    if (isElement(current)) {
       /** A normal component is similar to JSX.Element */
-      cmp = await cmp.type(props, connectionInfo, parent);
-    } else if (typeof cmp === "function") {
+      current = await current.type(props, connectionInfo, parent);
+    } else if (typeof current === "function") {
       /** Components can return Components which will be rendered in a second pass; usually upon a client request */
-      cmp = await cmp(props, connectionInfo);
-    } else if (typeof cmp === "object") {
+      current = await current(props, connectionInfo);
+    } else if (typeof current === "object") {
       /** Usually components are already transformed to objects and no further processing needs to be done */
-      cmp = await cmp;
-    } else if (cmp === null || typeof cmp === "undefined") {
-      cmp = null;
+      current = await current;
+    } else if (current === null || typeof current === "undefined") {
+      current = null;
     } else {
       throw new Error("Component not valid");
     }
+    /** If a component renders another component we need to store the tree to be able to look up providers */
 
-    if (root !== cmp) parentMap[cmp.key] = root;
-    /** We need to traverse the tree as some component down the tree might have rendered Components */
 
-    let children = (_cmp = cmp) === null || _cmp === void 0 ? void 0 : (_cmp$props = _cmp.props) === null || _cmp$props === void 0 ? void 0 : _cmp$props.children;
+    if (isElement(current) && component.key !== current.key) {
+      parentMap[current.key] = component;
+    }
+    /** We need to traverse the tree as some component down the tree might have rendered components */
+
+
+    let children = (_current = current) === null || _current === void 0 ? void 0 : (_current$props = _current.props) === null || _current$props === void 0 ? void 0 : _current$props.children;
 
     if (children) {
-      var _cmp2, _cmp2$props;
+      var _current2, _current2$props;
 
-      children = await Promise.all([(_cmp2 = cmp) === null || _cmp2 === void 0 ? void 0 : (_cmp2$props = _cmp2.props) === null || _cmp2$props === void 0 ? void 0 : _cmp2$props.children].flat());
-      cmp.props.children = children;
+      children = await Promise.all([(_current2 = current) === null || _current2 === void 0 ? void 0 : (_current2$props = _current2.props) === null || _current2$props === void 0 ? void 0 : _current2$props.children].flat());
+      current.props.children = children;
     }
 
-    if (cmp && children) {
+    if (current && children) {
       for (var i = 0; i < children.length; i++) {
         const child = await children[i];
 
@@ -75,29 +80,31 @@ const render = async (component, props, connectionInfo, parent = null) => {
           for (var j = 0; j < child.length; j++) {
             var _children$i$j;
 
-            children[i][j] = await render(child[j], props, connectionInfo, cmp);
-            if ((_children$i$j = children[i][j]) !== null && _children$i$j !== void 0 && _children$i$j.key) parentMap[children[i][j].key] = cmp;
+            children[i][j] = await render(child[j], props, connectionInfo, current);
+            if ((_children$i$j = children[i][j]) !== null && _children$i$j !== void 0 && _children$i$j.key) parentMap[children[i][j].key] = current;
           }
         } else {
-          if (child !== null && child !== void 0 && child.key) parentMap[child.key] = cmp;
+          if (child !== null && child !== void 0 && child.key) parentMap[child.key] = current;
         } // if (child && typeof child !== 'function')
         //     continue;
 
 
-        children[i] = await render(child, props, connectionInfo, cmp);
+        children[i] = await render(child, props, connectionInfo, current);
       }
     }
 
-    if (cmp && cmp.component) {// if (cmp.component === 'ClientComponent') continue;
+    if (current && current.component) {// if (cmp.component === 'ClientComponent') continue;
       // throw new Error("client")
     }
 
-    if (Array.isArray(cmp)) {
-      stack.push(...cmp);
+    if (Array.isArray(current)) {
+      stack.push(...current);
     }
+    /** If the component rendered a functin we need to render it again */
 
-    if (typeof cmp !== "function") cmp = stack.shift();
-  } while (cmp);
+
+    if (typeof current !== "function") current = stack.shift();
+  } while (current);
 
   Object.assign(tree, root);
   /** The resolved tree */

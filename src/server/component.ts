@@ -71,7 +71,7 @@ function findParent(key, id, optionalParent?) {
 
   if (!par) return null;
 
-  if (par.id === id) return par;
+  if (par.constructor.id === id) return par;
 
   if (par?.key) return findParent(par.key, id);
   return null;
@@ -529,6 +529,7 @@ const Lifecycle: LifecycleType = (
 
     if (storeProvider) {
       baseStore = storeProvider.props.value;
+      store = baseStore.scope(key);
     } else {
       logger.warning`Missing store provider in component ${key}. Using fallback.`;
     }
@@ -897,11 +898,13 @@ const Lifecycle: LifecycleType = (
   ) => {
     const bound = SyncComponent.bind(null, props, { ...options, createdAt });
 
-    return {
+    const comp = {
       type: bound,
       key: options.key,
       props,
     };
+    Lifecycle.instances.set(options.key, comp);
+    return comp;
   };
 
   const asyncRender = async (
@@ -920,6 +923,7 @@ const Lifecycle: LifecycleType = (
       props,
     };
     Lifecycle.instances.set(options.key, comp);
+    return comp;
   };
 
   return util.types.isAsyncFunction(fn) ? asyncRender : syncRender;

@@ -25,12 +25,15 @@ const createContext = defaultValue => {
 
       return {
         id,
-        component: 'Provider',
+        component: "Provider",
         value,
         props
       };
     }
   };
+  /** A bit ugly, but for now we only have the Provider to correlate ids */
+
+  ref.Provider.id = id;
   return ref;
 };
 
