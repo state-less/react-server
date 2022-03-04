@@ -58,7 +58,12 @@ const render = async (component, props, connectionInfo, parent = null) => {
 
 
     if (isElement(current) && component.key !== current.key) {
-      parentMap[current.key] = component;
+      /** We skip arrays, as they are keyless childs. */
+      if (Array.isArray(component) && parent) {
+        parentMap[current.key] = parent;
+      } else {
+        parentMap[current.key] = component;
+      }
     }
     /** We need to traverse the tree as some component down the tree might have rendered components */
 

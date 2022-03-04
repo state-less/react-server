@@ -469,7 +469,8 @@ const handleRender = ({
 
         if (action === ACTION_CALL) {
           const { handler, componentKey, args, name, id } = json;
-          const comp = Component.instances.get(componentKey);
+          const comp =
+            servedComponents[key] || Component.instances.get(componentKey);
 
           let res;
           try {

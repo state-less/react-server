@@ -50,7 +50,12 @@ export const render = async (
 
     /** If a component renders another component we need to store the tree to be able to look up providers */
     if (isElement(current) && component.key !== current.key) {
-      parentMap[current.key] = component;
+      /** We skip arrays, as they are keyless childs. */
+      if (Array.isArray(component) && parent) {
+        parentMap[current.key] = parent;
+      } else {
+        parentMap[current.key] = component;
+      }
     }
 
     /** We need to traverse the tree as some component down the tree might have rendered components */

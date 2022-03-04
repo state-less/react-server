@@ -494,7 +494,7 @@ const handleRender = ({
             name,
             id
           } = json;
-          const comp = Component.instances.get(componentKey);
+          const comp = servedComponents[key] || Component.instances.get(componentKey);
           let res;
 
           try {

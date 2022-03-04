@@ -32,11 +32,6 @@ const Server: ReactServerComponent<
 > = (props) => {
   const { children, key } = props;
 
-  const elements = toArray(children).reduce((lkp, cmp) => {
-    const { key } = cmp;
-    lkp[key] = cmp;
-  }, {});
-
   return {
     type: Server,
     key,
