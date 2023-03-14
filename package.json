@@ -5,7 +5,8 @@
   "scripts": {
     "build": "babel src --out-dir dist --extensions \".ts,.tsx\" --copy-files",
     "start": "yarn build && node dist/index.js",
-    "test": "yarn jest --coverage"
+    "test": "yarn jest --coverage",
+    "postinstall": "yarn build"
   },
   "keywords": [
     "react",
