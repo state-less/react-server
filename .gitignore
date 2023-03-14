@@ -4,8 +4,6 @@ yarn.lock
 package-lock.json
 
 # Compiled files
-dist/
-build/
 *.log
 
 # Environment variables
