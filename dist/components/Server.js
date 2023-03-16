@@ -8,9 +8,12 @@ var _Dispatcher = require("../lib/Dispatcher");
 var _jsxRuntime = require("../jsxRenderer/jsx-runtime");
 var context = (0, _Dispatcher.createContext)();
 var VERSION = '0.0.1';
+var UPTIME = Date.now();
 var Server = function Server(props) {
   var value = {
-    VERSION: VERSION
+    VERSION: VERSION,
+    UPTIME: UPTIME,
+    PLATFORM: process.platform
   };
   return {
     version: VERSION,
