@@ -1,9 +1,9 @@
 import { createContext } from '../lib/Dispatcher';
-import { useEffect, useState } from '../lib/reactServer';
+import pckg from '../../package.json';
 
 const context = createContext();
 
-const VERSION = '0.0.1';
+const VERSION = pckg.version;
 const UPTIME = Date.now();
 
 export const Server = (props) => {
