@@ -8,12 +8,12 @@ const UPTIME = Date.now();
 
 export const Server = (props) => {
   const value = {
-    VERSION,
-    UPTIME,
-    PLATFORM: process.platform,
+    version: VERSION,
+    uptime: UPTIME,
+    platform: process.platform,
   };
   return {
-    version: VERSION,
+    ...value,
     children: (
       <context.Provider value={value}>{props.children}</context.Provider>
     ),
