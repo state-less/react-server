@@ -69,6 +69,11 @@ export const render = <T>(
 
   node.children = processedChildren;
 
+  if (node.__typename === 'ServerSideProps') {
+    for (const entry of Object.entries(node)) {
+      console.log('PROPS', entry);
+    }
+  }
   if (parent === null) {
     Dispatcher.getCurrent().setRootComponent(node);
   }

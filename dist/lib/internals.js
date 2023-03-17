@@ -70,6 +70,12 @@ var render = function render(tree) {
     _iterator.f();
   }
   node.children = processedChildren;
+  if (node.__typename === 'ServerSideProps') {
+    for (var _i = 0, _Object$entries = Object.entries(node); _i < _Object$entries.length; _i++) {
+      var entry = _Object$entries[_i];
+      console.log('PROPS', entry);
+    }
+  }
   if (parent === null) {
     _Dispatcher["default"].getCurrent().setRootComponent(node);
   }
