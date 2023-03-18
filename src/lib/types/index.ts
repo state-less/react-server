@@ -12,6 +12,7 @@ export type ReactServerNode<T> = {
 export type ReactServerComponent<T> = {
   props: Record<string, any>;
   key: string;
+  scope: string;
   Component: (props: Record<string, any>) => ReactServerNode<T>;
 };
 

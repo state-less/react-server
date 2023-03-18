@@ -38,6 +38,9 @@ var Dispatcher = /*#__PURE__*/function () {
   function Dispatcher() {
     var _this = this;
     (0, _classCallCheck2["default"])(this, Dispatcher);
+    (0, _defineProperty2["default"])(this, "setPubSub", function (pubsub) {
+      _this._pubsub = pubsub;
+    });
     (0, _defineProperty2["default"])(this, "setClientContext", function (context) {
       _this._clientContext = new RenderContext(context);
     });

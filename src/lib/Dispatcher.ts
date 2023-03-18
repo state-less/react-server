@@ -1,3 +1,4 @@
+import { PubSub } from 'graphql-subscriptions';
 import { StateOptions, StateValue, Store } from '../store/MemoryStore';
 import { render } from './internals';
 import { useEffect } from './reactServer';
@@ -39,6 +40,7 @@ class RenderContext {
 }
 class Dispatcher {
   store: Store;
+  _pubsub: PubSub;
   _currentComponent: ReactServerComponent<unknown>[];
   _clientContext: RenderContext;
   _parentLookup: Map<string, ReactServerNode<unknown>>;
@@ -47,7 +49,6 @@ class Dispatcher {
     { tree: ReactServerComponent<unknown>; fn: (...args: unknown[]) => void }
   >;
   static _tree: ReactServerNode<unknown>;
-
   static _current: Dispatcher;
   static getCurrent: () => Dispatcher;
 
@@ -64,7 +65,9 @@ class Dispatcher {
       throw new Error('Dispatcher already initialized');
     }
   };
-
+  setPubSub = (pubsub: PubSub) => {
+    this._pubsub = pubsub;
+  };
   setClientContext = (context: Maybe<ClientRequest>) => {
     this._clientContext = new RenderContext(context);
   };

@@ -7,6 +7,7 @@ import {
   ReactServerComponent,
   ReactServerNode,
 } from './types';
+import { generateComponentPubSubKey } from './util';
 
 export const Lifecycle = <T,>(
   Component: (
@@ -90,7 +91,12 @@ export const render = <T,>(
     Dispatcher.getCurrent().setRootComponent(node);
   }
 
-  return { key, ...node };
+  const rendered = { key, ...node };
+  Dispatcher.getCurrent()._pubsub.publish(
+    generateComponentPubSubKey(tree),
+    rendered
+  );
+  return rendered;
 };
 
 type ServerSidePropsNode = {
