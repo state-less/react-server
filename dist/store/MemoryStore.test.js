@@ -14,7 +14,6 @@ describe('MemoryStore', function () {
       key: 'test',
       scope: 'root'
     });
-    console.log(store._states.has('test'), store.hasState('test'));
     expect(store.hasState('test')).toBeTruthy();
   });
   it('should automatically create a new state if it does not exist', function () {

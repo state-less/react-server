@@ -9,11 +9,16 @@ export type ReactServerNode<T> = {
   key: string;
 } & T;
 
+export interface IComponent<T> {
+  (
+    props: Record<string, any>,
+    options: { request: ClientRequest }
+  ): ReactServerNode<T>;
+}
 export type ReactServerComponent<T> = {
   props: Record<string, any>;
   key: string;
-  scope: string;
-  Component: (props: Record<string, any>) => ReactServerNode<T>;
+  Component: IComponent<T>;
 };
 
 export const isReactServerComponent = <T>(
@@ -36,6 +41,6 @@ export const isReactServerNode = <T>(
 
 export const isProvider = (
   node: unknown
-): node is ReactServerNode<{ context: Context<unknown> }> => {
+): node is ReactServerNode<{ context: { current: unknown } }> => {
   return node && typeof node === 'object' && 'context' in node && 'key' in node;
 };

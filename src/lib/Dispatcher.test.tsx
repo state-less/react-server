@@ -1,8 +1,16 @@
-import { store } from '../instances';
+import { PubSub } from 'graphql-subscriptions';
+import { Store } from '../store/MemoryStore';
 import Dispatcher, { createContext } from './Dispatcher';
 import { render } from './internals';
 import { useContext, useEffect, useState } from './reactServer';
 import { isReactServerNode } from './types';
+
+const store = new Store({
+  scope: 'global',
+});
+const pubSub = new PubSub();
+
+Dispatcher.getCurrent().setPubSub(pubSub);
 
 const effectMock = jest.fn();
 const MockComponent = () => {
@@ -32,7 +40,7 @@ const Provider = (props) => {
 };
 const ContextComponent = () => {
   const ctx = useContext(context);
-  console.log('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!', ctx);
+
   return {
     ctx,
   };
@@ -63,7 +71,7 @@ describe('Dispatcher', () => {
   });
 
   it('should be able to set/get a store', () => {
-    const mocked = { get: jest.fn(), set: jest.fn() } as Store;
+    const mocked = store;
     Dispatcher.getCurrent().setStore(mocked);
     expect(Dispatcher.getCurrent().getStore()).toBe(mocked);
     Dispatcher.getCurrent().setStore(store);
@@ -82,13 +90,13 @@ describe('Dispatcher', () => {
 
   it('should be able to use a state', () => {
     const component = <StateComponent />;
-    const node = render(component);
+    const node = render<{ value: number }>(component);
     expect(node.value).toBe(1);
   });
 
   it('should be able to set a state', () => {
     const component = <StateComponent />;
-    let node = render<{ value: number }>(component);
+    let node = render<{ value: number; setValue: (number) => void }>(component);
     expect(node.value).toBe(1);
     node.setValue(2);
     expect(node.value).toBe(1);
@@ -103,9 +111,8 @@ describe('Dispatcher', () => {
         <ContextComponent key="context" />
       </Provider>
     );
-    console.log('component', component);
-    const node = render(component);
-    console.log('node', node);
+
+    const node = render<any>(component);
 
     expect(node.children[0].ctx).toBe(1);
   });
@@ -118,9 +125,8 @@ describe('Dispatcher', () => {
         </Children>
       </Provider>
     );
-    console.log('component', component);
-    const node = render(component);
-    console.log('node', node);
+
+    const node = render<any>(component);
 
     expect(node.children[0].children[0].ctx).toBe(1);
   });

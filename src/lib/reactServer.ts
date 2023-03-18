@@ -1,4 +1,3 @@
-import { store } from '..';
 import { StateOptions, StateValue } from '../store/MemoryStore';
 import Dispatcher, { Context } from './Dispatcher';
 

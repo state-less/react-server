@@ -3,7 +3,8 @@
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
 var _typeof = require("@babel/runtime/helpers/typeof");
 var _slicedToArray2 = _interopRequireDefault(require("@babel/runtime/helpers/slicedToArray"));
-var _instances = require("../instances");
+var _graphqlSubscriptions = require("graphql-subscriptions");
+var _MemoryStore = require("../store/MemoryStore");
 var _Dispatcher = _interopRequireWildcard(require("./Dispatcher"));
 var _internals = require("./internals");
 var _reactServer = require("./reactServer");
@@ -11,6 +12,11 @@ var _types = require("./types");
 var _jsxRuntime = require("../jsxRenderer/jsx-runtime");
 function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function _getRequireWildcardCache(nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
 function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || _typeof(obj) !== "object" && typeof obj !== "function") { return { "default": obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj["default"] = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
+var store = new _MemoryStore.Store({
+  scope: 'global'
+});
+var pubSub = new _graphqlSubscriptions.PubSub();
+_Dispatcher["default"].getCurrent().setPubSub(pubSub);
 var effectMock = jest.fn();
 var MockComponent = function MockComponent() {
   (0, _reactServer.useEffect)(effectMock, []);
@@ -43,7 +49,6 @@ var Provider = function Provider(props) {
 };
 var ContextComponent = function ContextComponent() {
   var ctx = (0, _reactServer.useContext)(context);
-  console.log('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!', ctx);
   return {
     ctx: ctx
   };
@@ -75,13 +80,10 @@ describe('Dispatcher', function () {
     }).toThrow();
   });
   it('should be able to set/get a store', function () {
-    var mocked = {
-      get: jest.fn(),
-      set: jest.fn()
-    };
+    var mocked = store;
     _Dispatcher["default"].getCurrent().setStore(mocked);
     expect(_Dispatcher["default"].getCurrent().getStore()).toBe(mocked);
-    _Dispatcher["default"].getCurrent().setStore(_instances.store);
+    _Dispatcher["default"].getCurrent().setStore(store);
   });
   it('Should execute a useEffect on the Server', function () {
     var component = (0, _jsxRuntime.jsx)(MockComponent, {});
@@ -114,9 +116,7 @@ describe('Dispatcher', function () {
       value: 1,
       children: (0, _jsxRuntime.jsx)(ContextComponent, {}, "context")
     }, "provider");
-    console.log('component', component);
     var node = (0, _internals.render)(component);
-    console.log('node', node);
     expect(node.children[0].ctx).toBe(1);
   });
   it('should be able to use a context higher up the tree', function () {
@@ -126,9 +126,7 @@ describe('Dispatcher', function () {
         children: (0, _jsxRuntime.jsx)(ContextComponent, {}, "context")
       }, "children")
     }, "provider");
-    console.log('component', component);
     var node = (0, _internals.render)(component);
-    console.log('node', node);
     expect(node.children[0].children[0].ctx).toBe(1);
   });
   it('should return null if no provider is found', function () {

@@ -52,19 +52,16 @@ var render = function render(tree) {
     node = render(node, request, node);
   }
   var children = Array.isArray(props.children) ? props.children : [props.children].filter(Boolean);
-  console.log('Render children', children);
   var _iterator = _createForOfIteratorHelper(children),
     _step;
   try {
     for (_iterator.s(); !(_step = _iterator.n()).done;) {
       var child = _step.value;
-      console.log('Render child', child, children);
       if (!(0, _types.isReactServerComponent)(child)) continue;
       var childResult = null;
       do {
         _Dispatcher["default"].getCurrent().setParentNode((childResult || child).key, node);
         childResult = render(childResult || child, request, node);
-        console.log('Render parent', Component, childResult.key, node);
       } while ((0, _types.isReactServerComponent)(childResult));
       processedChildren.push(childResult);
     }
@@ -81,7 +78,6 @@ var render = function render(tree) {
         propName = _entry[0],
         propValue = _entry[1];
       if (typeof propValue === 'function') {
-        _Dispatcher["default"].getCurrent().addClientSideEffect(tree, propName, propValue);
         node.props[propName] = render((0, _jsxRuntime.jsx)(_Action.FunctionCall, {
           component: node.key,
           name: propName,
@@ -96,12 +92,7 @@ var render = function render(tree) {
   var rendered = _objectSpread({
     key: key
   }, node);
-  console.log('Publishing', (0, _util.generateComponentPubSubKey)(_objectSpread(_objectSpread({}, tree), {}, {
-    scope: 'global'
-  })));
-  _Dispatcher["default"].getCurrent()._pubsub.publish((0, _util.generateComponentPubSubKey)(_objectSpread(_objectSpread({}, tree), {}, {
-    scope: 'global'
-  })), {
+  _Dispatcher["default"].getCurrent()._pubsub.publish((0, _util.generateComponentPubSubKey)(tree), {
     updateComponent: {
       rendered: rendered
     }

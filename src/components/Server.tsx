@@ -1,5 +1,5 @@
 import { createContext } from '../lib/Dispatcher';
-import pckg from '../../package.json';
+import pckg from '../package.json';
 
 const context = createContext();
 

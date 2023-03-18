@@ -19,7 +19,6 @@ var createContext = function createContext() {
     context: context,
     Provider: function Provider(props) {
       (0, _reactServer.useEffect)(function () {
-        console.log('!!!!!!! PROVIDER');
         context.current = props.value;
       }, [props.value]);
       return {
@@ -47,12 +46,6 @@ var Dispatcher = /*#__PURE__*/function () {
     (0, _defineProperty2["default"])(this, "addCurrentComponent", function (component) {
       _this._currentComponent.push(component);
     });
-    (0, _defineProperty2["default"])(this, "addClientSideEffect", function (tree, propName, fn) {
-      _this._fnLookup.set(tree.key + '.' + propName, {
-        tree: tree,
-        propName: propName
-      });
-    });
     (0, _defineProperty2["default"])(this, "popCurrentComponent", function () {
       _this._currentComponent.pop();
     });
@@ -61,16 +54,12 @@ var Dispatcher = /*#__PURE__*/function () {
       if (!_currentComponent) {
         throw new Error('Nothing rendered yet');
       }
-      var parent = _currentComponent;
+      var parent = (0, _internals.render)(_currentComponent);
       do {
         parent = _this.getParentNode(parent.key);
-        console.log('USE CONTEXT', context, parent, _currentComponent.key);
         if ((0, _types.isProvider)(parent)) {
           if (parent.context === context.context) {
-            console.log('Same context, returning');
             return parent.context.current;
-          } else {
-            console.log('Different context, continuing');
           }
         }
       } while (parent);
@@ -78,7 +67,6 @@ var Dispatcher = /*#__PURE__*/function () {
     });
     this._currentComponent = [];
     this._parentLookup = new Map();
-    this._fnLookup = new Map();
   }
   (0, _createClass2["default"])(Dispatcher, [{
     key: "setStore",

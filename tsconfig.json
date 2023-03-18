@@ -1,14 +1,18 @@
 {
-    "compilerOptions": {
-      "target": "es2017",
-      "module": "commonjs",
-      "outDir": "dist",
-      "esModuleInterop": true,
-      "allowSyntheticDefaultImports": true,
-      "lib": ["es2017", "es2019.promise"],
-      "jsx": "preserve",
-      "resolveJsonModule": true
-    },
-    "include": ["src/**/*"],
-    "exclude": ["node_modules", "**/*.spec.ts"]
-  }
+  "compilerOptions": {
+    "outDir": "dist",
+    "moduleResolution": "node",
+    "target": "es2017",
+    "module": "commonjs",
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "lib": ["es2017"],
+    "jsx": "preserve",
+    "resolveJsonModule": true,
+    "declaration": true,
+    "emitDeclarationOnly": true
+  },
+  "include": ["src/**/*", "src/package.json"],
+  "exclude": ["node_modules", "**/*.spec.ts"],
+  "files": ["src/package.json"]
+}

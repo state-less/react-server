@@ -21,7 +21,6 @@ export const createContext = <T>(): Context<T> => {
     context,
     Provider: (props) => {
       useEffect(() => {
-        console.log('!!!!!!! PROVIDER');
         context.current = props.value;
       }, [props.value]);
       return {
@@ -44,10 +43,7 @@ class Dispatcher {
   _currentComponent: ReactServerComponent<unknown>[];
   _clientContext: RenderContext;
   _parentLookup: Map<string, ReactServerNode<unknown>>;
-  _fnLookup: Map<
-    string,
-    { tree: ReactServerComponent<unknown>; fn: (...args: unknown[]) => void }
-  >;
+
   static _tree: ReactServerNode<unknown>;
   static _current: Dispatcher;
   static getCurrent: () => Dispatcher;
@@ -55,7 +51,6 @@ class Dispatcher {
   constructor() {
     this._currentComponent = [];
     this._parentLookup = new Map();
-    this._fnLookup = new Map();
   }
 
   static init = () => {
@@ -93,29 +88,21 @@ class Dispatcher {
     this._currentComponent.push(component);
   };
 
-  addClientSideEffect = <T>(
-    tree: ReactServerComponent<T>,
-    propName: string,
-    fn: (...args: unknown[]) => void
-  ) => {
-    this._fnLookup.set(tree.key + '.' + propName, { tree, propName });
-  };
-
   popCurrentComponent = () => {
     this._currentComponent.pop();
   };
 
-  useState(
-    initialValue: StateValue,
+  useState<T>(
+    initialValue: StateValue<T>,
     options: StateOptions
-  ): [StateValue, (value: StateValue) => void] {
+  ): [StateValue<T>, (value: StateValue<T>) => void] {
     const _currentComponent = this._currentComponent.at(-1);
     const clientContext = this._clientContext;
     const state = this.store.getState(initialValue, options);
     const value = state.value;
     return [
       value,
-      (value: StateValue) => {
+      (value: StateValue<T>) => {
         state.value = value;
         render(_currentComponent, clientContext.request);
       },
@@ -139,16 +126,12 @@ class Dispatcher {
     if (!_currentComponent) {
       throw new Error('Nothing rendered yet');
     }
-    let parent = _currentComponent;
+    let parent = render(_currentComponent);
     do {
       parent = this.getParentNode(parent.key);
-      console.log('USE CONTEXT', context, parent, _currentComponent.key);
       if (isProvider(parent)) {
         if (parent.context === context.context) {
-          console.log('Same context, returning');
           return parent.context.current;
-        } else {
-          console.log('Different context, continuing');
         }
       }
     } while (parent);

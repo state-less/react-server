@@ -2,6 +2,7 @@ import { FunctionCall } from '../components/Action';
 import Dispatcher from './Dispatcher';
 import {
   ClientRequest,
+  IComponent,
   isReactServerComponent,
   Maybe,
   ReactServerComponent,
@@ -10,12 +11,7 @@ import {
 import { generateComponentPubSubKey } from './util';
 
 export const Lifecycle = <T,>(
-  Component: (
-    props: any,
-    options: {
-      request: Maybe<ClientRequest>;
-    }
-  ) => ReactServerNode<T>,
+  Component: IComponent<T>,
   props: Record<string, any>,
   { key, request }: { key: string; request: Maybe<ClientRequest> }
 ): ReactServerNode<T> => {
@@ -48,11 +44,8 @@ export const render = <T,>(
   const children = Array.isArray(props.children)
     ? props.children
     : [props.children].filter(Boolean);
-  console.log('Render children', children);
 
   for (const child of children) {
-    console.log('Render child', child, children);
-
     if (!isReactServerComponent(child)) continue;
 
     let childResult: ReactServerNode<T> | ReactServerComponent<unknown> = null;
@@ -63,7 +56,6 @@ export const render = <T,>(
         request,
         node
       );
-      console.log('Render parent', Component, childResult.key, node);
     } while (isReactServerComponent(childResult));
 
     processedChildren.push(childResult);
@@ -75,7 +67,6 @@ export const render = <T,>(
     for (const entry of Object.entries(node.props)) {
       const [propName, propValue] = entry;
       if (typeof propValue === 'function') {
-        Dispatcher.getCurrent().addClientSideEffect(tree, propName, propValue);
         node.props[propName] = render(
           <FunctionCall
             component={node.key}
@@ -93,16 +84,9 @@ export const render = <T,>(
   }
 
   const rendered = { key, ...node };
-  console.log(
-    'Publishing',
-    generateComponentPubSubKey({ ...tree, scope: 'global' })
-  );
-  Dispatcher.getCurrent()._pubsub.publish(
-    generateComponentPubSubKey({ ...tree, scope: 'global' }),
-    {
-      updateComponent: { rendered },
-    }
-  );
+  Dispatcher.getCurrent()._pubsub.publish(generateComponentPubSubKey(tree), {
+    updateComponent: { rendered },
+  });
   return rendered;
 };
 
