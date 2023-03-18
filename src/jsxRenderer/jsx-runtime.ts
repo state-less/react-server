@@ -1,6 +1,6 @@
 import { v4 } from 'uuid';
 import { globalInstance } from '../lib/reactServer';
-
+import * as React from 'react/jsx-runtime';
 export const jsxs = (Component, props, key = v4()) => {
   // const rendered = Lifecycle(Component, props, { key });
   globalInstance.components.set(key, {
@@ -18,6 +18,10 @@ export const jsx = (Component, props, key = v4()) => {
     Component,
     props,
   });
+
+  if (props.ssr) {
+    return React.jsx(Component, props);
+  }
   return { key, props, Component };
 };
 
