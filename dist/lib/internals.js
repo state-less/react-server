@@ -96,7 +96,9 @@ var render = function render(tree) {
   var rendered = _objectSpread({
     key: key
   }, node);
-  _Dispatcher["default"].getCurrent()._pubsub.publish((0, _util.generateComponentPubSubKey)(tree), rendered);
+  _Dispatcher["default"].getCurrent()._pubsub.publish((0, _util.generateComponentPubSubKey)(tree), {
+    updateComponent: rendered
+  });
   return rendered;
 };
 exports.render = render;
