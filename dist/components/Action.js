@@ -6,7 +6,8 @@ Object.defineProperty(exports, "__esModule", {
 exports.FunctionCall = void 0;
 var FunctionCall = function FunctionCall(props) {
   return {
-    args: [props.args]
+    args: [props.args],
+    fn: [props.fn]
   };
 };
 exports.FunctionCall = FunctionCall;

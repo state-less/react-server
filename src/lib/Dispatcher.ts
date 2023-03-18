@@ -95,7 +95,7 @@ class Dispatcher {
     propName: string,
     fn: (...args: unknown[]) => void
   ) => {
-    this._fnLookup.set(tree.key + '.' + propName, { tree, fn });
+    this._fnLookup.set(tree.key + '.' + propName, { tree, propName });
   };
 
   popCurrentComponent = () => {
