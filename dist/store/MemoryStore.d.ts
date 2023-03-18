@@ -1,8 +1,6 @@
 type PrimitiveValue = string | number;
-export type GenericStateValue = PrimitiveValue | Array<PrimitiveValue> | {
-    [key: string]: GenericStateValue;
-};
-export type StateValue<T = unknown> = T & GenericStateValue;
+export type GenericStateValue = PrimitiveValue | Array<PrimitiveValue>;
+export type StateValue<T = unknown> = T;
 export type StateOptions = {
     scope: string;
     key: string;
