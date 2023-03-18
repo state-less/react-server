@@ -14,5 +14,5 @@
   },
   "include": ["src/**/*", "src/package.json"],
   "exclude": ["node_modules", "**/*.spec.ts"],
-  "files": ["src/package.json"]
+  "files": ["src/_package.json"]
 }

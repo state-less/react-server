@@ -3,7 +3,7 @@
   "version": "2.0.1",
   "description": "The react-server library",
   "scripts": {
-    "build": "babel src --out-dir dist --extensions \".ts,.tsx\" --copy-files && tsc",
+    "build": "babel src --out-dir dist --extensions \".ts,.tsx\" --copy-files",
     "start": "yarn build && node dist/index.js",
     "test": "yarn jest --coverage"
   },

@@ -19,7 +19,6 @@ module.exports = {
         regenerator: true,
       },
     ],
-    '@babel/plugin-transform-typescript',
   ],
   ignore: ['**/node_modules/**'],
 };
