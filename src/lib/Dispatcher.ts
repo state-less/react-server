@@ -42,6 +42,10 @@ class Dispatcher {
   _currentComponent: ReactServerComponent<unknown>[];
   _clientContext: RenderContext;
   _parentLookup: Map<string, ReactServerNode<unknown>>;
+  _fnLookup: Map<
+    string,
+    { tree: ReactServerComponent<unknown>; fn: (...args: unknown[]) => void }
+  >;
   static _tree: ReactServerNode<unknown>;
 
   static _current: Dispatcher;
@@ -83,6 +87,14 @@ class Dispatcher {
 
   addCurrentComponent = (component: ReactServerComponent<unknown>) => {
     this._currentComponent.push(component);
+  };
+
+  addClientSideEffect = <T>(
+    tree: ReactServerComponent<T>,
+    propName: string,
+    fn: (...args: unknown[]) => void
+  ) => {
+    this._fnLookup.set(tree.key + '.' + propName, { tree, fn });
   };
 
   popCurrentComponent = () => {

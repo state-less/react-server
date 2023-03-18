@@ -5,9 +5,12 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.render = exports.Lifecycle = void 0;
+var _slicedToArray2 = _interopRequireDefault(require("@babel/runtime/helpers/slicedToArray"));
 var _defineProperty2 = _interopRequireDefault(require("@babel/runtime/helpers/defineProperty"));
+var _Action = require("../components/Action");
 var _Dispatcher = _interopRequireDefault(require("./Dispatcher"));
 var _types = require("./types");
+var _jsxRuntime = require("../jsxRenderer/jsx-runtime");
 function _createForOfIteratorHelper(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
 function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
 function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i]; return arr2; }
@@ -70,10 +73,16 @@ var render = function render(tree) {
     _iterator.f();
   }
   node.children = processedChildren;
-  if (node.__typename === 'ServerSideProps') {
-    for (var _i = 0, _Object$entries = Object.entries(node); _i < _Object$entries.length; _i++) {
+  if (isServerSideProps(node)) {
+    for (var _i = 0, _Object$entries = Object.entries(node.props); _i < _Object$entries.length; _i++) {
       var entry = _Object$entries[_i];
-      console.log('PROPS', entry);
+      var _entry = (0, _slicedToArray2["default"])(entry, 2),
+        propName = _entry[0],
+        propValue = _entry[1];
+      if (typeof propValue === 'function') {
+        _Dispatcher["default"].getCurrent().addClientSideEffect(tree, propName, propValue);
+        node.props[propName] = render((0, _jsxRuntime.jsx)(_Action.FunctionCall, {}, node.key + '.' + propName), request, node);
+      }
     }
   }
   if (parent === null) {
@@ -84,3 +93,6 @@ var render = function render(tree) {
   }, node);
 };
 exports.render = render;
+var isServerSideProps = function isServerSideProps(node) {
+  return node.__typename === 'ServerSideProps';
+};

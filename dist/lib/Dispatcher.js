@@ -44,6 +44,12 @@ var Dispatcher = /*#__PURE__*/function () {
     (0, _defineProperty2["default"])(this, "addCurrentComponent", function (component) {
       _this._currentComponent.push(component);
     });
+    (0, _defineProperty2["default"])(this, "addClientSideEffect", function (tree, propName, fn) {
+      _this._fnLookup.set(tree.key + '.' + propName, {
+        tree: tree,
+        fn: fn
+      });
+    });
     (0, _defineProperty2["default"])(this, "popCurrentComponent", function () {
       _this._currentComponent.pop();
     });
