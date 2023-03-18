@@ -93,7 +93,10 @@ export const render = <T,>(
   }
 
   const rendered = { key, ...node };
-  console.log ("Publishing RS", generateComponentPubSubKey({ ...tree, scope: 'global' })
+  console.log(
+    'Publishing',
+    generateComponentPubSubKey({ ...tree, scope: 'global' })
+  );
   Dispatcher.getCurrent()._pubsub.publish(
     generateComponentPubSubKey({ ...tree, scope: 'global' }),
     {
