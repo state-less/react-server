@@ -2,25 +2,27 @@ import { createId } from '../lib/util';
 
 type PrimitiveValue = string | number;
 
-export type StateValue =
+export type GenericStateValue =
   | PrimitiveValue
   | Array<PrimitiveValue>
-  | { [key: string]: StateValue };
+  | { [key: string]: GenericStateValue };
+
+export type StateValue<T = unknown> = T & GenericStateValue;
 
 export type StateOptions = {
   scope: string;
   key: string;
 };
 
-export class State {
+export class State<T> {
   id: string;
   key: string;
   scope: string;
-  value: StateValue;
+  value: StateValue<T>;
 
   _store: Store;
 
-  constructor(initialValue: StateValue, options: StateOptions) {
+  constructor(initialValue: StateValue<T>, options: StateOptions) {
     this.id = createId(options.scope);
     this.key = options.key;
     this.scope = options.scope;
@@ -33,7 +35,7 @@ export type StoreOptions = {
 };
 
 export class Store {
-  _states: Map<string, State>;
+  _states: Map<string, State<any>>;
   _stores: Map<string, Store>;
   _options: StoreOptions;
 
@@ -42,7 +44,7 @@ export class Store {
     this._options = options;
   }
 
-  createState(value: StateValue, options?: StateOptions) {
+  createState<T>(value: StateValue<T>, options?: StateOptions) {
     const state = new State(value, { ...options });
 
     state._store = this;
@@ -55,9 +57,9 @@ export class Store {
     return this._states.has(key);
   }
 
-  getState(initialValue: StateValue, options: StateOptions) {
+  getState<T>(initialValue: StateValue<T>, options: StateOptions) {
     const { key } = options;
-    if (!this.hasState(key)) return this.createState(initialValue, options);
+    if (!this.hasState(key)) return this.createState<T>(initialValue, options);
 
     return this._states.get(key);
   }

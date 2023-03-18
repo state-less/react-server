@@ -75,6 +75,18 @@ Object.keys(_util).forEach(function (key) {
     }
   });
 });
+var _reactServer = require("./lib/reactServer");
+Object.keys(_reactServer).forEach(function (key) {
+  if (key === "default" || key === "__esModule") return;
+  if (Object.prototype.hasOwnProperty.call(_exportNames, key)) return;
+  if (key in exports && exports[key] === _reactServer[key]) return;
+  Object.defineProperty(exports, key, {
+    enumerable: true,
+    get: function get() {
+      return _reactServer[key];
+    }
+  });
+});
 var _internals = require("./lib/internals");
 var _Dispatcher = _interopRequireWildcard(require("./lib/Dispatcher"));
 function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function _getRequireWildcardCache(nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
