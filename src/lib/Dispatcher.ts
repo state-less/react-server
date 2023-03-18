@@ -54,6 +54,7 @@ class Dispatcher {
   constructor() {
     this._currentComponent = [];
     this._parentLookup = new Map();
+    this._fnLookup = new Map();
   }
 
   static init = () => {

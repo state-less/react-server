@@ -75,6 +75,7 @@ var Dispatcher = /*#__PURE__*/function () {
     });
     this._currentComponent = [];
     this._parentLookup = new Map();
+    this._fnLookup = new Map();
   }
   (0, _createClass2["default"])(Dispatcher, [{
     key: "setStore",
