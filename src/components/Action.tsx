@@ -1,6 +1,6 @@
 export const FunctionCall = (props) => {
   return {
     args: [props.args],
-    fn: [props.fn],
+    fn: props.fn,
   };
 };
