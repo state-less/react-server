@@ -100,7 +100,7 @@ export const render = <T,>(
   Dispatcher.getCurrent()._pubsub.publish(
     generateComponentPubSubKey({ ...tree, scope: 'global' }),
     {
-      updateComponent: rendered,
+      updateComponent: { rendered },
     }
   );
   return rendered;

@@ -102,7 +102,9 @@ var render = function render(tree) {
   _Dispatcher["default"].getCurrent()._pubsub.publish((0, _util.generateComponentPubSubKey)(_objectSpread(_objectSpread({}, tree), {}, {
     scope: 'global'
   })), {
-    updateComponent: rendered
+    updateComponent: {
+      rendered: rendered
+    }
   });
   return rendered;
 };
