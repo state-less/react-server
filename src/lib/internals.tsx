@@ -93,9 +93,12 @@ export const render = <T,>(
   }
 
   const rendered = { key, ...node };
-  Dispatcher.getCurrent()._pubsub.publish(generateComponentPubSubKey(tree), {
-    updateComponent: rendered,
-  });
+  Dispatcher.getCurrent()._pubsub.publish(
+    generateComponentPubSubKey({ ...tree, scope: 'global' }),
+    {
+      updateComponent: rendered,
+    }
+  );
   return rendered;
 };
 
