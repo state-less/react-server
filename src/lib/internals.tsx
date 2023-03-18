@@ -78,7 +78,8 @@ export const render = <T,>(
         Dispatcher.getCurrent().addClientSideEffect(tree, propName, propValue);
         node.props[propName] = render(
           <FunctionCall
-            key={node.key + '.' + propName}
+            component={node.key}
+            name={propName}
             fn={node.props[propName]}
           />,
           request,

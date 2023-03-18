@@ -83,8 +83,10 @@ var render = function render(tree) {
       if (typeof propValue === 'function') {
         _Dispatcher["default"].getCurrent().addClientSideEffect(tree, propName, propValue);
         node.props[propName] = render((0, _jsxRuntime.jsx)(_Action.FunctionCall, {
+          component: node.key,
+          name: propName,
           fn: node.props[propName]
-        }, node.key + '.' + propName), request, node);
+        }), request, node);
       }
     }
   }
