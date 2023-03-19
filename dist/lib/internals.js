@@ -42,7 +42,7 @@ var render = function render(tree) {
   var Component = tree.Component,
     key = tree.key,
     props = tree.props;
-  console.log('Render', Component, props);
+  console.log('Render', Component, request);
   var processedChildren = [];
   var node = Lifecycle(Component, props, {
     key: key,

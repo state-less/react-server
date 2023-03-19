@@ -33,7 +33,7 @@ export const render = <T,>(
   parent: ReactServerNode<unknown> | null = null
 ): ReactServerNode<T> => {
   const { Component, key, props } = tree;
-  console.log('Render', Component, props);
+  console.log('Render', Component, request);
 
   const processedChildren = [];
 
