@@ -29,6 +29,7 @@ var Store = /*#__PURE__*/function () {
       return _this._scopes.get(scope);
     });
     this._states = new Map();
+    this._scopes = new Map();
     this._options = options;
   }
   (0, _createClass2["default"])(Store, [{

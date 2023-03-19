@@ -14,7 +14,10 @@ describe('MemoryStore', function () {
       key: 'test',
       scope: 'root'
     });
-    expect(store.hasState('test')).toBeTruthy();
+    expect(store.hasState(_MemoryStore.Store.getKey({
+      key: 'test',
+      scope: 'root'
+    }))).toBeTruthy();
   });
   it('should automatically create a new state if it does not exist', function () {
     var state = store.getState('testasd', {

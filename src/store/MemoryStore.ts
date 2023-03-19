@@ -44,6 +44,7 @@ export class Store {
 
   constructor(options: StoreOptions) {
     this._states = new Map();
+    this._scopes = new Map();
     this._options = options;
   }
 

@@ -54,7 +54,7 @@ var Dispatcher = /*#__PURE__*/function () {
       if (!_currentComponent) {
         throw new Error('Nothing rendered yet');
       }
-      var parent = (0, _internals.render)(_currentComponent);
+      var parent = _currentComponent;
       do {
         parent = _this.getParentNode(parent.key);
         if ((0, _types.isProvider)(parent)) {

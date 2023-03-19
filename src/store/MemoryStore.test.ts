@@ -9,7 +9,9 @@ describe('MemoryStore', () => {
 
   it('should be able to create a new state', () => {
     store.createState(null, { key: 'test', scope: 'root' });
-    expect(store.hasState('test')).toBeTruthy();
+    expect(
+      store.hasState(Store.getKey({ key: 'test', scope: 'root' }))
+    ).toBeTruthy();
   });
 
   it('should automatically create a new state if it does not exist', () => {

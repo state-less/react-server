@@ -98,8 +98,8 @@ class Dispatcher {
   ): [StateValue<T>, (value: StateValue<T>) => void] {
     const _currentComponent = this._currentComponent.at(-1);
     const clientContext = this._clientContext;
-    const state = this.store.getState(initialValue, options);
-    const value = state.value;
+    const state = this.store.getState<T>(initialValue, options);
+    const value = state.value as T;
     return [
       value,
       (value: StateValue<T>) => {
@@ -126,7 +126,8 @@ class Dispatcher {
     if (!_currentComponent) {
       throw new Error('Nothing rendered yet');
     }
-    let parent = render(_currentComponent);
+    let parent: ReactServerComponent<any> | ReactServerNode<any> =
+      _currentComponent;
     do {
       parent = this.getParentNode(parent.key);
       if (isProvider(parent)) {
