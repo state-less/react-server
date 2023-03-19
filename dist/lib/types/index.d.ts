@@ -1,5 +1,7 @@
 export type Maybe<T> = T | null;
-export type ClientRequest = {};
+export type ClientContext = {
+    headers: Record<string, string>;
+};
 export type ReactServerNode<T> = {
     __typename: string;
     children: Array<ReactServerNode<unknown>>;
@@ -7,7 +9,7 @@ export type ReactServerNode<T> = {
 } & T;
 export interface IComponent<T> {
     (props: Record<string, any>, options: {
-        request: ClientRequest;
+        request: ClientContext;
     }): ReactServerNode<T>;
 }
 export type ReactServerComponent<T> = {

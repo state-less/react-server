@@ -84,7 +84,7 @@ describe('Dispatcher', () => {
   });
   it('Should not execute a useEffect on the Server', () => {
     const component = <MockComponent />;
-    render(component, { skipEffects: true });
+    render(component);
     expect(effectMock).toBeCalledTimes(1);
   });
 

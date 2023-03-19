@@ -1,7 +1,7 @@
 import { FunctionCall } from '../components/Action';
 import Dispatcher from './Dispatcher';
 import {
-  ClientRequest,
+  ClientContext,
   IComponent,
   isReactServerComponent,
   Maybe,
@@ -13,7 +13,7 @@ import { generateComponentPubSubKey } from './util';
 export const Lifecycle = <T,>(
   Component: IComponent<T>,
   props: Record<string, any>,
-  { key, request }: { key: string; request: Maybe<ClientRequest> }
+  { key, request }: { key: string; request: Maybe<ClientContext> }
 ): ReactServerNode<T> => {
   Dispatcher.getCurrent().addCurrentComponent({ Component, props, key });
   Dispatcher.getCurrent().setClientContext(request);
@@ -29,7 +29,7 @@ export const Lifecycle = <T,>(
 
 export const render = <T,>(
   tree: ReactServerComponent<T>,
-  request: Maybe<ClientRequest> = null,
+  request: Maybe<ClientContext> = null,
   parent: ReactServerNode<unknown> | null = null
 ): ReactServerNode<T> => {
   const { Component, key, props } = tree;

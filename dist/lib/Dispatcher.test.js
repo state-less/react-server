@@ -92,9 +92,7 @@ describe('Dispatcher', function () {
   });
   it('Should not execute a useEffect on the Server', function () {
     var component = (0, _jsxRuntime.jsx)(MockComponent, {});
-    (0, _internals.render)(component, {
-      skipEffects: true
-    });
+    (0, _internals.render)(component);
     expect(effectMock).toBeCalledTimes(1);
   });
   it('should be able to use a state', function () {

@@ -2,8 +2,9 @@ import { PubSub } from 'graphql-subscriptions';
 import { StateOptions, StateValue, Store } from '../store/MemoryStore';
 import { render } from './internals';
 import { useEffect } from './reactServer';
+import { Scopes } from './scopes';
 import { isProvider, ReactServerComponent, ReactServerNode } from './types';
-import { ClientRequest, Maybe } from './types';
+import { ClientContext, Maybe } from './types';
 
 type ProviderComponent = {
   context: unknown;
@@ -32,8 +33,8 @@ export const createContext = <T>(): Context<T> => {
 };
 
 class RenderContext {
-  request: ClientRequest;
-  constructor(request: ClientRequest) {
+  request: ClientContext;
+  constructor(request: ClientContext) {
     this.request = request;
   }
 }
@@ -63,7 +64,7 @@ class Dispatcher {
   setPubSub = (pubsub: PubSub) => {
     this._pubsub = pubsub;
   };
-  setClientContext = (context: Maybe<ClientRequest>) => {
+  setClientContext = (context: Maybe<ClientContext>) => {
     this._clientContext = new RenderContext(context);
   };
 
@@ -98,7 +99,12 @@ class Dispatcher {
   ): [StateValue<T>, (value: StateValue<T>) => void] {
     const _currentComponent = this._currentComponent.at(-1);
     const clientContext = this._clientContext;
-    const state = this.store.getState<T>(initialValue, options);
+    console.log('clientContext.request: ', clientContext.request);
+    const scope =
+      options.scope === Scopes.Client
+        ? clientContext.request.headers['x-unique-id']
+        : options.scope;
+    const state = this.store.getState<T>(initialValue, { ...options, scope });
     const value = state.value as T;
     return [
       value,

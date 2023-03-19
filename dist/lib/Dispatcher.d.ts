@@ -1,7 +1,7 @@
 import { PubSub } from 'graphql-subscriptions';
 import { StateOptions, StateValue, Store } from '../store/MemoryStore';
 import { ReactServerComponent, ReactServerNode } from './types';
-import { ClientRequest, Maybe } from './types';
+import { ClientContext, Maybe } from './types';
 type ProviderComponent = {
     context: unknown;
     children: ReactServerNode<unknown>;
@@ -14,8 +14,8 @@ export type Context<C> = {
 };
 export declare const createContext: <T>() => Context<T>;
 declare class RenderContext {
-    request: ClientRequest;
-    constructor(request: ClientRequest);
+    request: ClientContext;
+    constructor(request: ClientContext);
 }
 declare class Dispatcher {
     store: Store;
@@ -29,7 +29,7 @@ declare class Dispatcher {
     constructor();
     static init: () => void;
     setPubSub: (pubsub: PubSub) => void;
-    setClientContext: (context: Maybe<ClientRequest>) => void;
+    setClientContext: (context: Maybe<ClientContext>) => void;
     setStore(store: Store): void;
     setRootComponent(component: ReactServerNode<unknown>): void;
     setParentNode(key: string, component: ReactServerNode<unknown>): void;

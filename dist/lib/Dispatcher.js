@@ -10,7 +10,10 @@ var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/creat
 var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
 var _internals = require("./internals");
 var _reactServer = require("./reactServer");
+var _scopes = require("./scopes");
 var _types = require("./types");
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { (0, _defineProperty2["default"])(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 var createContext = function createContext() {
   var context = {
     current: null
@@ -98,7 +101,11 @@ var Dispatcher = /*#__PURE__*/function () {
     value: function useState(initialValue, options) {
       var _currentComponent = this._currentComponent.at(-1);
       var clientContext = this._clientContext;
-      var state = this.store.getState(initialValue, options);
+      console.log('clientContext.request: ', clientContext.request);
+      var scope = options.scope === _scopes.Scopes.Client ? clientContext.request.headers['x-unique-id'] : options.scope;
+      var state = this.store.getState(initialValue, _objectSpread(_objectSpread({}, options), {}, {
+        scope: scope
+      }));
       var value = state.value;
       return [value, function (value) {
         state.value = value;
