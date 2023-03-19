@@ -102,7 +102,7 @@ class Dispatcher {
     console.log('clientContext.request: ', clientContext.request);
     const scope =
       options.scope === Scopes.Client
-        ? clientContext.request.headers['x-unique-id']
+        ? clientContext?.request?.headers['x-unique-id'] || 'server'
         : options.scope;
     const state = this.store.getState<T>(initialValue, { ...options, scope });
     const value = state.value as T;

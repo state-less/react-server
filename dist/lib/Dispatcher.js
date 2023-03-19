@@ -99,10 +99,11 @@ var Dispatcher = /*#__PURE__*/function () {
   }, {
     key: "useState",
     value: function useState(initialValue, options) {
+      var _clientContext$reques;
       var _currentComponent = this._currentComponent.at(-1);
       var clientContext = this._clientContext;
       console.log('clientContext.request: ', clientContext.request);
-      var scope = options.scope === _scopes.Scopes.Client ? clientContext.request.headers['x-unique-id'] : options.scope;
+      var scope = options.scope === _scopes.Scopes.Client ? (clientContext === null || clientContext === void 0 ? void 0 : (_clientContext$reques = clientContext.request) === null || _clientContext$reques === void 0 ? void 0 : _clientContext$reques.headers['x-unique-id']) || 'server' : options.scope;
       var state = this.store.getState(initialValue, _objectSpread(_objectSpread({}, options), {}, {
         scope: scope
       }));
