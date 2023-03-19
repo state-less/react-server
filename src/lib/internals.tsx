@@ -4,6 +4,7 @@ import {
   ClientContext,
   IComponent,
   isReactServerComponent,
+  isReactServerNode,
   Maybe,
   ReactServerComponent,
   ReactServerNode,
@@ -41,12 +42,17 @@ export const render = <T,>(
   if (isReactServerComponent(node)) {
     node = render(node as unknown as ReactServerComponent<T>, request, node);
   }
-  const children = Array.isArray(props.children)
-    ? props.children
-    : [props.children].filter(Boolean);
+  const children = Array.isArray(node.children)
+    ? node.children
+    : [node.children].filter(Boolean);
 
   for (const child of children) {
-    if (!isReactServerComponent(child)) continue;
+    if (!isReactServerComponent(child)) {
+      if (isReactServerNode(child)) {
+        processedChildren.push(child);
+      }
+      continue;
+    }
 
     let childResult: ReactServerNode<T> | ReactServerComponent<unknown> = null;
     do {

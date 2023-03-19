@@ -45,7 +45,13 @@ var Store = /*#__PURE__*/function () {
   }, {
     key: "hasState",
     value: function hasState(key) {
-      return this._states.has(key);
+      if (typeof key === 'string') {
+        return this._states.has(key);
+      } else if ((0, _util.isStateOptions)(key)) {
+        return this._states.has(Store.getKey(key));
+      } else {
+        return false;
+      }
     }
   }, {
     key: "getState",

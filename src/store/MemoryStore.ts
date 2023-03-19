@@ -1,4 +1,4 @@
-import { createId } from '../lib/util';
+import { createId, isStateOptions } from '../lib/util';
 
 type PrimitiveValue = string | number;
 
@@ -28,14 +28,11 @@ export class State<T> {
   }
 }
 
-export type StoreOptions = {
-  scope: string;
-};
+export type StoreOptions = {};
 
 export class Store {
   _scopes: Map<string, Map<string, State<unknown>>>;
   _states: Map<string, State<any>>;
-  _stores: Map<string, Store>;
   _options: StoreOptions;
 
   static getKey = (options: StateOptions) => {
@@ -64,8 +61,14 @@ export class Store {
     return state;
   }
 
-  hasState(key: string) {
-    return this._states.has(key);
+  hasState(key: string | StateOptions) {
+    if (typeof key === 'string') {
+      return this._states.has(key);
+    } else if (isStateOptions(key)) {
+      return this._states.has(Store.getKey(key));
+    } else {
+      return false;
+    }
   }
 
   getState<T>(initialValue: StateValue<T>, options: StateOptions): State<T> {

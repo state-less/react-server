@@ -51,13 +51,18 @@ var render = function render(tree) {
   if ((0, _types.isReactServerComponent)(node)) {
     node = render(node, request, node);
   }
-  var children = Array.isArray(props.children) ? props.children : [props.children].filter(Boolean);
+  var children = Array.isArray(node.children) ? node.children : [node.children].filter(Boolean);
   var _iterator = _createForOfIteratorHelper(children),
     _step;
   try {
     for (_iterator.s(); !(_step = _iterator.n()).done;) {
       var child = _step.value;
-      if (!(0, _types.isReactServerComponent)(child)) continue;
+      if (!(0, _types.isReactServerComponent)(child)) {
+        if ((0, _types.isReactServerNode)(child)) {
+          processedChildren.push(child);
+        }
+        continue;
+      }
       var childResult = null;
       do {
         _Dispatcher["default"].getCurrent().setParentNode((childResult || child).key, node);

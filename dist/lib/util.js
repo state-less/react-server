@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.generateComponentPubSubKey = exports.createId = void 0;
+exports.isStateOptions = exports.generateComponentPubSubKey = exports.createId = void 0;
 var _uuid = require("uuid");
 var createId = function createId(debugHint) {
   return (0, _uuid.v4)();
@@ -13,3 +13,7 @@ var generateComponentPubSubKey = function generateComponentPubSubKey(component) 
   return "component::".concat(component.key);
 };
 exports.generateComponentPubSubKey = generateComponentPubSubKey;
+var isStateOptions = function isStateOptions(options) {
+  return options && options.scope && options.key;
+};
+exports.isStateOptions = isStateOptions;
