@@ -33,21 +33,33 @@ export type StoreOptions = {
 };
 
 export class Store {
+  _scopes: Map<string, Map<string, State<unknown>>>;
   _states: Map<string, State<any>>;
   _stores: Map<string, Store>;
   _options: StoreOptions;
+
+  static getKey = (options: StateOptions) => {
+    return `${options.scope}:${options.key}`;
+  };
 
   constructor(options: StoreOptions) {
     this._states = new Map();
     this._options = options;
   }
 
+  getScope = (scope: string) => {
+    if (this._scopes.has(scope)) return this._scopes.get(scope);
+    this._scopes.set(scope, new Map());
+    return this._scopes.get(scope);
+  };
   createState<T>(value: StateValue<T>, options?: StateOptions) {
     const state = new State(value, { ...options });
-
     state._store = this;
-    this._states.set(options.key, state);
 
+    const states = this.getScope(options.scope);
+    states.set(options.key, state);
+
+    this._states.set(Store.getKey(options), state);
     return state;
   }
 
@@ -55,10 +67,11 @@ export class Store {
     return this._states.has(key);
   }
 
-  getState<T>(initialValue: StateValue<T>, options: StateOptions) {
+  getState<T>(initialValue: StateValue<T>, options: StateOptions): State<T> {
     const { key } = options;
-    if (!this.hasState(key)) return this.createState<T>(initialValue, options);
+    if (!this.hasState(Store.getKey(options)))
+      return this.createState<T>(initialValue, options);
 
-    return this._states.get(key);
+    return this._states.get(Store.getKey(options));
   }
 }

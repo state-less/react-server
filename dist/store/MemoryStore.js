@@ -21,7 +21,13 @@ var State = /*#__PURE__*/(0, _createClass2["default"])(function State(initialVal
 exports.State = State;
 var Store = /*#__PURE__*/function () {
   function Store(options) {
+    var _this = this;
     (0, _classCallCheck2["default"])(this, Store);
+    (0, _defineProperty2["default"])(this, "getScope", function (scope) {
+      if (_this._scopes.has(scope)) return _this._scopes.get(scope);
+      _this._scopes.set(scope, new Map());
+      return _this._scopes.get(scope);
+    });
     this._states = new Map();
     this._options = options;
   }
@@ -30,7 +36,9 @@ var Store = /*#__PURE__*/function () {
     value: function createState(value, options) {
       var state = new State(value, _objectSpread({}, options));
       state._store = this;
-      this._states.set(options.key, state);
+      var states = this.getScope(options.scope);
+      states.set(options.key, state);
+      this._states.set(Store.getKey(options), state);
       return state;
     }
   }, {
@@ -42,10 +50,13 @@ var Store = /*#__PURE__*/function () {
     key: "getState",
     value: function getState(initialValue, options) {
       var key = options.key;
-      if (!this.hasState(key)) return this.createState(initialValue, options);
-      return this._states.get(key);
+      if (!this.hasState(Store.getKey(options))) return this.createState(initialValue, options);
+      return this._states.get(Store.getKey(options));
     }
   }]);
   return Store;
 }();
 exports.Store = Store;
+(0, _defineProperty2["default"])(Store, "getKey", function (options) {
+  return "".concat(options.scope, ":").concat(options.key);
+});
