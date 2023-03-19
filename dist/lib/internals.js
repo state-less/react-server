@@ -19,15 +19,20 @@ function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (O
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { (0, _defineProperty2["default"])(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 var Lifecycle = function Lifecycle(Component, props, _ref) {
   var key = _ref.key,
-    request = _ref.request;
+    context = _ref.context,
+    clientProps = _ref.clientProps;
   _Dispatcher["default"].getCurrent().addCurrentComponent({
     Component: Component,
     props: props,
     key: key
   });
-  _Dispatcher["default"].getCurrent().setClientContext(request);
+  _Dispatcher["default"].getCurrent().setClientContext({
+    context: context,
+    clientProps: clientProps
+  });
   var rendered = Component(_objectSpread({}, props), {
-    request: request
+    context: context,
+    clientProps: clientProps
   });
   _Dispatcher["default"].getCurrent().popCurrentComponent();
   return _objectSpread({
@@ -37,19 +42,20 @@ var Lifecycle = function Lifecycle(Component, props, _ref) {
 };
 exports.Lifecycle = Lifecycle;
 var render = function render(tree) {
-  var request = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+  var context = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {
+    clientProps: null,
+    context: null
+  };
   var parent = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
   var Component = tree.Component,
     key = tree.key,
     props = tree.props;
-  console.log('Render', Component, request);
   var processedChildren = [];
-  var node = Lifecycle(Component, props, {
-    key: key,
-    request: request
-  });
+  var node = Lifecycle(Component, props, _objectSpread({
+    key: key
+  }, context));
   if ((0, _types.isReactServerComponent)(node)) {
-    node = render(node, request, node);
+    node = render(node, context, node);
   }
   var children = Array.isArray(node.children) ? node.children : [node.children].filter(Boolean);
   var _iterator = _createForOfIteratorHelper(children),
@@ -66,7 +72,7 @@ var render = function render(tree) {
       var childResult = null;
       do {
         _Dispatcher["default"].getCurrent().setParentNode((childResult || child).key, node);
-        childResult = render(childResult || child, request, node);
+        childResult = render(childResult || child, context, node);
       } while ((0, _types.isReactServerComponent)(childResult));
       processedChildren.push(childResult);
     }
@@ -87,7 +93,7 @@ var render = function render(tree) {
           component: node.key,
           name: propName,
           fn: node.props[propName]
-        }), request, node);
+        }), context, node);
       }
     }
   }

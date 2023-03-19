@@ -67,7 +67,7 @@ describe('Dispatcher', function () {
     expect((0, _types.isReactServerNode)(provider));
   });
   it('should be able to render a Provider', function () {
-    var node = (0, _internals.render)(provider);
+    var node = (0, _internals.render)(provider, null);
     expect(node).toBeDefined();
   });
   it('should create a Dispatcher', function () {

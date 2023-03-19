@@ -2,15 +2,17 @@ export type Maybe<T> = T | null;
 export type ClientContext = {
     headers: Record<string, string>;
 };
+export type RenderContext = {
+    context: Maybe<ClientContext>;
+    clientProps: Maybe<Record<string, any>>;
+};
 export type ReactServerNode<T> = {
     __typename: string;
     children: Array<ReactServerNode<unknown>>;
     key: string;
 } & T;
 export interface IComponent<T> {
-    (props: Record<string, any>, options: {
-        request: ClientContext;
-    }): ReactServerNode<T>;
+    (props: Record<string, any>, options: RenderContext): ReactServerNode<T>;
 }
 export type ReactServerComponent<T> = {
     props: Record<string, any>;

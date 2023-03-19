@@ -8,17 +8,21 @@ import {
   Maybe,
   ReactServerComponent,
   ReactServerNode,
+  RenderContext,
 } from './types';
 import { generateComponentPubSubKey } from './util';
 
 export const Lifecycle = <T,>(
   Component: IComponent<T>,
   props: Record<string, any>,
-  { key, request }: { key: string; request: Maybe<ClientContext> }
+  { key, context, clientProps }: RenderContext & { key: string }
 ): ReactServerNode<T> => {
   Dispatcher.getCurrent().addCurrentComponent({ Component, props, key });
-  Dispatcher.getCurrent().setClientContext(request);
-  const rendered = Component({ ...props }, { request });
+  Dispatcher.getCurrent().setClientContext({
+    context,
+    clientProps,
+  });
+  const rendered = Component({ ...props }, { context, clientProps });
   Dispatcher.getCurrent().popCurrentComponent();
 
   return {
@@ -30,17 +34,16 @@ export const Lifecycle = <T,>(
 
 export const render = <T,>(
   tree: ReactServerComponent<T>,
-  request: Maybe<ClientContext> = null,
+  context: RenderContext = { clientProps: null, context: null },
   parent: ReactServerNode<unknown> | null = null
 ): ReactServerNode<T> => {
   const { Component, key, props } = tree;
-  console.log('Render', Component, request);
 
   const processedChildren = [];
 
-  let node = Lifecycle(Component, props, { key, request });
+  let node = Lifecycle(Component, props, { key, ...context });
   if (isReactServerComponent(node)) {
-    node = render(node as unknown as ReactServerComponent<T>, request, node);
+    node = render(node as unknown as ReactServerComponent<T>, context, node);
   }
   const children = Array.isArray(node.children)
     ? node.children
@@ -59,7 +62,7 @@ export const render = <T,>(
       Dispatcher.getCurrent().setParentNode((childResult || child).key, node);
       childResult = render(
         (childResult || child) as ReactServerComponent<T>,
-        request,
+        context,
         node
       );
     } while (isReactServerComponent(childResult));
@@ -79,7 +82,7 @@ export const render = <T,>(
             name={propName}
             fn={node.props[propName]}
           />,
-          request,
+          context,
           node
         );
       }

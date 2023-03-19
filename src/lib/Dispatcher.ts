@@ -3,7 +3,12 @@ import { StateOptions, StateValue, Store } from '../store/MemoryStore';
 import { render } from './internals';
 import { useEffect } from './reactServer';
 import { Scopes } from './scopes';
-import { isProvider, ReactServerComponent, ReactServerNode } from './types';
+import {
+  isProvider,
+  ReactServerComponent,
+  ReactServerNode,
+  RenderContext,
+} from './types';
 import { ClientContext, Maybe } from './types';
 
 type ProviderComponent = {
@@ -31,18 +36,11 @@ export const createContext = <T>(): Context<T> => {
     },
   };
 };
-
-class RenderContext {
-  request: ClientContext;
-  constructor(request: ClientContext) {
-    this.request = request;
-  }
-}
 class Dispatcher {
   store: Store;
   _pubsub: PubSub;
   _currentComponent: ReactServerComponent<unknown>[];
-  _clientContext: RenderContext;
+  _renderContext: RenderContext;
   _parentLookup: Map<string, ReactServerNode<unknown>>;
 
   static _tree: ReactServerNode<unknown>;
@@ -64,8 +62,8 @@ class Dispatcher {
   setPubSub = (pubsub: PubSub) => {
     this._pubsub = pubsub;
   };
-  setClientContext = (context: Maybe<ClientContext>) => {
-    this._clientContext = new RenderContext(context);
+  setClientContext = (context: RenderContext) => {
+    this._renderContext = context;
   };
 
   setStore(store: Store) {
@@ -98,11 +96,10 @@ class Dispatcher {
     options: StateOptions
   ): [StateValue<T>, (value: StateValue<T>) => void] {
     const _currentComponent = this._currentComponent.at(-1);
-    const clientContext = this._clientContext;
-    console.log('clientContext.request: ', clientContext.request);
+    const renderContext = this._renderContext;
     const scope =
       options.scope === Scopes.Client
-        ? clientContext?.request?.headers['x-unique-id'] || 'server'
+        ? renderContext?.context?.headers['x-unique-id'] || 'server'
         : options.scope;
     const state = this.store.getState<T>(initialValue, { ...options, scope });
     const value = state.value as T;
@@ -110,7 +107,7 @@ class Dispatcher {
       value,
       (value: StateValue<T>) => {
         state.value = value;
-        render(_currentComponent, clientContext.request);
+        render(_currentComponent, renderContext);
       },
     ];
   }
@@ -119,8 +116,10 @@ class Dispatcher {
     fn: () => void,
     deps: Array<any>
   ): [StateValue, (value: StateValue) => void] {
-    const clientContext = this._clientContext;
-    if (clientContext.request !== null) {
+    const clientContext = this._renderContext;
+
+    // Don't run during client side rendering
+    if (clientContext.context !== null) {
       return;
     }
 

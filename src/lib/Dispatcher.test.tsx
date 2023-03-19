@@ -58,7 +58,7 @@ describe('Dispatcher', () => {
     expect(isReactServerNode(provider));
   });
   it('should be able to render a Provider', () => {
-    const node = render(provider);
+    const node = render(provider, null);
     expect(node).toBeDefined();
   });
 

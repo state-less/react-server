@@ -5,9 +5,9 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports["default"] = exports.createContext = void 0;
-var _defineProperty2 = _interopRequireDefault(require("@babel/runtime/helpers/defineProperty"));
-var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
 var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
+var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
+var _defineProperty2 = _interopRequireDefault(require("@babel/runtime/helpers/defineProperty"));
 var _internals = require("./internals");
 var _reactServer = require("./reactServer");
 var _scopes = require("./scopes");
@@ -32,10 +32,6 @@ var createContext = function createContext() {
   };
 };
 exports.createContext = createContext;
-var RenderContext = /*#__PURE__*/(0, _createClass2["default"])(function RenderContext(request) {
-  (0, _classCallCheck2["default"])(this, RenderContext);
-  this.request = request;
-});
 var Dispatcher = /*#__PURE__*/function () {
   function Dispatcher() {
     var _this = this;
@@ -44,7 +40,7 @@ var Dispatcher = /*#__PURE__*/function () {
       _this._pubsub = pubsub;
     });
     (0, _defineProperty2["default"])(this, "setClientContext", function (context) {
-      _this._clientContext = new RenderContext(context);
+      _this._renderContext = context;
     });
     (0, _defineProperty2["default"])(this, "addCurrentComponent", function (component) {
       _this._currentComponent.push(component);
@@ -99,25 +95,26 @@ var Dispatcher = /*#__PURE__*/function () {
   }, {
     key: "useState",
     value: function useState(initialValue, options) {
-      var _clientContext$reques;
+      var _renderContext$contex;
       var _currentComponent = this._currentComponent.at(-1);
-      var clientContext = this._clientContext;
-      console.log('clientContext.request: ', clientContext.request);
-      var scope = options.scope === _scopes.Scopes.Client ? (clientContext === null || clientContext === void 0 ? void 0 : (_clientContext$reques = clientContext.request) === null || _clientContext$reques === void 0 ? void 0 : _clientContext$reques.headers['x-unique-id']) || 'server' : options.scope;
+      var renderContext = this._renderContext;
+      var scope = options.scope === _scopes.Scopes.Client ? (renderContext === null || renderContext === void 0 ? void 0 : (_renderContext$contex = renderContext.context) === null || _renderContext$contex === void 0 ? void 0 : _renderContext$contex.headers['x-unique-id']) || 'server' : options.scope;
       var state = this.store.getState(initialValue, _objectSpread(_objectSpread({}, options), {}, {
         scope: scope
       }));
       var value = state.value;
       return [value, function (value) {
         state.value = value;
-        (0, _internals.render)(_currentComponent, clientContext.request);
+        (0, _internals.render)(_currentComponent, renderContext);
       }];
     }
   }, {
     key: "useEffect",
     value: function useEffect(fn, deps) {
-      var clientContext = this._clientContext;
-      if (clientContext.request !== null) {
+      var clientContext = this._renderContext;
+
+      // Don't run during client side rendering
+      if (clientContext.context !== null) {
         return;
       }
       fn();
