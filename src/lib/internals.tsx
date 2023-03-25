@@ -51,7 +51,7 @@ export const render = <T,>(
 
   let node = Lifecycle(Component, props, {
     key,
-    clientProps: renderOptions.clientProps,
+    clientProps: renderOptions?.clientProps,
     context: requestContext,
   });
   if (isReactServerComponent(node)) {

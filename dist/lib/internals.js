@@ -61,7 +61,7 @@ var render = function render(tree) {
   var requestContext = !renderOptions || (renderOptions === null || renderOptions === void 0 ? void 0 : renderOptions.context) === null ? serverContext() : renderOptions.context;
   var node = Lifecycle(Component, props, {
     key: key,
-    clientProps: renderOptions.clientProps,
+    clientProps: renderOptions === null || renderOptions === void 0 ? void 0 : renderOptions.clientProps,
     context: requestContext
   });
   if ((0, _types.isReactServerComponent)(node)) {
