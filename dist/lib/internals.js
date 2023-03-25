@@ -58,7 +58,7 @@ var render = function render(tree) {
     key = tree.key,
     props = tree.props;
   var processedChildren = [];
-  var requestContext = renderOptions.context === null ? serverContext() : renderOptions.context;
+  var requestContext = (renderOptions === null || renderOptions === void 0 ? void 0 : renderOptions.context) === null ? serverContext() : renderOptions.context;
   var node = Lifecycle(Component, props, {
     key: key,
     clientProps: renderOptions.clientProps,

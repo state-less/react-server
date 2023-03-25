@@ -45,7 +45,7 @@ export const render = <T,>(
 
   const processedChildren = [];
   const requestContext =
-    renderOptions.context === null ? serverContext() : renderOptions.context;
+    renderOptions?.context === null ? serverContext() : renderOptions.context;
 
   let node = Lifecycle(Component, props, {
     key,
