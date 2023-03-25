@@ -1,6 +1,6 @@
 {
   "name": "@state-less/react-server",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "The react-server library",
   "scripts": {
     "build": "babel src --out-dir dist --extensions \".ts,.tsx\" --copy-files && tsc",
@@ -16,6 +16,11 @@
     "typescript"
   ],
   "author": "Moritz Roessler",
+  "homepage": "https://state-less.cloud",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/state-less/react-server.git"
+  },
   "license": "MIT",
   "main": "./dist/index.js",
   "dependencies": {
