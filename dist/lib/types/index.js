@@ -4,8 +4,15 @@ var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefau
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.isReactServerNode = exports.isReactServerComponent = exports.isProvider = void 0;
+exports.isReactServerNode = exports.isReactServerComponent = exports.isProvider = exports.isClientContext = void 0;
 var _typeof2 = _interopRequireDefault(require("@babel/runtime/helpers/typeof"));
+/** Contains information about the client request, such as the headers */
+
+var isClientContext = function isClientContext(context) {
+  return context && context.headers !== undefined;
+};
+/** Contains information about the server */
+exports.isClientContext = isClientContext;
 var isReactServerComponent = function isReactServerComponent(node) {
   return node && (0, _typeof2["default"])(node) === 'object' && 'Component' in node && 'props' in node && 'key' in node;
 };

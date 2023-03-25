@@ -4,7 +4,7 @@ var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefau
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.render = exports.Lifecycle = void 0;
+exports.render = exports.isServer = exports.Lifecycle = void 0;
 var _slicedToArray2 = _interopRequireDefault(require("@babel/runtime/helpers/slicedToArray"));
 var _defineProperty2 = _interopRequireDefault(require("@babel/runtime/helpers/defineProperty"));
 var _Action = require("../components/Action");
@@ -41,8 +41,15 @@ var Lifecycle = function Lifecycle(Component, props, _ref) {
   }, rendered);
 };
 exports.Lifecycle = Lifecycle;
+var serverContext = function serverContext() {
+  return {};
+};
+var isServer = function isServer(context) {
+  return context.context === serverContext();
+};
+exports.isServer = isServer;
 var render = function render(tree) {
-  var context = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {
+  var renderOptions = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {
     clientProps: null,
     context: null
   };
@@ -51,11 +58,14 @@ var render = function render(tree) {
     key = tree.key,
     props = tree.props;
   var processedChildren = [];
-  var node = Lifecycle(Component, props, _objectSpread({
-    key: key
-  }, context));
+  var requestContext = renderOptions.context === null ? serverContext() : renderOptions.context;
+  var node = Lifecycle(Component, props, {
+    key: key,
+    clientProps: renderOptions.clientProps,
+    context: requestContext
+  });
   if ((0, _types.isReactServerComponent)(node)) {
-    node = render(node, context, node);
+    node = render(node, renderOptions, node);
   }
   var children = Array.isArray(node.children) ? node.children : [node.children].filter(Boolean);
   var _iterator = _createForOfIteratorHelper(children),
@@ -72,7 +82,7 @@ var render = function render(tree) {
       var childResult = null;
       do {
         _Dispatcher["default"].getCurrent().setParentNode((childResult || child).key, node);
-        childResult = render(childResult || child, context, node);
+        childResult = render(childResult || child, renderOptions, node);
       } while ((0, _types.isReactServerComponent)(childResult));
       processedChildren.push(childResult);
     }
@@ -93,7 +103,7 @@ var render = function render(tree) {
           component: node.key,
           name: propName,
           fn: node.props[propName]
-        }), context, node);
+        }), renderOptions, node);
       }
     }
   }

@@ -1,21 +1,20 @@
 import { FunctionCall } from '../components/Action';
 import Dispatcher from './Dispatcher';
 import {
-  ClientContext,
   IComponent,
   isReactServerComponent,
   isReactServerNode,
-  Maybe,
   ReactServerComponent,
   ReactServerNode,
-  RenderContext,
+  RenderOptions,
+  ServerContext,
 } from './types';
 import { generateComponentPubSubKey } from './util';
 
 export const Lifecycle = <T,>(
   Component: IComponent<T>,
   props: Record<string, any>,
-  { key, context, clientProps }: RenderContext & { key: string }
+  { key, context, clientProps }: RenderOptions & { key: string }
 ): ReactServerNode<T> => {
   Dispatcher.getCurrent().addCurrentComponent({ Component, props, key });
   Dispatcher.getCurrent().setClientContext({
@@ -32,18 +31,33 @@ export const Lifecycle = <T,>(
   };
 };
 
+const serverContext = () => ({} as ServerContext);
+
+export const isServer = (context: RenderOptions) =>
+  context.context === serverContext();
+
 export const render = <T,>(
   tree: ReactServerComponent<T>,
-  context: RenderContext = { clientProps: null, context: null },
+  renderOptions: RenderOptions = { clientProps: null, context: null },
   parent: ReactServerNode<unknown> | null = null
 ): ReactServerNode<T> => {
   const { Component, key, props } = tree;
 
   const processedChildren = [];
+  const requestContext =
+    renderOptions.context === null ? serverContext() : renderOptions.context;
 
-  let node = Lifecycle(Component, props, { key, ...context });
+  let node = Lifecycle(Component, props, {
+    key,
+    clientProps: renderOptions.clientProps,
+    context: requestContext,
+  });
   if (isReactServerComponent(node)) {
-    node = render(node as unknown as ReactServerComponent<T>, context, node);
+    node = render(
+      node as unknown as ReactServerComponent<T>,
+      renderOptions,
+      node
+    );
   }
   const children = Array.isArray(node.children)
     ? node.children
@@ -62,7 +76,7 @@ export const render = <T,>(
       Dispatcher.getCurrent().setParentNode((childResult || child).key, node);
       childResult = render(
         (childResult || child) as ReactServerComponent<T>,
-        context,
+        renderOptions,
         node
       );
     } while (isReactServerComponent(childResult));
@@ -82,7 +96,7 @@ export const render = <T,>(
             name={propName}
             fn={node.props[propName]}
           />,
-          context,
+          renderOptions,
           node
         );
       }
