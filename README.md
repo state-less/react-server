@@ -1,5 +1,7 @@
 # @state-less/react-server
 
+![npm (scoped)](https://img.shields.io/npm/v/@state-less/react-server)
+
 `@state-less/react-server` is a powerful framework that allows you to build and manage server-rendered React applications with ease. It comes with built-in support for server-side state management, authentication, and more.
 
 For detailed documentation and in-depth guides, please visit the official website at [state-less.cloud](https://state-less.cloud).
