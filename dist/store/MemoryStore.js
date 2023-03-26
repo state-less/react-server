@@ -75,6 +75,42 @@ var State = /*#__PURE__*/function (_EventEmitter) {
       }
       return setValue;
     }()
+  }, {
+    key: "getValue",
+    value: function () {
+      var _getValue = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee2() {
+        var _this$_store2, _this$_store2$_option;
+        var state, oldValue;
+        return _regenerator["default"].wrap(function _callee2$(_context2) {
+          while (1) switch (_context2.prev = _context2.next) {
+            case 0:
+              if (!(this !== null && this !== void 0 && (_this$_store2 = this._store) !== null && _this$_store2 !== void 0 && (_this$_store2$_option = _this$_store2._options) !== null && _this$_store2$_option !== void 0 && _this$_store2$_option.transport)) {
+                _context2.next = 8;
+                break;
+              }
+              _context2.next = 3;
+              return this._store._options.transport.getState(this.scope, this.key);
+            case 3:
+              state = _context2.sent;
+              console.log('Resulst', state);
+              oldValue = this.value;
+              this.value = state.value;
+              if (oldValue !== this.value) {
+                this.publish();
+              }
+            case 8:
+              return _context2.abrupt("return", this.value);
+            case 9:
+            case "end":
+              return _context2.stop();
+          }
+        }, _callee2, this);
+      }));
+      function getValue() {
+        return _getValue.apply(this, arguments);
+      }
+      return getValue;
+    }()
   }]);
   return State;
 }(_events.EventEmitter);

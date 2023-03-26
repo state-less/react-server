@@ -51,6 +51,18 @@ Object.keys(_MemoryStore).forEach(function (key) {
     }
   });
 });
+var _transport = require("./store/transport");
+Object.keys(_transport).forEach(function (key) {
+  if (key === "default" || key === "__esModule") return;
+  if (Object.prototype.hasOwnProperty.call(_exportNames, key)) return;
+  if (key in exports && exports[key] === _transport[key]) return;
+  Object.defineProperty(exports, key, {
+    enumerable: true,
+    get: function get() {
+      return _transport[key];
+    }
+  });
+});
 var _types = require("./lib/types");
 Object.keys(_types).forEach(function (key) {
   if (key === "default" || key === "__esModule") return;

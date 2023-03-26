@@ -41,8 +41,18 @@ var PostgresTransport = /*#__PURE__*/function (_Transport) {
     var connectionString = _ref.connectionString;
     (0, _classCallCheck2["default"])(this, PostgresTransport);
     _this = _super.call(this);
-    var db = (0, _pgPromise["default"])(connectionString);
-    _this.db = db;
+    if (!connectionString) {
+      throw new Error('connectionString is required');
+    }
+    var db = (0, _pgPromise["default"])({})(connectionString);
+    try {
+      db.connect().then(function () {
+        return console.log('Connected');
+      });
+    } catch (e) {
+      throw new Error('Unable to connect to database');
+    }
+    _this._db = db;
     return _this;
   }
   (0, _createClass2["default"])(PostgresTransport, [{
@@ -56,7 +66,9 @@ var PostgresTransport = /*#__PURE__*/function (_Transport) {
               scope = state.scope, key = state.key, value = state.value;
               query = "INSERT INTO states (scope, key, value) VALUES ($1, $2, $3) ON CONFLICT (scope, key) DO UPDATE SET value = $3";
               _context.next = 4;
-              return this.db.query(query, [scope, key, value]);
+              return this._db.query(query, [scope, key, {
+                value: value
+              }]);
             case 4:
               result = _context.sent;
               return _context.abrupt("return", result);
@@ -81,10 +93,10 @@ var PostgresTransport = /*#__PURE__*/function (_Transport) {
             case 0:
               query = "SELECT * FROM states WHERE scope = $1 AND key = $2";
               _context2.next = 3;
-              return this.db.query(query, [scope, key]);
+              return this._db.query(query, [scope, key]);
             case 3:
               result = _context2.sent;
-              return _context2.abrupt("return", result);
+              return _context2.abrupt("return", result[0].value);
             case 5:
             case "end":
               return _context2.stop();

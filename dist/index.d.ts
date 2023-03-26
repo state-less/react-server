@@ -1,5 +1,6 @@
 export * from './components';
 export * from './store/MemoryStore';
+export * from './store/transport';
 export * from './lib/types';
 export * from './lib/util';
 export * from './lib/reactServer';

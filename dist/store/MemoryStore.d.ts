@@ -17,6 +17,7 @@ export declare class State<T> extends EventEmitter {
     constructor(initialValue: StateValue<T>, options: StateOptions);
     publish(): void;
     setValue(value: StateValue<T>): Promise<this>;
+    getValue(): Promise<T>;
 }
 export type StoreOptions = {
     transport?: Transport;

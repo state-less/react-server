@@ -6,7 +6,7 @@ export declare class Transport {
 }
 export declare class PostgresTransport extends Transport {
     connectionString: string;
-    db: any;
+    _db: any;
     constructor({ connectionString }: {
         connectionString: any;
     });
