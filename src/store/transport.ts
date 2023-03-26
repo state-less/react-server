@@ -6,7 +6,7 @@ export class Transport {
   setState(state: State<any>) {
     throw new Error('Not implemented');
   }
-  getState<T>(scope: string, key: string): Promise<State<T>> {
+  getState<T>(scope: string, key: string): Promise<State<T> | null> {
     throw new Error('Not implemented');
   }
 }
@@ -37,9 +37,12 @@ export class PostgresTransport extends Transport {
     return result;
   }
 
-  async getState<T>(scope: string, key: string): Promise<State<T>> {
+  async getState<T>(scope: string, key: string): Promise<State<T> | null> {
     const query = `SELECT * FROM states WHERE scope = $1 AND key = $2`;
     const result = await this._db.query(query, [scope, key]);
+    if (result.length === 0) {
+      return null;
+    }
     return result[0].value;
   }
 }

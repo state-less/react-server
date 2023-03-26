@@ -56,15 +56,17 @@ export class State<T> extends EventEmitter {
 
   async getValue() {
     if (this?._store?._options?.transport) {
-      const state = await this._store._options.transport.getState<T>(
+      const storedState = await this._store._options.transport.getState<T>(
         this.scope,
         this.key
       );
-      console.log('Resulst', state);
-      const oldValue = this.value;
-      this.value = state.value;
-      if (oldValue !== this.value) {
-        this.publish();
+      console.log('Resulst', storedState);
+      if (storedState !== null) {
+        const oldValue = this.value;
+        this.value = storedState.value;
+        if (oldValue !== this.value) {
+          this.publish();
+        }
       }
     }
     return this.value;
