@@ -71,8 +71,9 @@ var PostgresTransport = /*#__PURE__*/function (_Transport) {
               }]);
             case 4:
               result = _context.sent;
+              console.log('Inserting state ', scope, key, result);
               return _context.abrupt("return", result);
-            case 6:
+            case 7:
             case "end":
               return _context.stop();
           }
@@ -96,14 +97,15 @@ var PostgresTransport = /*#__PURE__*/function (_Transport) {
               return this._db.query(query, [scope, key]);
             case 3:
               result = _context2.sent;
+              console.log('Fetching state ', scope, key, result);
               if (!(result.length === 0)) {
-                _context2.next = 6;
+                _context2.next = 7;
                 break;
               }
               return _context2.abrupt("return", null);
-            case 6:
-              return _context2.abrupt("return", result[0].value);
             case 7:
+              return _context2.abrupt("return", result[0].value);
+            case 8:
             case "end":
               return _context2.stop();
           }
