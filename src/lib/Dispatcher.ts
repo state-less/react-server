@@ -114,10 +114,12 @@ class Dispatcher {
     const renderOptions = this._renderOptions;
     const scope = getRuntimeScope(options.scope, renderOptions.context);
     const state = this.store.getState<T>(initialValue, { ...options, scope });
-    state.on('change', () => {
+    const rerender = () => {
       console.log('State changed', state.key, state.scope, '. Rerendering...');
+      state.off('change', rerender);
       render(_currentComponent, renderOptions);
-    });
+    };
+    state.on('change', rerender);
     state.getValue();
     const value = state.value as T;
     return [
