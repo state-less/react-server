@@ -101,7 +101,9 @@ var State = /*#__PURE__*/function (_EventEmitter) {
               if (storedState !== null) {
                 oldValue = this.value;
                 this.value = storedState.value;
+                console.log('Comparing values', oldValue, this.value);
                 if (JSON.stringify(oldValue) !== JSON.stringify(this.value)) {
+                  console.log('Publishing change');
                   this.publish();
                 }
               }

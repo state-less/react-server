@@ -66,7 +66,9 @@ export class State<T> extends EventEmitter {
       if (storedState !== null) {
         const oldValue = this.value;
         this.value = storedState.value;
+        console.log('Comparing values', oldValue, this.value);
         if (JSON.stringify(oldValue) !== JSON.stringify(this.value)) {
+          console.log('Publishing change');
           this.publish();
         }
       }
