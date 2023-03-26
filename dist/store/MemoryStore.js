@@ -91,13 +91,14 @@ var State = /*#__PURE__*/function (_EventEmitter) {
           while (1) switch (_context2.prev = _context2.next) {
             case 0:
               if (!(this !== null && this !== void 0 && (_this$_store2 = this._store) !== null && _this$_store2 !== void 0 && (_this$_store2$_option = _this$_store2._options) !== null && _this$_store2$_option !== void 0 && _this$_store2$_option.transport)) {
-                _context2.next = 5;
+                _context2.next = 6;
                 break;
               }
               _context2.next = 3;
               return this._store._options.transport.getState(this.scope, this.key);
             case 3:
               storedState = _context2.sent;
+              console.log('Getvalue', this.key, this.scope, storedState);
               if (storedState !== null) {
                 oldValue = this.value;
                 this.value = storedState.value;
@@ -107,9 +108,9 @@ var State = /*#__PURE__*/function (_EventEmitter) {
                   this.publish();
                 }
               }
-            case 5:
-              return _context2.abrupt("return", this.value);
             case 6:
+              return _context2.abrupt("return", this.value);
+            case 7:
             case "end":
               return _context2.stop();
           }

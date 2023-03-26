@@ -63,6 +63,7 @@ export class State<T> extends EventEmitter {
         this.scope,
         this.key
       );
+      console.log('Getvalue', this.key, this.scope, storedState);
       if (storedState !== null) {
         const oldValue = this.value;
         this.value = storedState.value;
