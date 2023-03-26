@@ -48,7 +48,10 @@ export class State<T> extends EventEmitter {
     this.publish();
 
     if (this?._store?._options?.transport) {
+      console.log('Transport exists, calling setState on transport');
       await this._store._options.transport.setState(this);
+    } else {
+      console.log("Transport doesn't exist.");
     }
 
     return this;

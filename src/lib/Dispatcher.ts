@@ -122,7 +122,9 @@ class Dispatcher {
     return [
       value,
       (value: StateValue<T>) => {
-        state.setValue(value);
+        state.setValue(value).then(() => {
+          console.log('Updated state', value);
+        });
       },
     ];
   }

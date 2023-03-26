@@ -57,14 +57,20 @@ var State = /*#__PURE__*/function (_EventEmitter) {
               this.value = value;
               this.publish();
               if (!(this !== null && this !== void 0 && (_this$_store = this._store) !== null && _this$_store !== void 0 && (_this$_store$_options = _this$_store._options) !== null && _this$_store$_options !== void 0 && _this$_store$_options.transport)) {
-                _context.next = 5;
+                _context.next = 8;
                 break;
               }
-              _context.next = 5;
+              console.log('Transport exists, calling setState on transport');
+              _context.next = 6;
               return this._store._options.transport.setState(this);
-            case 5:
-              return _context.abrupt("return", this);
             case 6:
+              _context.next = 9;
+              break;
+            case 8:
+              console.log("Transport doesn't exist.");
+            case 9:
+              return _context.abrupt("return", this);
+            case 10:
             case "end":
               return _context.stop();
           }

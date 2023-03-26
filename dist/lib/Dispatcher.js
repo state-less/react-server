@@ -116,7 +116,9 @@ var Dispatcher = /*#__PURE__*/function () {
       });
       var value = state.value;
       return [value, function (value) {
-        state.setValue(value);
+        state.setValue(value).then(function () {
+          console.log('Updated state', value);
+        });
       }];
     }
   }, {
