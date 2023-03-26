@@ -111,11 +111,9 @@ var Dispatcher = /*#__PURE__*/function () {
         scope: scope
       }));
       var rerender = function rerender() {
-        console.log('State changed', state.key, state.scope, '. Rerendering...');
-        state.off('change', rerender);
         (0, _internals.render)(_currentComponent, renderOptions);
       };
-      state.on('change', rerender);
+      state.once('change', rerender);
       state.getValue();
       var value = state.value;
       return [value, function (value) {
