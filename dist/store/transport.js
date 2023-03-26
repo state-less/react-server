@@ -96,8 +96,14 @@ var PostgresTransport = /*#__PURE__*/function (_Transport) {
               return this._db.query(query, [scope, key]);
             case 3:
               result = _context2.sent;
+              if (!(result.length === 0)) {
+                _context2.next = 6;
+                break;
+              }
+              return _context2.abrupt("return", null);
+            case 6:
               return _context2.abrupt("return", result[0].value);
-            case 5:
+            case 7:
             case "end":
               return _context2.stop();
           }
