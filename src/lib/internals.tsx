@@ -109,6 +109,7 @@ export const render = <T,>(
   }
 
   const rendered = { key, ...node };
+  console.log('Pubslishing update to websocket', key);
   Dispatcher.getCurrent()._pubsub.publish(generateComponentPubSubKey(tree), {
     updateComponent: { rendered },
   });

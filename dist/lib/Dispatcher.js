@@ -110,10 +110,11 @@ var Dispatcher = /*#__PURE__*/function () {
       var state = this.store.getState(initialValue, _objectSpread(_objectSpread({}, options), {}, {
         scope: scope
       }));
-      state.getValue();
       state.on('change', function () {
+        console.log('State changed', state.key, state.scope, '. Rerendering...');
         (0, _internals.render)(_currentComponent, renderOptions);
       });
+      state.getValue();
       var value = state.value;
       return [value, function (value) {
         state.setValue(value).then(function () {

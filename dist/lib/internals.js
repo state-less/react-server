@@ -112,6 +112,7 @@ var render = function render(tree) {
   var rendered = _objectSpread({
     key: key
   }, node);
+  console.log('Pubslishing update to websocket', key);
   _Dispatcher["default"].getCurrent()._pubsub.publish((0, _util.generateComponentPubSubKey)(tree), {
     updateComponent: {
       rendered: rendered
