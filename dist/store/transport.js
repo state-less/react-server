@@ -97,7 +97,7 @@ var PostgresTransport = /*#__PURE__*/function (_Transport) {
               return this._db.query(query, [scope, key]);
             case 3:
               result = _context2.sent;
-              console.log('Fetching state ', scope, key, result);
+              console.log('Fetching state ', scope, key);
               if (!(result.length === 0)) {
                 _context2.next = 7;
                 break;

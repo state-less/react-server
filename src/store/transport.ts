@@ -42,7 +42,7 @@ export class PostgresTransport extends Transport {
     const query = `SELECT * FROM states WHERE scope = $1 AND key = $2`;
 
     const result = await this._db.query(query, [scope, key]);
-    console.log('Fetching state ', scope, key, result);
+    console.log('Fetching state ', scope, key);
     if (result.length === 0) {
       return null;
     }

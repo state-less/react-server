@@ -101,7 +101,7 @@ var State = /*#__PURE__*/function (_EventEmitter) {
               if (storedState !== null) {
                 oldValue = this.value;
                 this.value = storedState.value;
-                if (oldValue !== this.value) {
+                if (JSON.stringify(oldValue) !== JSON.stringify(this.value)) {
                   this.publish();
                 }
               }
