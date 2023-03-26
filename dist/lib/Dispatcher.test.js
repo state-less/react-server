@@ -12,9 +12,7 @@ var _types = require("./types");
 var _jsxRuntime = require("../jsxRenderer/jsx-runtime");
 function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function _getRequireWildcardCache(nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
 function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || _typeof(obj) !== "object" && typeof obj !== "function") { return { "default": obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj["default"] = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
-var store = new _MemoryStore.Store({
-  scope: 'global'
-});
+var store = new _MemoryStore.Store({});
 var pubSub = new _graphqlSubscriptions.PubSub();
 _Dispatcher["default"].getCurrent().setPubSub(pubSub);
 var effectMock = jest.fn();
@@ -90,9 +88,16 @@ describe('Dispatcher', function () {
     (0, _internals.render)(component);
     expect(effectMock).toBeCalledTimes(1);
   });
-  it('Should not execute a useEffect on the Server', function () {
+  it('Should not execute a useEffect on the client', function () {
     var component = (0, _jsxRuntime.jsx)(MockComponent, {});
-    (0, _internals.render)(component);
+    (0, _internals.render)(component, {
+      clientProps: {},
+      context: {
+        headers: {
+          'x-unique-id': 'client'
+        }
+      }
+    });
     expect(effectMock).toBeCalledTimes(1);
   });
   it('should be able to use a state', function () {

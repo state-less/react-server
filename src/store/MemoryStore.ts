@@ -1,4 +1,7 @@
 import { createId, isStateOptions } from '../lib/util';
+import { Transport } from './transport';
+import ee from 'event-emitter';
+import { EventEmitter } from 'events';
 
 type PrimitiveValue = string | number;
 
@@ -12,7 +15,7 @@ export type StateOptions = {
   key: string;
 };
 
-export class State<T> {
+export class State<T> extends EventEmitter {
   id: string;
   key: string;
   scope: string;
@@ -21,15 +24,58 @@ export class State<T> {
   _store: Store;
 
   constructor(initialValue: StateValue<T>, options: StateOptions) {
+    super();
     this.id = createId(options.scope);
     this.key = options.key;
     this.scope = options.scope;
     this.value = initialValue;
+    if (this?._store?._options?.transport) {
+      this._store._options.transport
+        .getState<T>(options.scope, options.key)
+        .then((state) => {
+          this.value = state.value;
+          this.publish();
+        });
+    }
+  }
+
+  publish() {
+    this.emit('change', this.value);
+  }
+
+  async setValue(value: StateValue<T>) {
+    this.value = value;
+    this.publish();
+
+    if (this?._store?._options?.transport) {
+      await this._store._options.transport.setState(this);
+    }
+
+    return this;
+  }
+
+  async getValue() {
+    if (this?._store?._options?.transport) {
+      const state = await this._store._options.transport.getState<T>(
+        this.scope,
+        this.key
+      );
+      console.log('Resulst', state);
+      const oldValue = this.value;
+      this.value = state.value;
+      if (oldValue !== this.value) {
+        this.publish();
+      }
+    }
+    return this.value;
   }
 }
 
-export type StoreOptions = {};
+ee(State.prototype);
 
+export type StoreOptions = {
+  transport?: Transport;
+};
 export class Store {
   _scopes: Map<string, Map<string, State<unknown>>>;
   _states: Map<string, State<any>>;
@@ -50,6 +96,7 @@ export class Store {
     this._scopes.set(scope, new Map());
     return this._scopes.get(scope);
   };
+
   createState<T>(value: StateValue<T>, options?: StateOptions) {
     const state = new State(value, { ...options });
     state._store = this;

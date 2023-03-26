@@ -112,8 +112,10 @@ var Dispatcher = /*#__PURE__*/function () {
       }));
       var value = state.value;
       return [value, function (value) {
-        state.value = value;
-        (0, _internals.render)(_currentComponent, renderOptions);
+        state.on('change', function (value) {
+          (0, _internals.render)(_currentComponent, renderOptions);
+        });
+        state.setValue(value);
       }];
     }
   }, {
@@ -122,10 +124,12 @@ var Dispatcher = /*#__PURE__*/function () {
       var clientContext = this._renderOptions;
 
       // Don't run during client side rendering
-      if (clientContext.context !== null) {
+      if ((0, _types.isClientContext)(clientContext.context)) {
         return;
       }
-      fn();
+      if ((0, _types.isServerContext)(clientContext.context)) {
+        fn();
+      }
     }
   }]);
   return Dispatcher;

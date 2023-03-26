@@ -4,9 +4,11 @@ export type ClientContext = {
     headers: Record<string, string>;
 };
 export declare const isClientContext: (context: any) => context is ClientContext;
+export declare const isServerContext: (context: any) => context is ClientContext;
 /** Contains information about the server */
 export type ServerContext = {
     os: string;
+    __typename: 'ServerContext';
 };
 /** Provides context about the current request the component is being rendered under (server / client) */
 export type RequestContext = ClientContext | ServerContext;

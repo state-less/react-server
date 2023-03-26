@@ -1,3 +1,6 @@
+/// <reference types="node" />
+import { Transport } from './transport';
+import { EventEmitter } from 'events';
 type PrimitiveValue = string | number;
 export type GenericStateValue = PrimitiveValue | Array<PrimitiveValue>;
 export type StateValue<T = unknown> = T;
@@ -5,15 +8,19 @@ export type StateOptions = {
     scope: string;
     key: string;
 };
-export declare class State<T> {
+export declare class State<T> extends EventEmitter {
     id: string;
     key: string;
     scope: string;
     value: StateValue<T>;
     _store: Store;
     constructor(initialValue: StateValue<T>, options: StateOptions);
+    publish(): void;
+    setValue(value: StateValue<T>): Promise<this>;
 }
-export type StoreOptions = {};
+export type StoreOptions = {
+    transport?: Transport;
+};
 export declare class Store {
     _scopes: Map<string, Map<string, State<unknown>>>;
     _states: Map<string, State<any>>;

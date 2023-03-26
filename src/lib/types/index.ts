@@ -10,9 +10,14 @@ export type ClientContext = {
 export const isClientContext = (context: any): context is ClientContext => {
   return context && context.headers !== undefined;
 };
+
+export const isServerContext = (context: any): context is ClientContext => {
+  return context && context.__typename === 'ServerContext';
+};
 /** Contains information about the server */
 export type ServerContext = {
   os: string;
+  __typename: 'ServerContext';
 };
 
 /** Provides context about the current request the component is being rendered under (server / client) */

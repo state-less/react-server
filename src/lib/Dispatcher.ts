@@ -6,6 +6,7 @@ import { Scopes } from './scopes';
 import {
   isClientContext,
   isProvider,
+  isServerContext,
   ReactServerComponent,
   ReactServerNode,
   RenderOptions,
@@ -113,12 +114,14 @@ class Dispatcher {
     const renderOptions = this._renderOptions;
     const scope = getRuntimeScope(options.scope, renderOptions.context);
     const state = this.store.getState<T>(initialValue, { ...options, scope });
+    state.on('change', (value) => {
+      render(_currentComponent, renderOptions);
+    });
     const value = state.value as T;
     return [
       value,
       (value: StateValue<T>) => {
-        state.value = value;
-        render(_currentComponent, renderOptions);
+        state.setValue(value);
       },
     ];
   }
@@ -130,11 +133,13 @@ class Dispatcher {
     const clientContext = this._renderOptions;
 
     // Don't run during client side rendering
-    if (clientContext.context !== null) {
+    if (isClientContext(clientContext.context)) {
       return;
     }
 
-    fn();
+    if (isServerContext(clientContext.context)) {
+      fn();
+    }
   }
 
   useContext = (context: Context<unknown>) => {
