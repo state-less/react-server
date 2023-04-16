@@ -108,15 +108,16 @@ describe('Dispatcher', () => {
   });
 
   it('should be able to use a context', () => {
+    const ctx = { foo: 'bar' };
     const component = (
-      <Provider value={1} key="provider">
+      <Provider value={ctx} key="provider">
         <ContextComponent key="context" />
       </Provider>
     );
 
     const node = render<any>(component);
 
-    expect(node.children[0].ctx).toBe(1);
+    expect(node.children[0].ctx).toBe(ctx);
   });
 
   it('should be able to use a context higher up the tree', () => {

@@ -21,7 +21,7 @@ export const Lifecycle = <T,>(
     context,
     clientProps,
   });
-  const rendered = Component({ ...props }, { context, clientProps });
+  const rendered = Component({ ...props }, { context, clientProps, key });
   Dispatcher.getCurrent().popCurrentComponent();
 
   return {

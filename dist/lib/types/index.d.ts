@@ -22,7 +22,9 @@ export type ReactServerNode<T> = {
     key: string;
 } & T;
 export interface IComponent<T> {
-    (props: Record<string, any>, options: RenderOptions): ReactServerNode<T>;
+    (props: Record<string, any>, options: RenderOptions & {
+        key: string;
+    }): ReactServerNode<T>;
 }
 export type ReactServerComponent<T> = {
     props: Record<string, any>;
