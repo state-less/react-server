@@ -130,7 +130,7 @@ class Dispatcher {
     const clientContext = this._renderOptions;
 
     // Don't run during client side rendering
-    if (clientContext.context !== null) {
+    if (isClientContext(clientContext.context)) {
       return;
     }
 

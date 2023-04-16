@@ -5,9 +5,7 @@ import { render } from './internals';
 import { useContext, useEffect, useState } from './reactServer';
 import { isReactServerNode } from './types';
 
-const store = new Store({
-  scope: 'global',
-});
+const store = new Store({});
 const pubSub = new PubSub();
 
 Dispatcher.getCurrent().setPubSub(pubSub);
@@ -82,9 +80,13 @@ describe('Dispatcher', () => {
     render(component);
     expect(effectMock).toBeCalledTimes(1);
   });
-  it('Should not execute a useEffect on the Server', () => {
+
+  it('Should not execute a useEffect on the client', () => {
     const component = <MockComponent />;
-    render(component);
+    render(component, {
+      clientProps: {},
+      context: { headers: { 'x-unique-id': 'client' } },
+    });
     expect(effectMock).toBeCalledTimes(1);
   });
 
@@ -106,15 +108,16 @@ describe('Dispatcher', () => {
   });
 
   it('should be able to use a context', () => {
+    const ctx = { foo: 'bar' };
     const component = (
-      <Provider value={1} key="provider">
+      <Provider value={ctx} key="provider">
         <ContextComponent key="context" />
       </Provider>
     );
 
     const node = render<any>(component);
 
-    expect(node.children[0].ctx).toBe(1);
+    expect(node.children[0].ctx).toBe(ctx);
   });
 
   it('should be able to use a context higher up the tree', () => {
