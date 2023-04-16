@@ -98,7 +98,7 @@ var State = /*#__PURE__*/function (_EventEmitter) {
               return this._store._options.transport.getState(this.scope, this.key);
             case 3:
               storedState = _context2.sent;
-              console.log('Getvalue', this.key, this.scope, storedState);
+              console.log('Getvalue', this.key, new Error().stack);
               if (storedState !== null) {
                 oldValue = this.value;
                 this.value = storedState.value;
