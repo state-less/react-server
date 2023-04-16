@@ -32,7 +32,8 @@ var Lifecycle = function Lifecycle(Component, props, _ref) {
   });
   var rendered = Component(_objectSpread({}, props), {
     context: context,
-    clientProps: clientProps
+    clientProps: clientProps,
+    key: key
   });
   _Dispatcher["default"].getCurrent().popCurrentComponent();
   return _objectSpread({
