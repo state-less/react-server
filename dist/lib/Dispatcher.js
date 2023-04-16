@@ -122,7 +122,7 @@ var Dispatcher = /*#__PURE__*/function () {
       var clientContext = this._renderOptions;
 
       // Don't run during client side rendering
-      if (clientContext.context !== null) {
+      if ((0, _types.isClientContext)(clientContext.context)) {
         return;
       }
       fn();
