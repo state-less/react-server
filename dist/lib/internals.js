@@ -114,11 +114,13 @@ var render = function render(tree) {
   var rendered = _objectSpread({
     key: key
   }, node);
-  _Dispatcher["default"].getCurrent()._pubsub.publish((0, _util.generateComponentPubSubKey)(tree), {
-    updateComponent: {
-      rendered: rendered
-    }
-  });
+  if ((0, _types.isClientContext)(requestContext)) {
+    _Dispatcher["default"].getCurrent()._pubsub.publish((0, _util.generateComponentPubSubKey)(tree, requestContext), {
+      updateComponent: {
+        rendered: rendered
+      }
+    });
+  }
   return rendered;
 };
 exports.render = render;

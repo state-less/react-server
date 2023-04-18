@@ -1,7 +1,9 @@
 import { FunctionCall } from '../components/Action';
 import Dispatcher from './Dispatcher';
 import {
+  ClientContext,
   IComponent,
+  isClientContext,
   isReactServerComponent,
   isReactServerNode,
   ReactServerComponent,
@@ -109,9 +111,15 @@ export const render = <T,>(
   }
 
   const rendered = { key, ...node };
-  Dispatcher.getCurrent()._pubsub.publish(generateComponentPubSubKey(tree), {
-    updateComponent: { rendered },
-  });
+
+  if (isClientContext(requestContext)) {
+    Dispatcher.getCurrent()._pubsub.publish(
+      generateComponentPubSubKey(tree, requestContext as ClientContext),
+      {
+        updateComponent: { rendered },
+      }
+    );
+  }
   return rendered;
 };
 
