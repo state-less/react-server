@@ -11,8 +11,8 @@ var createId = function createId(debugHint) {
   return (0, _uuid.v4)();
 };
 exports.createId = createId;
-var generateComponentPubSubKey = function generateComponentPubSubKey(component) {
-  return "component::".concat(component.key);
+var generateComponentPubSubKey = function generateComponentPubSubKey(component, requestContext) {
+  return "component::".concat(requestContext.headers['x-unique-id'], "::").concat(component.key);
 };
 exports.generateComponentPubSubKey = generateComponentPubSubKey;
 var isStateOptions = function isStateOptions(options) {

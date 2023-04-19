@@ -1,6 +1,6 @@
 import { v4 } from 'uuid';
 import { StateOptions } from '../store/MemoryStore';
-import { ReactServerComponent } from './types';
+import { ClientContext, ReactServerComponent, RequestContext } from './types';
 import jwt from 'jsonwebtoken';
 
 export const createId = (debugHint) => {
@@ -8,9 +8,10 @@ export const createId = (debugHint) => {
 };
 
 export const generateComponentPubSubKey = (
-  component: ReactServerComponent<any>
+  component: ReactServerComponent<any>,
+  requestContext: ClientContext
 ) => {
-  return `component::${component.key}`;
+  return `component::${requestContext.headers['x-unique-id']}::${component.key}`;
 };
 
 export const isStateOptions = (options: any): options is StateOptions => {
