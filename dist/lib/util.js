@@ -4,13 +4,20 @@ var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefau
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.isStateOptions = exports.generateComponentPubSubKey = exports.createId = exports.authenticate = void 0;
+exports.serverKey = exports.isStateOptions = exports.generateComponentPubSubKey = exports.createId = exports.clientKey = exports.authenticate = void 0;
 var _uuid = require("uuid");
 var _jsonwebtoken = _interopRequireDefault(require("jsonwebtoken"));
+var serverKey = 'server';
+exports.serverKey = serverKey;
 var createId = function createId(debugHint) {
   return (0, _uuid.v4)();
 };
 exports.createId = createId;
+var clientKey = function clientKey(key, requestContext) {
+  var _headers;
+  return "".concat(key, "::").concat(((_headers = requestContext.headers) === null || _headers === void 0 ? void 0 : _headers['x-unique-id']) || serverKey);
+};
+exports.clientKey = clientKey;
 var generateComponentPubSubKey = function generateComponentPubSubKey(component, requestContext) {
   return "component::".concat(requestContext.headers['x-unique-id'], "::").concat(component.key);
 };

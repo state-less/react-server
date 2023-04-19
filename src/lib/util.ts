@@ -3,8 +3,16 @@ import { StateOptions } from '../store/MemoryStore';
 import { ClientContext, ReactServerComponent, RequestContext } from './types';
 import jwt from 'jsonwebtoken';
 
+export const serverKey = 'server';
+
 export const createId = (debugHint) => {
   return v4();
+};
+
+export const clientKey = (key, requestContext: RequestContext) => {
+  return `${key}::${
+    (requestContext as ClientContext).headers?.['x-unique-id'] || serverKey
+  }`;
 };
 
 export const generateComponentPubSubKey = (
