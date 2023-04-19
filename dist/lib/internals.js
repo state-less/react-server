@@ -116,7 +116,7 @@ var render = function render(tree) {
   }, node);
   console.log('Checking for client context');
   if ((0, _types.isClientContext)(requestContext)) {
-    console.log('Publishing ', (0, _util.generateComponentPubSubKey)(tree, requestContext));
+    console.log('Publishing ', (0, _util.generateComponentPubSubKey)(tree, requestContext), requestContext);
     _Dispatcher["default"].getCurrent()._pubsub.publish((0, _util.generateComponentPubSubKey)(tree, requestContext), {
       updateComponent: {
         rendered: rendered
