@@ -101,7 +101,7 @@ var render = function render(tree) {
         propValue = _entry[1];
       if (typeof propValue === 'function') {
         node.props[propName] = render((0, _jsxRuntime.jsx)(_Action.FunctionCall, {
-          component: parent.key || node.key,
+          component: (parent === null || parent === void 0 ? void 0 : parent.key) || node.key,
           name: propName,
           fn: node.props[propName]
         }), renderOptions, tree);

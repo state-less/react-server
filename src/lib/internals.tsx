@@ -96,7 +96,7 @@ export const render = <T,>(
       if (typeof propValue === 'function') {
         node.props[propName] = render(
           <FunctionCall
-            component={parent.key || node.key}
+            component={parent?.key || node.key}
             name={propName}
             fn={node.props[propName]}
           />,
