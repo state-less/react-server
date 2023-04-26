@@ -122,10 +122,11 @@ class Dispatcher {
       render(_currentComponent, renderOptions);
     };
 
-    state.off(
-      'change',
-      Listeners.get(clientKey(_currentComponent.key, renderOptions.context))
-    );
+    Listeners.get(clientKey(_currentComponent.key, renderOptions.context)) &&
+      state.off(
+        'change',
+        Listeners.get(clientKey(_currentComponent.key, renderOptions.context))
+      );
     state.once('change', rerender);
     Listeners.set(
       clientKey(_currentComponent.key, renderOptions.context),

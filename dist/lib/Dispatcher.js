@@ -116,7 +116,7 @@ var Dispatcher = /*#__PURE__*/function () {
       var rerender = function rerender() {
         (0, _internals.render)(_currentComponent, renderOptions);
       };
-      state.off('change', Listeners.get((0, _util.clientKey)(_currentComponent.key, renderOptions.context)));
+      Listeners.get((0, _util.clientKey)(_currentComponent.key, renderOptions.context)) && state.off('change', Listeners.get((0, _util.clientKey)(_currentComponent.key, renderOptions.context)));
       state.once('change', rerender);
       Listeners.set((0, _util.clientKey)(_currentComponent.key, renderOptions.context), rerender);
       return [value, function (value) {
