@@ -120,7 +120,7 @@ class Dispatcher {
     return [
       value,
       (value: StateValue<T>) => {
-        state.value = value;
+        state.setValue(value);
         render(_currentComponent, renderOptions);
       },
     ];

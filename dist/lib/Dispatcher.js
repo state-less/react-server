@@ -115,7 +115,7 @@ var Dispatcher = /*#__PURE__*/function () {
         console.log('State on change', state.key);
       });
       return [value, function (value) {
-        state.value = value;
+        state.setValue(value);
         (0, _internals.render)(_currentComponent, renderOptions);
       }];
     }
