@@ -12,6 +12,7 @@ import {
   RequestContext,
 } from './types';
 import { ClientContext, Maybe } from './types';
+import { clientKey } from './util';
 
 type ProviderComponent = {
   context: unknown;
@@ -50,6 +51,8 @@ export const getRuntimeScope = (scope: string, context: RequestContext) => {
   //     : 'server'
   //   : scope;
 };
+
+const Listeners = new Map();
 class Dispatcher {
   store: Store;
   _pubsub: PubSub;
@@ -114,9 +117,20 @@ class Dispatcher {
     const scope = getRuntimeScope(options.scope, renderOptions.context);
     const state = this.store.getState<T>(initialValue, { ...options, scope });
     const value = state.value as T;
-    state.once('change', () => {
+
+    const rerender = () => {
       render(_currentComponent, renderOptions);
-    });
+    };
+
+    state.off(
+      'change',
+      Listeners.get(clientKey(_currentComponent.key, renderOptions.context))
+    );
+    state.once('change', rerender);
+    Listeners.set(
+      clientKey(_currentComponent.key, renderOptions.context),
+      rerender
+    );
     return [
       value,
       (value: StateValue<T>) => {

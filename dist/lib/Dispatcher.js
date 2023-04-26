@@ -12,6 +12,7 @@ var _internals = require("./internals");
 var _reactServer = require("./reactServer");
 var _scopes = require("./scopes");
 var _types = require("./types");
+var _util = require("./util");
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { (0, _defineProperty2["default"])(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 var createContext = function createContext() {
@@ -41,6 +42,7 @@ var getRuntimeScope = function getRuntimeScope(scope, context) {
   //   : scope;
 };
 exports.getRuntimeScope = getRuntimeScope;
+var Listeners = new Map();
 var Dispatcher = /*#__PURE__*/function () {
   function Dispatcher() {
     var _this = this;
@@ -111,9 +113,12 @@ var Dispatcher = /*#__PURE__*/function () {
         scope: scope
       }));
       var value = state.value;
-      state.once('change', function () {
+      var rerender = function rerender() {
         (0, _internals.render)(_currentComponent, renderOptions);
-      });
+      };
+      state.off('change', Listeners.get((0, _util.clientKey)(_currentComponent.key, renderOptions.context)));
+      state.once('change', rerender);
+      Listeners.set((0, _util.clientKey)(_currentComponent.key, renderOptions.context), rerender);
       return [value, function (value) {
         state.setValue(value);
       }];
