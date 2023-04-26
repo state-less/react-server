@@ -112,13 +112,7 @@ export const render = <T,>(
 
   const rendered = { key, ...node };
 
-  console.log('Checking for client context');
   if (isClientContext(requestContext)) {
-    console.log(
-      'Publishing ',
-      generateComponentPubSubKey(tree, requestContext as ClientContext),
-      requestContext
-    );
     Dispatcher.getCurrent()._pubsub.publish(
       generateComponentPubSubKey(tree, requestContext as ClientContext),
       {
