@@ -113,10 +113,11 @@ var Dispatcher = /*#__PURE__*/function () {
       var value = state.value;
       state.once('change', function () {
         console.log('State on change', state.key);
+        (0, _internals.render)(_currentComponent, renderOptions);
       });
       return [value, function (value) {
         state.setValue(value);
-        (0, _internals.render)(_currentComponent, renderOptions);
+        // render(_currentComponent, renderOptions);
       }];
     }
   }, {
