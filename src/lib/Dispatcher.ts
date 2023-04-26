@@ -52,7 +52,7 @@ export const getRuntimeScope = (scope: string, context: RequestContext) => {
   //   : scope;
 };
 
-const Listeners = new Map();
+const Listeners = {};
 class Dispatcher {
   store: Store;
   _pubsub: PubSub;
@@ -119,19 +119,26 @@ class Dispatcher {
     const value = state.value as T;
 
     const rerender = () => {
+      for (const listener of Listeners[
+        clientKey(_currentComponent.key, renderOptions.context)
+      ] || []) {
+        state.off('change', listener);
+      }
       render(_currentComponent, renderOptions);
     };
 
-    Listeners.get(clientKey(_currentComponent.key, renderOptions.context)) &&
-      state.off(
-        'change',
-        Listeners.get(clientKey(_currentComponent.key, renderOptions.context))
-      );
+    for (const listener of Listeners[
+      clientKey(_currentComponent.key, renderOptions.context)
+    ] || []) {
+      state.off('change', listener);
+    }
     state.once('change', rerender);
-    Listeners.set(
-      clientKey(_currentComponent.key, renderOptions.context),
+    Listeners[clientKey(_currentComponent.key, renderOptions.context)] =
+      Listeners[clientKey(_currentComponent.key, renderOptions.context)] || [];
+    Listeners[clientKey(_currentComponent.key, renderOptions.context)].push(
       rerender
     );
+
     return [
       value,
       (value: StateValue<T>) => {
