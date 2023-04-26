@@ -12,6 +12,8 @@ var isClientContext = function isClientContext(context) {
   return context && context.headers !== undefined;
 };
 /** Contains information about the server */
+
+/** Provides context about the current request the component is being rendered under (server / client) */
 exports.isClientContext = isClientContext;
 var isReactServerComponent = function isReactServerComponent(node) {
   return node && (0, _typeof2["default"])(node) === 'object' && 'Component' in node && 'props' in node && 'key' in node;

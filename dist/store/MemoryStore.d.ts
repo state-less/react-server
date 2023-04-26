@@ -1,3 +1,5 @@
+/// <reference types="node" />
+import { EventEmitter } from 'events';
 type PrimitiveValue = string | number;
 export type GenericStateValue = PrimitiveValue | Array<PrimitiveValue>;
 export type StateValue<T = unknown> = T;
@@ -5,13 +7,14 @@ export type StateOptions = {
     scope: string;
     key: string;
 };
-export declare class State<T> {
+export declare class State<T> extends EventEmitter {
     id: string;
     key: string;
     scope: string;
     value: StateValue<T>;
     _store: Store;
     constructor(initialValue: StateValue<T>, options: StateOptions);
+    setValue(value: StateValue<T>): void;
 }
 export type StoreOptions = {};
 export declare class Store {

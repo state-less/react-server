@@ -111,6 +111,9 @@ var Dispatcher = /*#__PURE__*/function () {
         scope: scope
       }));
       var value = state.value;
+      state.once('change', function () {
+        console.log('State on change', state.key);
+      });
       return [value, function (value) {
         state.value = value;
         (0, _internals.render)(_currentComponent, renderOptions);

@@ -114,6 +114,9 @@ class Dispatcher {
     const scope = getRuntimeScope(options.scope, renderOptions.context);
     const state = this.store.getState<T>(initialValue, { ...options, scope });
     const value = state.value as T;
+    state.once('change', () => {
+      console.log('State on change', state.key);
+    });
     return [
       value,
       (value: StateValue<T>) => {

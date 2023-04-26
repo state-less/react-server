@@ -1,4 +1,6 @@
 import { createId, isStateOptions } from '../lib/util';
+import ee from 'event-emitter';
+import { EventEmitter } from 'events';
 
 type PrimitiveValue = string | number;
 
@@ -12,7 +14,7 @@ export type StateOptions = {
   key: string;
 };
 
-export class State<T> {
+export class State<T> extends EventEmitter {
   id: string;
   key: string;
   scope: string;
@@ -21,12 +23,20 @@ export class State<T> {
   _store: Store;
 
   constructor(initialValue: StateValue<T>, options: StateOptions) {
+    super();
     this.id = createId(options.scope);
     this.key = options.key;
     this.scope = options.scope;
     this.value = initialValue;
   }
+
+  setValue(value: StateValue<T>) {
+    this.value = value;
+    this.emit('change', this.value);
+  }
 }
+
+// ee(State.prototype);
 
 export type StoreOptions = {};
 
