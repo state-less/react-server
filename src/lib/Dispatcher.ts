@@ -115,14 +115,12 @@ class Dispatcher {
     const state = this.store.getState<T>(initialValue, { ...options, scope });
     const value = state.value as T;
     state.once('change', () => {
-      console.log('State on change', state.key);
       render(_currentComponent, renderOptions);
     });
     return [
       value,
       (value: StateValue<T>) => {
         state.setValue(value);
-        // render(_currentComponent, renderOptions);
       },
     ];
   }
