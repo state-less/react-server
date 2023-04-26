@@ -36,7 +36,7 @@ export class State<T> extends EventEmitter {
   }
 }
 
-// ee(State.prototype);
+ee(State.prototype);
 
 export type StoreOptions = {};
 
