@@ -20,6 +20,7 @@ export class State<T> extends EventEmitter {
   key: string;
   scope: string;
   value: StateValue<T>;
+  timestamp: number;
 
   _store: Store;
 
@@ -29,6 +30,7 @@ export class State<T> extends EventEmitter {
     this.key = options.key;
     this.scope = options.scope;
     this.value = initialValue;
+    this.timestamp = 0;
     if (this?._store?._options?.transport) {
       this._store._options.transport
         .getState<T>(options.scope, options.key)
@@ -45,6 +47,7 @@ export class State<T> extends EventEmitter {
 
   async setValue(value: StateValue<T>) {
     this.value = value;
+    this.timestamp = +new Date();
     this.publish();
 
     if (this?._store?._options?.transport) {
@@ -57,7 +60,7 @@ export class State<T> extends EventEmitter {
     return this;
   }
 
-  async getValue() {
+  async getValue(timestamp: number) {
     if (this?._store?._options?.transport) {
       const storedState = await this._store._options.transport.getState<T>(
         this.scope,
@@ -68,7 +71,10 @@ export class State<T> extends EventEmitter {
         const oldValue = this.value;
         this.value = storedState.value;
         console.log('Comparing values', oldValue, this.value);
-        if (JSON.stringify(oldValue) !== JSON.stringify(this.value)) {
+        if (
+          JSON.stringify(oldValue) !== JSON.stringify(this.value) &&
+          timestamp > this.timestamp
+        ) {
           console.log('Publishing change');
           this.publish();
         }

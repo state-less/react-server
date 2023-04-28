@@ -145,7 +145,7 @@ var Dispatcher = /*#__PURE__*/function () {
       state.once('change', rerender);
       Listeners[(0, _util.clientKey)(_currentComponent.key, renderOptions.context)] = Listeners[(0, _util.clientKey)(_currentComponent.key, renderOptions.context)] || [];
       Listeners[(0, _util.clientKey)(_currentComponent.key, renderOptions.context)].push(rerender);
-      state.getValue();
+      state.getValue(+new Date());
       var value = state.value;
       return [value, function (value) {
         state.setValue(value);

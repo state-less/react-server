@@ -32,6 +32,7 @@ var State = /*#__PURE__*/function (_EventEmitter) {
     _this.key = options.key;
     _this.scope = options.scope;
     _this.value = initialValue;
+    _this.timestamp = 0;
     if ((_assertThisInitialize = (0, _assertThisInitialized2["default"])(_this)) !== null && _assertThisInitialize !== void 0 && (_assertThisInitialize2 = _assertThisInitialize._store) !== null && _assertThisInitialize2 !== void 0 && (_assertThisInitialize3 = _assertThisInitialize2._options) !== null && _assertThisInitialize3 !== void 0 && _assertThisInitialize3.transport) {
       _this._store._options.transport.getState(options.scope, options.key).then(function (state) {
         _this.value = state.value;
@@ -54,22 +55,23 @@ var State = /*#__PURE__*/function (_EventEmitter) {
           while (1) switch (_context.prev = _context.next) {
             case 0:
               this.value = value;
+              this.timestamp = +new Date();
               this.publish();
               if (!(this !== null && this !== void 0 && (_this$_store = this._store) !== null && _this$_store !== void 0 && (_this$_store$_options = _this$_store._options) !== null && _this$_store$_options !== void 0 && _this$_store$_options.transport)) {
-                _context.next = 8;
+                _context.next = 9;
                 break;
               }
               console.log('Transport exists, calling setState on transport');
-              _context.next = 6;
+              _context.next = 7;
               return this._store._options.transport.setState(this);
-            case 6:
-              _context.next = 9;
+            case 7:
+              _context.next = 10;
               break;
-            case 8:
-              console.log("Transport doesn't exist.");
             case 9:
-              return _context.abrupt("return", this);
+              console.log("Transport doesn't exist.");
             case 10:
+              return _context.abrupt("return", this);
+            case 11:
             case "end":
               return _context.stop();
           }
@@ -83,7 +85,7 @@ var State = /*#__PURE__*/function (_EventEmitter) {
   }, {
     key: "getValue",
     value: function () {
-      var _getValue = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee2() {
+      var _getValue = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee2(timestamp) {
         var _this$_store2, _this$_store2$_option;
         var storedState, oldValue;
         return _regenerator["default"].wrap(function _callee2$(_context2) {
@@ -102,7 +104,7 @@ var State = /*#__PURE__*/function (_EventEmitter) {
                 oldValue = this.value;
                 this.value = storedState.value;
                 console.log('Comparing values', oldValue, this.value);
-                if (JSON.stringify(oldValue) !== JSON.stringify(this.value)) {
+                if (JSON.stringify(oldValue) !== JSON.stringify(this.value) && timestamp > this.timestamp) {
                   console.log('Publishing change');
                   this.publish();
                 }
@@ -115,7 +117,7 @@ var State = /*#__PURE__*/function (_EventEmitter) {
           }
         }, _callee2, this);
       }));
-      function getValue() {
+      function getValue(_x2) {
         return _getValue.apply(this, arguments);
       }
       return getValue;

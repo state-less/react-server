@@ -139,7 +139,7 @@ class Dispatcher {
       rerender
     );
 
-    state.getValue();
+    state.getValue(+new Date());
     const value = state.value as T;
 
     return [

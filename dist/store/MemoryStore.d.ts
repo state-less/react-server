@@ -13,11 +13,12 @@ export declare class State<T> extends EventEmitter {
     key: string;
     scope: string;
     value: StateValue<T>;
+    timestamp: number;
     _store: Store;
     constructor(initialValue: StateValue<T>, options: StateOptions);
     publish(): void;
     setValue(value: StateValue<T>): Promise<this>;
-    getValue(): Promise<T>;
+    getValue(timestamp: number): Promise<T>;
 }
 export type StoreOptions = {
     transport?: Transport;
