@@ -48,13 +48,14 @@ export class State<T> extends EventEmitter {
   async setValue(value: StateValue<T>) {
     this.value = value;
     this.timestamp = +new Date();
-    this.publish();
 
     if (this?._store?._options?.transport) {
       console.log('Transport exists, calling setState on transport');
       await this._store._options.transport.setState(this);
+      this.publish();
     } else {
       console.log("Transport doesn't exist.");
+      this.publish();
     }
 
     return this;
@@ -71,10 +72,7 @@ export class State<T> extends EventEmitter {
         const oldValue = this.value;
         this.value = storedState.value;
         console.log('Comparing values', oldValue, this.value);
-        if (
-          JSON.stringify(oldValue) !== JSON.stringify(this.value) &&
-          timestamp > this.timestamp
-        ) {
+        if (JSON.stringify(oldValue) !== JSON.stringify(this.value)) {
           console.log('Publishing change');
           this.publish();
         }

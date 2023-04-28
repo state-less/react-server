@@ -56,22 +56,23 @@ var State = /*#__PURE__*/function (_EventEmitter) {
             case 0:
               this.value = value;
               this.timestamp = +new Date();
-              this.publish();
               if (!(this !== null && this !== void 0 && (_this$_store = this._store) !== null && _this$_store !== void 0 && (_this$_store$_options = _this$_store._options) !== null && _this$_store$_options !== void 0 && _this$_store$_options.transport)) {
                 _context.next = 9;
                 break;
               }
               console.log('Transport exists, calling setState on transport');
-              _context.next = 7;
+              _context.next = 6;
               return this._store._options.transport.setState(this);
-            case 7:
-              _context.next = 10;
+            case 6:
+              this.publish();
+              _context.next = 11;
               break;
             case 9:
               console.log("Transport doesn't exist.");
-            case 10:
-              return _context.abrupt("return", this);
+              this.publish();
             case 11:
+              return _context.abrupt("return", this);
+            case 12:
             case "end":
               return _context.stop();
           }
@@ -104,7 +105,7 @@ var State = /*#__PURE__*/function (_EventEmitter) {
                 oldValue = this.value;
                 this.value = storedState.value;
                 console.log('Comparing values', oldValue, this.value);
-                if (JSON.stringify(oldValue) !== JSON.stringify(this.value) && timestamp > this.timestamp) {
+                if (JSON.stringify(oldValue) !== JSON.stringify(this.value)) {
                   console.log('Publishing change');
                   this.publish();
                 }
