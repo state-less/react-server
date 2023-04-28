@@ -1,6 +1,6 @@
 {
   "name": "@state-less/react-server",
-  "version": "2.0.7",
+  "version": "2.0.13",
   "description": "The react-server library",
   "scripts": {
     "build": "babel src --out-dir dist --extensions \".ts,.tsx\" --copy-files && tsc",
@@ -26,6 +26,7 @@
   "dependencies": {
     "@babel/plugin-transform-react-jsx": "^7.21.0",
     "@babel/preset-react": "^7.18.6",
+    "@types/event-emitter": "^0.3.3",
     "@types/graphql": "^14.5.0",
     "apollo-server": "^3.12.0",
     "apollo-server-express": "^3.12.0",

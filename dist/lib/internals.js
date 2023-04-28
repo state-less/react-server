@@ -65,7 +65,7 @@ var render = function render(tree) {
     context: requestContext
   });
   if ((0, _types.isReactServerComponent)(node)) {
-    node = render(node, renderOptions, node);
+    node = render(node, renderOptions, tree);
   }
   var children = Array.isArray(node.children) ? node.children : [node.children].filter(Boolean);
   var _iterator = _createForOfIteratorHelper(children),
@@ -82,7 +82,7 @@ var render = function render(tree) {
       var childResult = null;
       do {
         _Dispatcher["default"].getCurrent().setParentNode((childResult || child).key, node);
-        childResult = render(childResult || child, renderOptions, node);
+        childResult = render(childResult || child, renderOptions, tree);
       } while ((0, _types.isReactServerComponent)(childResult));
       processedChildren.push(childResult);
     }
@@ -100,10 +100,10 @@ var render = function render(tree) {
         propValue = _entry[1];
       if (typeof propValue === 'function') {
         node.props[propName] = render((0, _jsxRuntime.jsx)(_Action.FunctionCall, {
-          component: node.key,
+          component: (parent === null || parent === void 0 ? void 0 : parent.key) || node.key,
           name: propName,
           fn: node.props[propName]
-        }), renderOptions, node);
+        }), renderOptions, tree);
       }
     }
   }

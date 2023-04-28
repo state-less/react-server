@@ -41,7 +41,7 @@ export const serverContext = () =>
 export const render = <T,>(
   tree: ReactServerComponent<T>,
   renderOptions: RenderOptions = { clientProps: null, context: null },
-  parent: ReactServerNode<unknown> | null = null
+  parent: ReactServerComponent<unknown> | null = null
 ): ReactServerNode<T> => {
   const { Component, key, props } = tree;
 
@@ -60,7 +60,7 @@ export const render = <T,>(
     node = render(
       node as unknown as ReactServerComponent<T>,
       renderOptions,
-      node
+      tree
     );
   }
   const children = Array.isArray(node.children)
@@ -81,7 +81,7 @@ export const render = <T,>(
       childResult = render(
         (childResult || child) as ReactServerComponent<T>,
         renderOptions,
-        node
+        tree
       );
     } while (isReactServerComponent(childResult));
 
@@ -96,12 +96,12 @@ export const render = <T,>(
       if (typeof propValue === 'function') {
         node.props[propName] = render(
           <FunctionCall
-            component={node.key}
+            component={parent?.key || node.key}
             name={propName}
             fn={node.props[propName]}
           />,
           renderOptions,
-          node
+          tree
         );
       }
     }

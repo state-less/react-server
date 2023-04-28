@@ -13,6 +13,7 @@ import {
   RequestContext,
 } from './types';
 import { ClientContext, Maybe } from './types';
+import { clientKey } from './util';
 
 type ProviderComponent = {
   context: unknown;
@@ -51,6 +52,8 @@ export const getRuntimeScope = (scope: string, context: RequestContext) => {
   //     : 'server'
   //   : scope;
 };
+
+const Listeners = {};
 class Dispatcher {
   store: Store;
   _pubsub: PubSub;
@@ -114,18 +117,35 @@ class Dispatcher {
     const renderOptions = this._renderOptions;
     const scope = getRuntimeScope(options.scope, renderOptions.context);
     const state = this.store.getState<T>(initialValue, { ...options, scope });
+
     const rerender = () => {
+      for (const listener of Listeners[
+        clientKey(_currentComponent.key, renderOptions.context)
+      ] || []) {
+        state.off('change', listener);
+      }
       render(_currentComponent, renderOptions);
     };
+
+    for (const listener of Listeners[
+      clientKey(_currentComponent.key, renderOptions.context)
+    ] || []) {
+      state.off('change', listener);
+    }
     state.once('change', rerender);
+    Listeners[clientKey(_currentComponent.key, renderOptions.context)] =
+      Listeners[clientKey(_currentComponent.key, renderOptions.context)] || [];
+    Listeners[clientKey(_currentComponent.key, renderOptions.context)].push(
+      rerender
+    );
+
     state.getValue();
     const value = state.value as T;
+
     return [
       value,
       (value: StateValue<T>) => {
-        state.setValue(value).then(() => {
-          console.log('Updated state', value);
-        });
+        state.setValue(value);
       },
     ];
   }
