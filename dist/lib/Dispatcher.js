@@ -142,7 +142,7 @@ var Dispatcher = /*#__PURE__*/function () {
       } finally {
         _iterator2.f();
       }
-      state.once('change', rerender);
+      state.on('change', rerender);
       Listeners[(0, _util.clientKey)(_currentComponent.key, renderOptions.context)] = Listeners[(0, _util.clientKey)(_currentComponent.key, renderOptions.context)] || [];
       Listeners[(0, _util.clientKey)(_currentComponent.key, renderOptions.context)].push(rerender);
       state.getValue();
