@@ -132,7 +132,7 @@ class Dispatcher {
     ] || []) {
       state.off('change', listener);
     }
-    state.on('change', rerender);
+    state.once('change', rerender);
     Listeners[clientKey(_currentComponent.key, renderOptions.context)] =
       Listeners[clientKey(_currentComponent.key, renderOptions.context)] || [];
     Listeners[clientKey(_currentComponent.key, renderOptions.context)].push(
