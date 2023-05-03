@@ -18,8 +18,6 @@ export const Lifecycle = <T,>(
   props: Record<string, any>,
   { key, context, clientProps }: RenderOptions & { key: string }
 ): ReactServerNode<T> => {
-  console.log('adding current component', key);
-
   Dispatcher.getCurrent().setClientContext({
     context,
     clientProps,
@@ -82,7 +80,6 @@ export const render = <T,>(
     components.push(child);
     do {
       Dispatcher.getCurrent().setParentNode((childResult || child).key, node);
-      console.log('rendering child', child.key);
       childResult = render(
         (childResult || child) as ReactServerComponent<T>,
         renderOptions,

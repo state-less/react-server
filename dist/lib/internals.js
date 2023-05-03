@@ -21,7 +21,6 @@ var Lifecycle = function Lifecycle(Component, props, _ref) {
   var key = _ref.key,
     context = _ref.context,
     clientProps = _ref.clientProps;
-  console.log('adding current component', key);
   _Dispatcher["default"].getCurrent().setClientContext({
     context: context,
     clientProps: clientProps
@@ -81,7 +80,6 @@ var render = function render(tree) {
       components.push(child);
       do {
         _Dispatcher["default"].getCurrent().setParentNode((childResult || child).key, node);
-        console.log('rendering child', child.key);
         childResult = render(childResult || child, renderOptions, tree);
       } while ((0, _types.isReactServerComponent)(childResult));
       processedChildren.push(childResult);
