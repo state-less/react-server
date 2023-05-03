@@ -117,26 +117,15 @@ class Dispatcher {
     const scope = getRuntimeScope(options.scope, renderOptions.context);
     const state = this.store.getState<T>(initialValue, { ...options, scope });
 
+    const listenerKey = clientKey(_currentComponent.key, renderOptions.context);
     const rerender = () => {
-      for (const listener of Listeners[
-        clientKey(_currentComponent.key, renderOptions.context)
-      ] || []) {
-        state.off('change', listener);
-      }
+      state.off('change', Listeners[listenerKey]);
       render(_currentComponent, renderOptions);
     };
 
-    for (const listener of Listeners[
-      clientKey(_currentComponent.key, renderOptions.context)
-    ] || []) {
-      state.off('change', listener);
-    }
+    state.off('change', Listeners[listenerKey]);
     state.once('change', rerender);
-    Listeners[clientKey(_currentComponent.key, renderOptions.context)] =
-      Listeners[clientKey(_currentComponent.key, renderOptions.context)] || [];
-    Listeners[clientKey(_currentComponent.key, renderOptions.context)].push(
-      rerender
-    );
+    Listeners[listenerKey] = rerender;
 
     const value = state.value as T;
 
