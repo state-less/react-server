@@ -143,6 +143,7 @@ var Dispatcher = /*#__PURE__*/function () {
       } finally {
         _iterator2.f();
       }
+      console.log('Removed Listeners', state.listeners('change').length);
       Listeners[listenerKey] = [];
       state.once('change', rerender);
       Listeners[listenerKey] = Listeners[listenerKey] || [];

@@ -128,6 +128,7 @@ class Dispatcher {
     for (const listener of Listeners[listenerKey] || []) {
       state.off('change', listener);
     }
+    console.log('Removed Listeners', state.listeners('change').length);
     Listeners[listenerKey] = [];
     state.once('change', rerender);
     Listeners[listenerKey] = Listeners[listenerKey] || [];
