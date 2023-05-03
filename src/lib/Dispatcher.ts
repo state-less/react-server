@@ -54,6 +54,7 @@ export const getRuntimeScope = (scope: string, context: RequestContext) => {
 
 const Listeners = {};
 const recordedStates: State<unknown>[] = [];
+const lastDeps: Record<string, any[]> = {};
 const usedStates: Record<string, Record<string, State<unknown>>> = {};
 class Dispatcher {
   store: Store;
@@ -188,7 +189,18 @@ class Dispatcher {
       return;
     }
     if (isClientContext(clientContext.context)) {
-      fn();
+      const componentKey = this._currentComponent.at(-1).key;
+      let changed = false;
+      for (let i = 0; i < deps.length; i++) {
+        if (lastDeps[componentKey][i] !== deps[i]) {
+          changed = true;
+          break;
+        }
+      }
+      if (changed || (deps.length === 0 && !lastDeps[componentKey])) {
+        fn();
+      }
+      lastDeps[componentKey] = deps;
     }
   }
 

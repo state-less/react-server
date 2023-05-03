@@ -47,6 +47,7 @@ var getRuntimeScope = function getRuntimeScope(scope, context) {
 exports.getRuntimeScope = getRuntimeScope;
 var Listeners = {};
 var recordedStates = [];
+var lastDeps = {};
 var usedStates = {};
 var Dispatcher = /*#__PURE__*/function () {
   function Dispatcher() {
@@ -198,7 +199,18 @@ var Dispatcher = /*#__PURE__*/function () {
         return;
       }
       if ((0, _types.isClientContext)(clientContext.context)) {
-        fn();
+        var componentKey = this._currentComponent.at(-1).key;
+        var changed = false;
+        for (var i = 0; i < deps.length; i++) {
+          if (lastDeps[componentKey][i] !== deps[i]) {
+            changed = true;
+            break;
+          }
+        }
+        if (changed || deps.length === 0 && !lastDeps[componentKey]) {
+          fn();
+        }
+        lastDeps[componentKey] = deps;
       }
     }
   }]);
