@@ -202,7 +202,8 @@ var Dispatcher = /*#__PURE__*/function () {
         var componentKey = this._currentComponent.at(-1).key;
         var changed = false;
         for (var i = 0; i < deps.length; i++) {
-          if (lastDeps[componentKey][i] !== deps[i]) {
+          var _lastDeps$componentKe;
+          if (((_lastDeps$componentKe = lastDeps[componentKey]) === null || _lastDeps$componentKe === void 0 ? void 0 : _lastDeps$componentKe[i]) !== deps[i]) {
             changed = true;
             break;
           }

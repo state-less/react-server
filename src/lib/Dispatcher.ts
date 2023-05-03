@@ -192,7 +192,7 @@ class Dispatcher {
       const componentKey = this._currentComponent.at(-1).key;
       let changed = false;
       for (let i = 0; i < deps.length; i++) {
-        if (lastDeps[componentKey][i] !== deps[i]) {
+        if (lastDeps[componentKey]?.[i] !== deps[i]) {
           changed = true;
           break;
         }
