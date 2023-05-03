@@ -53,13 +53,13 @@ var allOff = function allOff(key, state) {
     for (_iterator.s(); !(_step = _iterator.n()).done;) {
       var listener = _step.value;
       state.off('change', listener);
-      Listeners[key].splice(Listeners[key].indexOf(listener), 1);
     }
   } catch (err) {
     _iterator.e(err);
   } finally {
     _iterator.f();
   }
+  Listeners[key] = [];
 };
 var Dispatcher = /*#__PURE__*/function () {
   function Dispatcher() {

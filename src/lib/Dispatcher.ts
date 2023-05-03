@@ -56,8 +56,8 @@ const Listeners = {};
 const allOff = (key, state) => {
   for (const listener of (Listeners[key] || []).slice()) {
     state.off('change', listener);
-    Listeners[key].splice(Listeners[key].indexOf(listener), 1);
   }
+  Listeners[key] = [];
 };
 
 class Dispatcher {
