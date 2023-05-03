@@ -41,7 +41,7 @@ var State = /*#__PURE__*/function (_EventEmitter) {
 }(_events.EventEmitter); // ee(State.prototype);
 exports.State = State;
 var Store = /*#__PURE__*/function () {
-  function Store(options) {
+  function Store(_options) {
     var _this2 = this;
     (0, _classCallCheck2["default"])(this, Store);
     (0, _defineProperty2["default"])(this, "getScope", function (scope) {
@@ -49,9 +49,16 @@ var Store = /*#__PURE__*/function () {
       _this2._scopes.set(scope, new Map());
       return _this2._scopes.get(scope);
     });
+    (0, _defineProperty2["default"])(this, "deleteState", function (options) {
+      var key = options.key,
+        scope = options.scope;
+      var states = _this2.getScope(scope);
+      states["delete"](key);
+      _this2._states["delete"](Store.getKey(options));
+    });
     this._states = new Map();
     this._scopes = new Map();
-    this._options = options;
+    this._options = _options;
   }
   (0, _createClass2["default"])(Store, [{
     key: "createState",

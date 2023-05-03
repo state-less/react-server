@@ -71,6 +71,13 @@ export class Store {
     return state;
   }
 
+  deleteState = (options: StateOptions) => {
+    const { key, scope } = options;
+    const states = this.getScope(scope);
+    states.delete(key);
+    this._states.delete(Store.getKey(options));
+  };
+
   hasState(key: string | StateOptions) {
     if (typeof key === 'string') {
       return this._states.has(key);

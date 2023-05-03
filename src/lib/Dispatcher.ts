@@ -1,5 +1,5 @@
 import { PubSub } from 'graphql-subscriptions';
-import { StateOptions, StateValue, Store } from '../store/MemoryStore';
+import { State, StateOptions, StateValue, Store } from '../store/MemoryStore';
 import { render } from './internals';
 import { useEffect } from './reactServer';
 import { Scopes } from './scopes';
@@ -53,6 +53,7 @@ export const getRuntimeScope = (scope: string, context: RequestContext) => {
 };
 
 const Listeners = {};
+const States: Record<string, Record<string, State<unknown>>> = {};
 class Dispatcher {
   store: Store;
   _pubsub: PubSub;
@@ -122,6 +123,9 @@ class Dispatcher {
       '::' +
       state.key;
 
+    States[_currentComponent.key] = States[_currentComponent.key] || {};
+    States[_currentComponent.key][state.key] = state;
+
     const rerender = () => {
       for (const listener of Listeners[listenerKey] || []) {
         state.off('change', listener);
@@ -180,6 +184,17 @@ class Dispatcher {
       }
     } while (parent);
     return null;
+  };
+
+  destroy = () => {
+    const _currentComponent = this._currentComponent.at(-1);
+
+    const states = States[_currentComponent.key];
+
+    console.log('destroying states', Object.keys(states).length);
+    for (const key in states) {
+      states[key]._store.deleteState(states[key]);
+    }
   };
 }
 

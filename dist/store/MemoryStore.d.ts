@@ -25,6 +25,7 @@ export declare class Store {
     constructor(options: StoreOptions);
     getScope: (scope: string) => Map<string, State<unknown>>;
     createState<T>(value: StateValue<T>, options?: StateOptions): State<T>;
+    deleteState: (options: StateOptions) => void;
     hasState(key: string | StateOptions): boolean;
     getState<T>(initialValue: StateValue<T>, options: StateOptions): State<T>;
 }

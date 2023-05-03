@@ -46,6 +46,7 @@ var getRuntimeScope = function getRuntimeScope(scope, context) {
 };
 exports.getRuntimeScope = getRuntimeScope;
 var Listeners = {};
+var States = {};
 var Dispatcher = /*#__PURE__*/function () {
   function Dispatcher() {
     var _this = this;
@@ -77,6 +78,14 @@ var Dispatcher = /*#__PURE__*/function () {
         }
       } while (parent);
       return null;
+    });
+    (0, _defineProperty2["default"])(this, "destroy", function () {
+      var _currentComponent = _this._currentComponent.at(-1);
+      var states = States[_currentComponent.key];
+      console.log('destroying states', Object.keys(states).length);
+      for (var key in states) {
+        states[key]._store.deleteState(states[key]);
+      }
     });
     this._currentComponent = [];
     this._parentLookup = new Map();
@@ -116,6 +125,8 @@ var Dispatcher = /*#__PURE__*/function () {
         scope: scope
       }));
       var listenerKey = (0, _util.clientKey)(_currentComponent.key, renderOptions.context) + '::' + state.key;
+      States[_currentComponent.key] = States[_currentComponent.key] || {};
+      States[_currentComponent.key][state.key] = state;
       var rerender = function rerender() {
         var _iterator = _createForOfIteratorHelper(Listeners[listenerKey] || []),
           _step;
