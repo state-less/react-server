@@ -197,19 +197,7 @@ class Dispatcher {
 
   destroy = (component) => {
     const _currentComponent = component || this._currentComponent.at(-1);
-
-    // /** We need to delete any state used by the component */
-    // this._recordStates = true;
-    // render(_currentComponent, this._renderOptions);
-    // this._recordStates = false;
-
-    // const states = recordedStates;
-    const states = usedStates[_currentComponent.key] || {};
-
-    for (const key in states) {
-      states[key]._store.deleteState(states[key]);
-    }
-    recordedStates.length = 0;
+    this.store.purgeLabels(_currentComponent.key);
   };
 }
 

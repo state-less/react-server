@@ -82,18 +82,7 @@ var Dispatcher = /*#__PURE__*/function () {
     });
     (0, _defineProperty2["default"])(this, "destroy", function (component) {
       var _currentComponent = component || _this._currentComponent.at(-1);
-
-      // /** We need to delete any state used by the component */
-      // this._recordStates = true;
-      // render(_currentComponent, this._renderOptions);
-      // this._recordStates = false;
-
-      // const states = recordedStates;
-      var states = usedStates[_currentComponent.key] || {};
-      for (var key in states) {
-        states[key]._store.deleteState(states[key]);
-      }
-      recordedStates.length = 0;
+      _this.store.purgeLabels(_currentComponent.key);
     });
     this._currentComponent = [];
     this._parentLookup = new Map();
