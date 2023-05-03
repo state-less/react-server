@@ -94,7 +94,6 @@ var render = function render(tree) {
   } finally {
     _iterator.f();
   }
-  node._children = components;
   node.children = processedChildren;
   if (isServerSideProps(node)) {
     for (var _i = 0, _Object$entries = Object.entries(node.props); _i < _Object$entries.length; _i++) {

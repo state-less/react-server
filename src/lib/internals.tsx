@@ -90,7 +90,6 @@ export const render = <T,>(
     processedChildren.push(childResult);
   }
 
-  node._children = components;
   node.children = processedChildren;
 
   if (isServerSideProps(node)) {

@@ -1,5 +1,5 @@
 import { PubSub } from 'graphql-subscriptions';
-import { StateOptions, StateValue, Store } from '../store/MemoryStore';
+import { State, StateOptions, StateValue, Store } from '../store/MemoryStore';
 import { ReactServerComponent, ReactServerNode, RenderOptions, RequestContext } from './types';
 type ProviderComponent = {
     context: unknown;
@@ -37,5 +37,8 @@ declare class Dispatcher {
     useEffect(fn: () => void, deps: Array<any>): [StateValue, (value: StateValue) => void];
     useContext: (context: Context<unknown>) => unknown;
     destroy: (component: any) => void;
+    getStatesToDestroy: (component: any) => {
+        [x: string]: State<unknown>;
+    };
 }
 export default Dispatcher;
