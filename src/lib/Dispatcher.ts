@@ -53,13 +53,14 @@ export const getRuntimeScope = (scope: string, context: RequestContext) => {
 };
 
 const Listeners = {};
-const States: Record<string, Record<string, State<unknown>>> = {};
+const recordedStates: State<unknown>[] = [];
 class Dispatcher {
   store: Store;
   _pubsub: PubSub;
   _currentComponent: ReactServerComponent<unknown>[];
   _renderOptions: RenderOptions;
   _parentLookup: Map<string, ReactServerNode<unknown>>;
+  _recordStates: boolean;
 
   static _tree: ReactServerNode<unknown>;
   static _current: Dispatcher;
@@ -123,8 +124,9 @@ class Dispatcher {
       '::' +
       state.key;
 
-    States[_currentComponent.key] = States[_currentComponent.key] || {};
-    States[_currentComponent.key][state.key] = state;
+    if (this._recordStates) {
+      recordedStates.push(state);
+    }
 
     const rerender = () => {
       for (const listener of Listeners[listenerKey] || []) {
@@ -189,25 +191,16 @@ class Dispatcher {
   destroy = (component) => {
     const _currentComponent = component || this._currentComponent.at(-1);
 
+    this._recordStates = true;
     const node = render(_currentComponent, this._renderOptions);
+    this._recordStates = false;
 
-    const states = this.getStatesToDestroy(node);
+    const states = recordedStates;
     console.log('destroying states', Object.keys(states).length, node);
     for (const key in states) {
       states[key]._store.deleteState(states[key]);
     }
-  };
-
-  getStatesToDestroy = (component) => {
-    const ownStates = States[component.key] || {};
-    const states = { ...ownStates };
-    for (const key in component.children) {
-      const child = component.children[key];
-      if (child.type === 'component') {
-        Object.assign(states, this.getStatesToDestroy(child));
-      }
-    }
-    return states;
+    recordedStates.length = 0;
   };
 }
 

@@ -46,7 +46,7 @@ var getRuntimeScope = function getRuntimeScope(scope, context) {
 };
 exports.getRuntimeScope = getRuntimeScope;
 var Listeners = {};
-var States = {};
+var recordedStates = [];
 var Dispatcher = /*#__PURE__*/function () {
   function Dispatcher() {
     var _this = this;
@@ -81,23 +81,15 @@ var Dispatcher = /*#__PURE__*/function () {
     });
     (0, _defineProperty2["default"])(this, "destroy", function (component) {
       var _currentComponent = component || _this._currentComponent.at(-1);
+      _this._recordStates = true;
       var node = (0, _internals.render)(_currentComponent, _this._renderOptions);
-      var states = _this.getStatesToDestroy(node);
+      _this._recordStates = false;
+      var states = recordedStates;
       console.log('destroying states', Object.keys(states).length, node);
       for (var key in states) {
         states[key]._store.deleteState(states[key]);
       }
-    });
-    (0, _defineProperty2["default"])(this, "getStatesToDestroy", function (component) {
-      var ownStates = States[component.key] || {};
-      var states = _objectSpread({}, ownStates);
-      for (var key in component.children) {
-        var child = component.children[key];
-        if (child.type === 'component') {
-          Object.assign(states, _this.getStatesToDestroy(child));
-        }
-      }
-      return states;
+      recordedStates.length = 0;
     });
     this._currentComponent = [];
     this._parentLookup = new Map();
@@ -137,8 +129,9 @@ var Dispatcher = /*#__PURE__*/function () {
         scope: scope
       }));
       var listenerKey = (0, _util.clientKey)(_currentComponent.key, renderOptions.context) + '::' + state.key;
-      States[_currentComponent.key] = States[_currentComponent.key] || {};
-      States[_currentComponent.key][state.key] = state;
+      if (this._recordStates) {
+        recordedStates.push(state);
+      }
       var rerender = function rerender() {
         var _iterator = _createForOfIteratorHelper(Listeners[listenerKey] || []),
           _step;
