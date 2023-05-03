@@ -122,8 +122,6 @@ class Dispatcher {
       for (const listener of Listeners[listenerKey] || []) {
         state.off('change', listener);
       }
-      Listeners[listenerKey] = [];
-
       render(_currentComponent, renderOptions);
     };
 

@@ -129,7 +129,6 @@ var Dispatcher = /*#__PURE__*/function () {
         } finally {
           _iterator.f();
         }
-        Listeners[listenerKey] = [];
         (0, _internals.render)(_currentComponent, renderOptions);
       };
       var _iterator2 = _createForOfIteratorHelper(Listeners[listenerKey] || []),
