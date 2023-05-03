@@ -116,7 +116,7 @@ var Dispatcher = /*#__PURE__*/function () {
       var state = this.store.getState(initialValue, _objectSpread(_objectSpread({}, options), {}, {
         scope: scope
       }));
-      var listenerKey = (0, _util.clientKey)(_currentComponent.key, renderOptions.context);
+      var listenerKey = (0, _util.clientKey)(_currentComponent.key, renderOptions.context) + '::' + state.key;
       var rerender = function rerender() {
         var _iterator = _createForOfIteratorHelper(Listeners[listenerKey] || []),
           _step;

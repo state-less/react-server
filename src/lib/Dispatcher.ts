@@ -117,7 +117,11 @@ class Dispatcher {
     const scope = getRuntimeScope(options.scope, renderOptions.context);
     const state = this.store.getState<T>(initialValue, { ...options, scope });
 
-    const listenerKey = clientKey(_currentComponent.key, renderOptions.context);
+    const listenerKey =
+      clientKey(_currentComponent.key, renderOptions.context) +
+      '::' +
+      state.key;
+
     const rerender = () => {
       for (const listener of Listeners[listenerKey] || []) {
         state.off('change', listener);
