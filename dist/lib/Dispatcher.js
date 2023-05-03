@@ -129,6 +129,7 @@ var Dispatcher = /*#__PURE__*/function () {
         } finally {
           _iterator.f();
         }
+        Listeners[listenerKey] = [];
         (0, _internals.render)(_currentComponent, renderOptions);
       };
       var _iterator2 = _createForOfIteratorHelper(Listeners[listenerKey] || []),
@@ -143,8 +144,9 @@ var Dispatcher = /*#__PURE__*/function () {
       } finally {
         _iterator2.f();
       }
-      state.once('change', rerender);
       Listeners[listenerKey] = [];
+      state.once('change', rerender);
+      Listeners[listenerKey] = Listeners[listenerKey] || [];
       Listeners[listenerKey].push(rerender);
       var value = state.value;
       return [value, function (value) {

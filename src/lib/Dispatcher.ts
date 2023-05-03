@@ -122,14 +122,17 @@ class Dispatcher {
       for (const listener of Listeners[listenerKey] || []) {
         state.off('change', listener);
       }
+      Listeners[listenerKey] = [];
+
       render(_currentComponent, renderOptions);
     };
 
     for (const listener of Listeners[listenerKey] || []) {
       state.off('change', listener);
     }
-    state.once('change', rerender);
     Listeners[listenerKey] = [];
+    state.once('change', rerender);
+    Listeners[listenerKey] = Listeners[listenerKey] || [];
     Listeners[listenerKey].push(rerender);
 
     const value = state.value as T;
