@@ -199,7 +199,7 @@ var Dispatcher = /*#__PURE__*/function () {
         return;
       }
       if ((0, _types.isClientContext)(clientContext.context)) {
-        var componentKey = this._currentComponent.at(-1).key;
+        var componentKey = (0, _util.clientKey)(this._currentComponent.at(-1).key, clientContext.context);
         var changed = false;
         for (var i = 0; i < deps.length; i++) {
           var _lastDeps$componentKe;
