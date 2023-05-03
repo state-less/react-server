@@ -11,7 +11,6 @@ import {
   RenderOptions,
   RequestContext,
 } from './types';
-import { ClientContext, Maybe } from './types';
 import { clientKey } from './util';
 
 type ProviderComponent = {
@@ -53,6 +52,14 @@ export const getRuntimeScope = (scope: string, context: RequestContext) => {
 };
 
 const Listeners = {};
+
+const allOff = (key, state) => {
+  for (const listener of (Listeners[key] || []).slice()) {
+    state.off('change', listener);
+    Listeners[key].splice(Listeners[key].indexOf(listener), 1);
+  }
+};
+
 class Dispatcher {
   store: Store;
   _pubsub: PubSub;
@@ -119,20 +126,13 @@ class Dispatcher {
     const value = state.value as T;
 
     const rerender = () => {
-      for (const listener of Listeners[
-        clientKey(_currentComponent.key, renderOptions.context)
-      ] || []) {
-        state.off('change', listener);
-      }
+      allOff(clientKey(_currentComponent.key, renderOptions.context), state);
       render(_currentComponent, renderOptions);
     };
 
-    for (const listener of Listeners[
-      clientKey(_currentComponent.key, renderOptions.context)
-    ] || []) {
-      state.off('change', listener);
-    }
+    allOff(clientKey(_currentComponent.key, renderOptions.context), state);
     state.once('change', rerender);
+
     Listeners[clientKey(_currentComponent.key, renderOptions.context)] =
       Listeners[clientKey(_currentComponent.key, renderOptions.context)] || [];
     Listeners[clientKey(_currentComponent.key, renderOptions.context)].push(
