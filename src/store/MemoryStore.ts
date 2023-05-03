@@ -12,6 +12,7 @@ export type StateValue<T = unknown> = T;
 export type StateOptions = {
   scope: string;
   key: string;
+  labels?: string[];
 };
 
 export class State<T> extends EventEmitter {
@@ -19,6 +20,7 @@ export class State<T> extends EventEmitter {
   key: string;
   scope: string;
   value: StateValue<T>;
+  labels: string[];
 
   _store: Store;
 
@@ -27,6 +29,7 @@ export class State<T> extends EventEmitter {
     this.id = createId(options.scope);
     this.key = options.key;
     this.scope = options.scope;
+    this.labels = options.labels || [];
     this.value = initialValue;
   }
 
@@ -60,6 +63,7 @@ export class Store {
     this._scopes.set(scope, new Map());
     return this._scopes.get(scope);
   };
+
   createState<T>(value: StateValue<T>, options?: StateOptions) {
     const state = new State(value, { ...options });
     state._store = this;
@@ -74,6 +78,7 @@ export class Store {
   deleteState = (options: StateOptions) => {
     const { key, scope } = options;
     const states = this.getScope(scope);
+    console.log(`Deleting state ${key}`);
     states.delete(key);
     this._states.delete(Store.getKey(options));
   };
@@ -89,10 +94,18 @@ export class Store {
   }
 
   getState<T>(initialValue: StateValue<T>, options: StateOptions): State<T> {
-    const { key } = options;
     if (!this.hasState(Store.getKey(options)))
       return this.createState<T>(initialValue, options);
 
     return this._states.get(Store.getKey(options));
   }
+
+  purgeLabels = (labels: string[]) => {
+    console.log('purging labels', labels);
+    for (const state of this._states.values()) {
+      if (state.labels.some((label) => labels.includes(label))) {
+        this.deleteState({ scope: state.scope, key: state.key });
+      }
+    }
+  };
 }

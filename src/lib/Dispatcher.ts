@@ -54,6 +54,7 @@ export const getRuntimeScope = (scope: string, context: RequestContext) => {
 
 const Listeners = {};
 const recordedStates: State<unknown>[] = [];
+const usedStates: Record<string, Record<string, State<unknown>>> = {};
 class Dispatcher {
   store: Store;
   _pubsub: PubSub;
@@ -118,6 +119,12 @@ class Dispatcher {
     const renderOptions = this._renderOptions;
     const scope = getRuntimeScope(options.scope, renderOptions.context);
     const state = this.store.getState<T>(initialValue, { ...options, scope });
+
+    for (const comp of this._currentComponent) {
+      if (!state.labels.includes(comp.key)) {
+        state.labels.push(comp.key);
+      }
+    }
 
     const listenerKey =
       clientKey(_currentComponent.key, renderOptions.context) +
@@ -191,12 +198,14 @@ class Dispatcher {
   destroy = (component) => {
     const _currentComponent = component || this._currentComponent.at(-1);
 
-    this._recordStates = true;
-    const node = render(_currentComponent, this._renderOptions);
-    this._recordStates = false;
+    // /** We need to delete any state used by the component */
+    // this._recordStates = true;
+    // render(_currentComponent, this._renderOptions);
+    // this._recordStates = false;
 
-    const states = recordedStates;
-    console.log('destroying states', Object.keys(states).length, node);
+    // const states = recordedStates;
+    const states = usedStates[_currentComponent.key] || {};
+
     for (const key in states) {
       states[key]._store.deleteState(states[key]);
     }

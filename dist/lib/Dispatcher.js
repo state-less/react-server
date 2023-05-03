@@ -47,6 +47,7 @@ var getRuntimeScope = function getRuntimeScope(scope, context) {
 exports.getRuntimeScope = getRuntimeScope;
 var Listeners = {};
 var recordedStates = [];
+var usedStates = {};
 var Dispatcher = /*#__PURE__*/function () {
   function Dispatcher() {
     var _this = this;
@@ -81,11 +82,14 @@ var Dispatcher = /*#__PURE__*/function () {
     });
     (0, _defineProperty2["default"])(this, "destroy", function (component) {
       var _currentComponent = component || _this._currentComponent.at(-1);
-      _this._recordStates = true;
-      var node = (0, _internals.render)(_currentComponent, _this._renderOptions);
-      _this._recordStates = false;
-      var states = recordedStates;
-      console.log('destroying states', Object.keys(states).length, node);
+
+      // /** We need to delete any state used by the component */
+      // this._recordStates = true;
+      // render(_currentComponent, this._renderOptions);
+      // this._recordStates = false;
+
+      // const states = recordedStates;
+      var states = usedStates[_currentComponent.key] || {};
       for (var key in states) {
         states[key]._store.deleteState(states[key]);
       }
@@ -128,36 +132,50 @@ var Dispatcher = /*#__PURE__*/function () {
       var state = this.store.getState(initialValue, _objectSpread(_objectSpread({}, options), {}, {
         scope: scope
       }));
+      var _iterator = _createForOfIteratorHelper(this._currentComponent),
+        _step;
+      try {
+        for (_iterator.s(); !(_step = _iterator.n()).done;) {
+          var comp = _step.value;
+          if (!state.labels.includes(comp.key)) {
+            state.labels.push(comp.key);
+          }
+        }
+      } catch (err) {
+        _iterator.e(err);
+      } finally {
+        _iterator.f();
+      }
       var listenerKey = (0, _util.clientKey)(_currentComponent.key, renderOptions.context) + '::' + state.key;
       if (this._recordStates) {
         recordedStates.push(state);
       }
       var rerender = function rerender() {
-        var _iterator = _createForOfIteratorHelper(Listeners[listenerKey] || []),
-          _step;
+        var _iterator2 = _createForOfIteratorHelper(Listeners[listenerKey] || []),
+          _step2;
         try {
-          for (_iterator.s(); !(_step = _iterator.n()).done;) {
-            var listener = _step.value;
+          for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
+            var listener = _step2.value;
             state.off('change', listener);
           }
         } catch (err) {
-          _iterator.e(err);
+          _iterator2.e(err);
         } finally {
-          _iterator.f();
+          _iterator2.f();
         }
         (0, _internals.render)(_currentComponent, renderOptions);
       };
-      var _iterator2 = _createForOfIteratorHelper(Listeners[listenerKey] || []),
-        _step2;
+      var _iterator3 = _createForOfIteratorHelper(Listeners[listenerKey] || []),
+        _step3;
       try {
-        for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
-          var listener = _step2.value;
+        for (_iterator3.s(); !(_step3 = _iterator3.n()).done;) {
+          var listener = _step3.value;
           state.off('change', listener);
         }
       } catch (err) {
-        _iterator2.e(err);
+        _iterator3.e(err);
       } finally {
-        _iterator2.f();
+        _iterator3.f();
       }
       Listeners[listenerKey] = [];
       state.on('change', rerender);
