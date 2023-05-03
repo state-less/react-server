@@ -95,7 +95,7 @@ var Dispatcher = /*#__PURE__*/function () {
       } finally {
         _iterator.f();
       }
-      console.log('destroying states', Object.keys(states).length, node._children);
+      console.log('destroying states', Object.keys(states).length, node);
       for (var key in states) {
         states[key]._store.deleteState(states[key]);
       }

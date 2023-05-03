@@ -197,11 +197,7 @@ class Dispatcher {
       this.destroy(child);
     }
 
-    console.log(
-      'destroying states',
-      Object.keys(states).length,
-      node._children
-    );
+    console.log('destroying states', Object.keys(states).length, node);
     for (const key in states) {
       states[key]._store.deleteState(states[key]);
     }
