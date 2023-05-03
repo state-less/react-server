@@ -144,7 +144,7 @@ var Dispatcher = /*#__PURE__*/function () {
         _iterator2.f();
       }
       state.once('change', rerender);
-      Listeners[listenerKey] = Listeners[listenerKey] || [];
+      Listeners[listenerKey] = [];
       Listeners[listenerKey].push(rerender);
       var value = state.value;
       return [value, function (value) {

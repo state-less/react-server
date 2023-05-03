@@ -129,7 +129,7 @@ class Dispatcher {
       state.off('change', listener);
     }
     state.once('change', rerender);
-    Listeners[listenerKey] = Listeners[listenerKey] || [];
+    Listeners[listenerKey] = [];
     Listeners[listenerKey].push(rerender);
 
     const value = state.value as T;
