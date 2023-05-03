@@ -103,6 +103,7 @@ export class Store {
   purgeLabels = (labels: string[]) => {
     console.log('purging labels', labels);
     for (const state of this._states.values()) {
+      console.log(`Checking state ${state.key} ${state.labels}}`);
       if (state.labels.some((label) => labels.includes(label))) {
         this.deleteState({ scope: state.scope, key: state.key });
       }

@@ -68,6 +68,7 @@ var Store = /*#__PURE__*/function () {
       try {
         for (_iterator.s(); !(_step = _iterator.n()).done;) {
           var state = _step.value;
+          console.log("Checking state ".concat(state.key, " ").concat(state.labels, "}"));
           if (state.labels.some(function (label) {
             return labels.includes(label);
           })) {
