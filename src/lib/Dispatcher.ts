@@ -189,7 +189,7 @@ class Dispatcher {
   destroy = (component) => {
     const _currentComponent = component || this._currentComponent.at(-1);
 
-    const states = States[_currentComponent.key];
+    const states = States[_currentComponent.key] || {};
 
     const node = render(_currentComponent, this._renderOptions);
 
