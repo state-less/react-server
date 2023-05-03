@@ -114,10 +114,10 @@ var Dispatcher = /*#__PURE__*/function () {
       }));
       var listenerKey = (0, _util.clientKey)(_currentComponent.key, renderOptions.context);
       var rerender = function rerender() {
-        state.off('change', Listeners[listenerKey]);
+        if (Listeners[listenerKey]) state.off('change', Listeners[listenerKey]);
         (0, _internals.render)(_currentComponent, renderOptions);
       };
-      state.off('change', Listeners[listenerKey]);
+      if (Listeners[listenerKey]) state.off('change', Listeners[listenerKey]);
       state.once('change', rerender);
       Listeners[listenerKey] = rerender;
       var value = state.value;

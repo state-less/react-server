@@ -119,11 +119,11 @@ class Dispatcher {
 
     const listenerKey = clientKey(_currentComponent.key, renderOptions.context);
     const rerender = () => {
-      state.off('change', Listeners[listenerKey]);
+      if (Listeners[listenerKey]) state.off('change', Listeners[listenerKey]);
       render(_currentComponent, renderOptions);
     };
 
-    state.off('change', Listeners[listenerKey]);
+    if (Listeners[listenerKey]) state.off('change', Listeners[listenerKey]);
     state.once('change', rerender);
     Listeners[listenerKey] = rerender;
 
