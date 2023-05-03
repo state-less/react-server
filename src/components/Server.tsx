@@ -1,5 +1,6 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
 import { createContext } from '../lib/Dispatcher';
-import pckg from '../_package.json';
+const pckg = require('../../package.json');
 
 const context = createContext();
 

@@ -1,7 +1,7 @@
 /// <reference types="node" />
 export declare const Server: (props: any) => {
     children: any;
-    version: string;
+    version: any;
     uptime: number;
     platform: NodeJS.Platform;
 };
