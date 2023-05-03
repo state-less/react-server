@@ -36,6 +36,7 @@ declare class Dispatcher {
     popCurrentComponent: () => void;
     useState<T>(initialValue: StateValue<T>, options: StateOptions): [StateValue<T>, (value: StateValue<T>) => void];
     useEffect(fn: () => void, deps: Array<any>): [StateValue, (value: StateValue) => void];
+    useClientEffect(fn: () => void, deps: Array<any>): [StateValue, (value: StateValue) => void];
     useContext: (context: Context<unknown>) => unknown;
     destroy: (component?: any) => void;
 }

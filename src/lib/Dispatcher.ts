@@ -177,6 +177,21 @@ class Dispatcher {
     }
   }
 
+  useClientEffect(
+    fn: () => void,
+    deps: Array<any>
+  ): [StateValue, (value: StateValue) => void] {
+    const clientContext = this._renderOptions;
+
+    // Don't run during server side rendering
+    if (isServerContext(clientContext.context)) {
+      return;
+    }
+    if (isClientContext(clientContext.context)) {
+      fn();
+    }
+  }
+
   useContext = (context: Context<unknown>) => {
     const _currentComponent = this._currentComponent.at(-1);
     if (!_currentComponent) {

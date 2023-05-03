@@ -188,6 +188,19 @@ var Dispatcher = /*#__PURE__*/function () {
         fn();
       }
     }
+  }, {
+    key: "useClientEffect",
+    value: function useClientEffect(fn, deps) {
+      var clientContext = this._renderOptions;
+
+      // Don't run during server side rendering
+      if ((0, _types.isServerContext)(clientContext.context)) {
+        return;
+      }
+      if ((0, _types.isClientContext)(clientContext.context)) {
+        fn();
+      }
+    }
   }]);
   return Dispatcher;
 }();
