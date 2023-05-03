@@ -134,7 +134,7 @@ class Dispatcher {
       listenerKey
     );
     Listeners[listenerKey] = [];
-    state.once('change', rerender);
+    state.on('change', rerender);
     Listeners[listenerKey] = Listeners[listenerKey] || [];
     Listeners[listenerKey].push(rerender);
 
