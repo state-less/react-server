@@ -198,9 +198,9 @@ class Dispatcher {
         }
       }
       if (changed || (deps.length === 0 && !lastDeps[componentKey])) {
+        lastDeps[componentKey] = deps;
         fn();
       }
-      lastDeps[componentKey] = deps;
     }
   }
 

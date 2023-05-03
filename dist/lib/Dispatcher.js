@@ -208,9 +208,9 @@ var Dispatcher = /*#__PURE__*/function () {
           }
         }
         if (changed || deps.length === 0 && !lastDeps[componentKey]) {
+          lastDeps[componentKey] = deps;
           fn();
         }
-        lastDeps[componentKey] = deps;
       }
     }
   }]);
