@@ -6,6 +6,7 @@ import { Scopes } from './scopes';
 import {
   isClientContext,
   isProvider,
+  isServerContext,
   ReactServerComponent,
   ReactServerNode,
   RenderOptions,
@@ -52,14 +53,6 @@ export const getRuntimeScope = (scope: string, context: RequestContext) => {
 };
 
 const Listeners = {};
-
-const allOff = (key, state) => {
-  for (const listener of (Listeners[key] || []).slice()) {
-    state.off('change', listener);
-  }
-  Listeners[key] = [];
-};
-
 class Dispatcher {
   store: Store;
   _pubsub: PubSub;
@@ -123,21 +116,29 @@ class Dispatcher {
     const renderOptions = this._renderOptions;
     const scope = getRuntimeScope(options.scope, renderOptions.context);
     const state = this.store.getState<T>(initialValue, { ...options, scope });
-    const value = state.value as T;
 
     const rerender = () => {
-      allOff(clientKey(_currentComponent.key, renderOptions.context), state);
+      for (const listener of Listeners[
+        clientKey(_currentComponent.key, renderOptions.context)
+      ] || []) {
+        state.off('change', listener);
+      }
       render(_currentComponent, renderOptions);
     };
 
-    allOff(clientKey(_currentComponent.key, renderOptions.context), state);
+    for (const listener of Listeners[
+      clientKey(_currentComponent.key, renderOptions.context)
+    ] || []) {
+      state.off('change', listener);
+    }
     state.once('change', rerender);
-
     Listeners[clientKey(_currentComponent.key, renderOptions.context)] =
       Listeners[clientKey(_currentComponent.key, renderOptions.context)] || [];
     Listeners[clientKey(_currentComponent.key, renderOptions.context)].push(
       rerender
     );
+
+    const value = state.value as T;
 
     return [
       value,
@@ -158,7 +159,9 @@ class Dispatcher {
       return;
     }
 
-    fn();
+    if (isServerContext(clientContext.context)) {
+      fn();
+    }
   }
 
   useContext = (context: Context<unknown>) => {
