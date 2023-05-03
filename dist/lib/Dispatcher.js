@@ -109,6 +109,7 @@ var Dispatcher = /*#__PURE__*/function () {
   }, {
     key: "useState",
     value: function useState(initialValue, options) {
+      var _Listeners$listenerKe;
       var _currentComponent = this._currentComponent.at(-1);
       var renderOptions = this._renderOptions;
       var scope = getRuntimeScope(options.scope, renderOptions.context);
@@ -143,7 +144,7 @@ var Dispatcher = /*#__PURE__*/function () {
       } finally {
         _iterator2.f();
       }
-      console.log('Removed Listeners', state.listeners('change').length, Listeners[listenerKey].length, listenerKey);
+      console.log('Removed Listeners', state.listeners('change').length, (_Listeners$listenerKe = Listeners[listenerKey]) === null || _Listeners$listenerKe === void 0 ? void 0 : _Listeners$listenerKe.length, listenerKey);
       Listeners[listenerKey] = [];
       state.on('change', rerender);
       Listeners[listenerKey] = Listeners[listenerKey] || [];
