@@ -131,6 +131,7 @@ class Dispatcher {
     console.log(
       'Removed Listeners',
       state.listeners('change').length,
+      Listeners[listenerKey].length,
       listenerKey
     );
     Listeners[listenerKey] = [];
