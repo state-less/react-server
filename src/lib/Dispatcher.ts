@@ -195,7 +195,7 @@ class Dispatcher {
     return null;
   };
 
-  destroy = (component) => {
+  destroy = (component?) => {
     const _currentComponent = component || this._currentComponent.at(-1);
     this.store.purgeLabels(_currentComponent.key);
   };
