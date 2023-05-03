@@ -193,7 +193,7 @@ class Dispatcher {
 
     const node = render(_currentComponent, this._renderOptions);
 
-    for (const child of node.children) {
+    for (const child of node._children) {
       this.destroy(child);
     }
 

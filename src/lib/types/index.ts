@@ -31,6 +31,7 @@ export type RenderOptions = {
 export type ReactServerNode<T> = {
   __typename: string;
   children: Array<ReactServerNode<unknown>>;
+  _children: Array<ReactServerComponent<unknown>>;
   key: string;
 } & T;
 

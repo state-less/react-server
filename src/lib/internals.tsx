@@ -67,6 +67,7 @@ export const render = <T,>(
     ? node.children
     : [node.children].filter(Boolean);
 
+  const components: ReactServerComponent<unknown>[] = [];
   for (const child of children) {
     if (!isReactServerComponent(child)) {
       if (isReactServerNode(child)) {
@@ -76,6 +77,7 @@ export const render = <T,>(
     }
 
     let childResult: ReactServerNode<T> | ReactServerComponent<unknown> = null;
+    components.push(child);
     do {
       Dispatcher.getCurrent().setParentNode((childResult || child).key, node);
       childResult = render(
@@ -88,6 +90,7 @@ export const render = <T,>(
     processedChildren.push(childResult);
   }
 
+  node._children = components;
   node.children = processedChildren;
 
   if (isServerSideProps(node)) {

@@ -69,6 +69,7 @@ var render = function render(tree) {
     node = render(node, renderOptions, tree);
   }
   var children = Array.isArray(node.children) ? node.children : [node.children].filter(Boolean);
+  var components = [];
   var _iterator = _createForOfIteratorHelper(children),
     _step;
   try {
@@ -81,6 +82,7 @@ var render = function render(tree) {
         continue;
       }
       var childResult = null;
+      components.push(child);
       do {
         _Dispatcher["default"].getCurrent().setParentNode((childResult || child).key, node);
         childResult = render(childResult || child, renderOptions, tree);
@@ -92,6 +94,7 @@ var render = function render(tree) {
   } finally {
     _iterator.f();
   }
+  node._children = components;
   node.children = processedChildren;
   if (isServerSideProps(node)) {
     for (var _i = 0, _Object$entries = Object.entries(node.props); _i < _Object$entries.length; _i++) {

@@ -83,7 +83,7 @@ var Dispatcher = /*#__PURE__*/function () {
       var _currentComponent = component || _this._currentComponent.at(-1);
       var states = States[_currentComponent.key];
       var node = (0, _internals.render)(_currentComponent, _this._renderOptions);
-      var _iterator = _createForOfIteratorHelper(node.children),
+      var _iterator = _createForOfIteratorHelper(node._children),
         _step;
       try {
         for (_iterator.s(); !(_step = _iterator.n()).done;) {
