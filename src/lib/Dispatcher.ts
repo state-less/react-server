@@ -186,10 +186,16 @@ class Dispatcher {
     return null;
   };
 
-  destroy = () => {
-    const _currentComponent = this._currentComponent.at(-1);
+  destroy = (component) => {
+    const _currentComponent = component || this._currentComponent.at(-1);
 
     const states = States[_currentComponent.key];
+
+    const node = render(_currentComponent, this._renderOptions);
+
+    for (const child of node.children) {
+      this.destroy(child);
+    }
 
     console.log('destroying states', Object.keys(states).length);
     for (const key in states) {
