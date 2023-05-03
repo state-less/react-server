@@ -22,11 +22,6 @@ var Lifecycle = function Lifecycle(Component, props, _ref) {
     context = _ref.context,
     clientProps = _ref.clientProps;
   console.log('adding current component', key);
-  _Dispatcher["default"].getCurrent().addCurrentComponent({
-    Component: Component,
-    props: props,
-    key: key
-  });
   _Dispatcher["default"].getCurrent().setClientContext({
     context: context,
     clientProps: clientProps
@@ -36,7 +31,6 @@ var Lifecycle = function Lifecycle(Component, props, _ref) {
     clientProps: clientProps,
     key: key
   });
-  _Dispatcher["default"].getCurrent().popCurrentComponent();
   return _objectSpread({
     __typename: Component.name,
     key: key
@@ -61,6 +55,7 @@ var render = function render(tree) {
     props = tree.props;
   var processedChildren = [];
   var requestContext = !renderOptions || (renderOptions === null || renderOptions === void 0 ? void 0 : renderOptions.context) === null ? serverContext() : renderOptions.context;
+  _Dispatcher["default"].getCurrent().addCurrentComponent(tree);
   var node = Lifecycle(Component, props, {
     key: key,
     clientProps: renderOptions === null || renderOptions === void 0 ? void 0 : renderOptions.clientProps,
@@ -96,6 +91,7 @@ var render = function render(tree) {
   } finally {
     _iterator.f();
   }
+  _Dispatcher["default"].getCurrent().popCurrentComponent();
   node.children = processedChildren;
   if (isServerSideProps(node)) {
     for (var _i = 0, _Object$entries = Object.entries(node.props); _i < _Object$entries.length; _i++) {

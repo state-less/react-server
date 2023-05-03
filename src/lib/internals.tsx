@@ -20,13 +20,11 @@ export const Lifecycle = <T,>(
 ): ReactServerNode<T> => {
   console.log('adding current component', key);
 
-  Dispatcher.getCurrent().addCurrentComponent({ Component, props, key });
   Dispatcher.getCurrent().setClientContext({
     context,
     clientProps,
   });
   const rendered = Component({ ...props }, { context, clientProps, key });
-  Dispatcher.getCurrent().popCurrentComponent();
 
   return {
     __typename: Component.name,
@@ -52,6 +50,8 @@ export const render = <T,>(
     !renderOptions || renderOptions?.context === null
       ? serverContext()
       : renderOptions.context;
+
+  Dispatcher.getCurrent().addCurrentComponent(tree);
 
   let node = Lifecycle(Component, props, {
     key,
@@ -93,6 +93,7 @@ export const render = <T,>(
     processedChildren.push(childResult);
   }
 
+  Dispatcher.getCurrent().popCurrentComponent();
   node.children = processedChildren;
 
   if (isServerSideProps(node)) {
