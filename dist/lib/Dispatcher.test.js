@@ -115,7 +115,7 @@ describe('Dispatcher', function () {
     node = (0, _internals.render)(component);
     expect(node.value).toBe(2);
   });
-  it('should be able to use a context', function () {
+  it.only('should be able to use a context', function () {
     var ctx = {
       foo: 'bar'
     };
@@ -124,17 +124,22 @@ describe('Dispatcher', function () {
       children: (0, _jsxRuntime.jsx)(ContextComponent, {}, "context")
     }, "provider");
     var node = (0, _internals.render)(component);
+    console.log('Node', component);
     expect(node.children[0].ctx).toBe(ctx);
   });
   it('should be able to use a context higher up the tree', function () {
     var component = (0, _jsxRuntime.jsx)(Provider, {
-      value: 1,
+      value: {
+        foo: 'bar'
+      },
       children: (0, _jsxRuntime.jsx)(Children, {
         children: (0, _jsxRuntime.jsx)(ContextComponent, {}, "context")
       }, "children")
     }, "provider");
     var node = (0, _internals.render)(component);
-    expect(node.children[0].children[0].ctx).toBe(1);
+    expect(node.children[0].children[0].ctx).toBe({
+      foo: 'bar'
+    });
   });
   it('should return null if no provider is found', function () {
     var dispatcher = _Dispatcher["default"].getCurrent();

@@ -123,7 +123,7 @@ describe('Dispatcher', () => {
 
   it('should be able to use a context higher up the tree', () => {
     const component = (
-      <Provider value={1} key="provider">
+      <Provider value={{ foo: 'bar' }} key="provider">
         <Children key="children">
           <ContextComponent key="context" />
         </Children>
@@ -132,7 +132,7 @@ describe('Dispatcher', () => {
 
     const node = render<any>(component);
 
-    expect(node.children[0].children[0].ctx).toBe(1);
+    expect(node.children[0].children[0].ctx).toEqual({ foo: 'bar' });
   });
 
   it('should return null if no provider is found', () => {

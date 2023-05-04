@@ -36,10 +36,7 @@ export const Lifecycle = <T,>(
   };
 };
 
-const serverContext = () => ({} as ServerContext);
-
-export const isServer = (context: RenderOptions) =>
-  context.context === serverContext();
+const serverContext = () => ({ __typename: 'ServerContext' } as ServerContext);
 
 export const render = <T,>(
   tree: ReactServerComponent<T>,
