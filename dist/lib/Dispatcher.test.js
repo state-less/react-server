@@ -115,7 +115,7 @@ describe('Dispatcher', function () {
     node = (0, _internals.render)(component);
     expect(node.value).toBe(2);
   });
-  it.only('should be able to use a context', function () {
+  it('should be able to use a context', function () {
     var ctx = {
       foo: 'bar'
     };
@@ -124,7 +124,6 @@ describe('Dispatcher', function () {
       children: (0, _jsxRuntime.jsx)(ContextComponent, {}, "context")
     }, "provider");
     var node = (0, _internals.render)(component);
-    console.log('Node', component);
     expect(node.children[0].ctx).toBe(ctx);
   });
   it('should be able to use a context higher up the tree', function () {
@@ -137,7 +136,7 @@ describe('Dispatcher', function () {
       }, "children")
     }, "provider");
     var node = (0, _internals.render)(component);
-    expect(node.children[0].children[0].ctx).toBe({
+    expect(node.children[0].children[0].ctx).toEqual({
       foo: 'bar'
     });
   });
