@@ -4,7 +4,6 @@ import { render } from './internals';
 import { useEffect } from './reactServer';
 import { Scopes } from './scopes';
 import {
-  Initiator,
   isClientContext,
   isProvider,
   isServerContext,
@@ -64,6 +63,8 @@ class Dispatcher {
   _renderOptions: RenderOptions;
   _parentLookup: Map<string, ReactServerNode<unknown>>;
   _recordStates: boolean;
+  _currentClientEffect: number;
+  _currentServerEffect: number;
 
   static _tree: ReactServerNode<unknown>;
   static _current: Dispatcher;
@@ -107,6 +108,7 @@ class Dispatcher {
 
   addCurrentComponent = (component: ReactServerComponent<unknown>) => {
     this._currentComponent.push(component);
+    this._currentClientEffect = 0;
   };
 
   popCurrentComponent = () => {
@@ -141,10 +143,7 @@ class Dispatcher {
       for (const listener of Listeners[listenerKey] || []) {
         state.off('change', listener);
       }
-      render(_currentComponent, {
-        ...renderOptions,
-        initiator: Initiator.StateUpdate,
-      });
+      render(_currentComponent, renderOptions);
     };
 
     for (const listener of Listeners[listenerKey] || []) {
@@ -184,7 +183,7 @@ class Dispatcher {
 
   useClientEffect(
     fn: () => void,
-    deps: Array<any>
+    deps?: Array<any>
   ): [StateValue, (value: StateValue) => void] {
     const clientContext = this._renderOptions;
 
@@ -193,10 +192,11 @@ class Dispatcher {
       return;
     }
     if (isClientContext(clientContext.context)) {
-      const componentKey = clientKey(
-        this._currentComponent.at(-1).key,
-        clientContext.context
-      );
+      const componentKey =
+        clientKey(this._currentComponent.at(-1).key, clientContext.context) +
+        '-' +
+        this._currentClientEffect++;
+
       let changed = false;
       for (let i = 0; i < deps.length; i++) {
         if (lastDeps[componentKey]?.[i] !== deps[i]) {
@@ -204,7 +204,7 @@ class Dispatcher {
           break;
         }
       }
-      if (changed || (deps.length === 0 && !lastDeps[componentKey])) {
+      if (changed || (deps.length === 0 && !lastDeps[componentKey]) || !deps) {
         lastDeps[componentKey] = deps;
         fn();
       }

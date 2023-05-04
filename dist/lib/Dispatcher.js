@@ -61,6 +61,7 @@ var Dispatcher = /*#__PURE__*/function () {
     });
     (0, _defineProperty2["default"])(this, "addCurrentComponent", function (component) {
       _this._currentComponent.push(component);
+      _this._currentClientEffect = 0;
     });
     (0, _defineProperty2["default"])(this, "popCurrentComponent", function () {
       _this._currentComponent.pop();
@@ -153,9 +154,7 @@ var Dispatcher = /*#__PURE__*/function () {
         } finally {
           _iterator2.f();
         }
-        (0, _internals.render)(_currentComponent, _objectSpread(_objectSpread({}, renderOptions), {}, {
-          initiator: _types.Initiator.StateUpdate
-        }));
+        (0, _internals.render)(_currentComponent, renderOptions);
       };
       var _iterator3 = _createForOfIteratorHelper(Listeners[listenerKey] || []),
         _step3;
@@ -201,7 +200,7 @@ var Dispatcher = /*#__PURE__*/function () {
         return;
       }
       if ((0, _types.isClientContext)(clientContext.context)) {
-        var componentKey = (0, _util.clientKey)(this._currentComponent.at(-1).key, clientContext.context);
+        var componentKey = (0, _util.clientKey)(this._currentComponent.at(-1).key, clientContext.context) + '-' + this._currentClientEffect++;
         var changed = false;
         for (var i = 0; i < deps.length; i++) {
           var _lastDeps$componentKe;
@@ -210,7 +209,7 @@ var Dispatcher = /*#__PURE__*/function () {
             break;
           }
         }
-        if (changed || deps.length === 0 && !lastDeps[componentKey]) {
+        if (changed || deps.length === 0 && !lastDeps[componentKey] || !deps) {
           lastDeps[componentKey] = deps;
           fn();
         }
