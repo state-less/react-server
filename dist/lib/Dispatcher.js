@@ -202,14 +202,14 @@ var Dispatcher = /*#__PURE__*/function () {
       if ((0, _types.isClientContext)(clientContext.context)) {
         var componentKey = (0, _util.clientKey)(this._currentComponent.at(-1).key, clientContext.context) + '-' + this._currentClientEffect++;
         var changed = false;
-        for (var i = 0; i < deps.length; i++) {
+        for (var i = 0; i < (deps === null || deps === void 0 ? void 0 : deps.length) || 0; i++) {
           var _lastDeps$componentKe;
           if (((_lastDeps$componentKe = lastDeps[componentKey]) === null || _lastDeps$componentKe === void 0 ? void 0 : _lastDeps$componentKe[i]) !== deps[i]) {
             changed = true;
             break;
           }
         }
-        if (changed || deps.length === 0 && !lastDeps[componentKey] || !deps) {
+        if (changed || (deps === null || deps === void 0 ? void 0 : deps.length) === 0 && !lastDeps[componentKey] || !deps) {
           lastDeps[componentKey] = deps;
           fn();
         }

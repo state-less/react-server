@@ -198,13 +198,13 @@ class Dispatcher {
         this._currentClientEffect++;
 
       let changed = false;
-      for (let i = 0; i < deps.length; i++) {
+      for (let i = 0; i < deps?.length || 0; i++) {
         if (lastDeps[componentKey]?.[i] !== deps[i]) {
           changed = true;
           break;
         }
       }
-      if (changed || (deps.length === 0 && !lastDeps[componentKey]) || !deps) {
+      if (changed || (deps?.length === 0 && !lastDeps[componentKey]) || !deps) {
         lastDeps[componentKey] = deps;
         fn();
       }
