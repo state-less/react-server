@@ -20,15 +20,18 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
 var Lifecycle = function Lifecycle(Component, props, _ref) {
   var key = _ref.key,
     context = _ref.context,
-    clientProps = _ref.clientProps;
+    clientProps = _ref.clientProps,
+    initiator = _ref.initiator;
   _Dispatcher["default"].getCurrent().setClientContext({
     context: context,
-    clientProps: clientProps
+    clientProps: clientProps,
+    initiator: initiator
   });
   var rendered = Component(_objectSpread({}, props), {
     context: context,
     clientProps: clientProps,
-    key: key
+    key: key,
+    initiator: initiator
   });
   return _objectSpread({
     __typename: Component.name,
@@ -46,7 +49,8 @@ exports.isServer = isServer;
 var render = function render(tree) {
   var renderOptions = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {
     clientProps: null,
-    context: null
+    context: null,
+    initiator: _types.Initiator.RenderServer
   };
   var parent = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
   var Component = tree.Component,
@@ -55,11 +59,11 @@ var render = function render(tree) {
   var processedChildren = [];
   var requestContext = !renderOptions || (renderOptions === null || renderOptions === void 0 ? void 0 : renderOptions.context) === null ? serverContext() : renderOptions.context;
   _Dispatcher["default"].getCurrent().addCurrentComponent(tree);
-  var node = Lifecycle(Component, props, {
-    key: key,
-    clientProps: renderOptions === null || renderOptions === void 0 ? void 0 : renderOptions.clientProps,
+  var node = Lifecycle(Component, props, _objectSpread(_objectSpread({
+    key: key
+  }, renderOptions), {}, {
     context: requestContext
-  });
+  }));
   if ((0, _types.isReactServerComponent)(node)) {
     node = render(node, renderOptions, tree);
   }

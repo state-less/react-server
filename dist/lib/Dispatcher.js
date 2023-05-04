@@ -153,7 +153,9 @@ var Dispatcher = /*#__PURE__*/function () {
         } finally {
           _iterator2.f();
         }
-        (0, _internals.render)(_currentComponent, renderOptions);
+        (0, _internals.render)(_currentComponent, _objectSpread(_objectSpread({}, renderOptions), {}, {
+          initiator: _types.Initiator.StateUpdate
+        }));
       };
       var _iterator3 = _createForOfIteratorHelper(Listeners[listenerKey] || []),
         _step3;

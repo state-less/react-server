@@ -3,6 +3,7 @@ import Dispatcher from './Dispatcher';
 import {
   ClientContext,
   IComponent,
+  Initiator,
   isClientContext,
   isReactServerComponent,
   isReactServerNode,
@@ -16,13 +17,17 @@ import { generateComponentPubSubKey } from './util';
 export const Lifecycle = <T,>(
   Component: IComponent<T>,
   props: Record<string, any>,
-  { key, context, clientProps }: RenderOptions & { key: string }
+  { key, context, clientProps, initiator }: RenderOptions & { key: string }
 ): ReactServerNode<T> => {
   Dispatcher.getCurrent().setClientContext({
     context,
     clientProps,
+    initiator,
   });
-  const rendered = Component({ ...props }, { context, clientProps, key });
+  const rendered = Component(
+    { ...props },
+    { context, clientProps, key, initiator }
+  );
 
   return {
     __typename: Component.name,
@@ -38,7 +43,11 @@ export const isServer = (context: RenderOptions) =>
 
 export const render = <T,>(
   tree: ReactServerComponent<T>,
-  renderOptions: RenderOptions = { clientProps: null, context: null },
+  renderOptions: RenderOptions = {
+    clientProps: null,
+    context: null,
+    initiator: Initiator.RenderServer,
+  },
   parent: ReactServerComponent<unknown> | null = null
 ): ReactServerNode<T> => {
   const { Component, key, props } = tree;
@@ -53,7 +62,7 @@ export const render = <T,>(
 
   let node = Lifecycle(Component, props, {
     key,
-    clientProps: renderOptions?.clientProps,
+    ...renderOptions,
     context: requestContext,
   });
   if (isReactServerComponent(node)) {

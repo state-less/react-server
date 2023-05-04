@@ -4,7 +4,7 @@ var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefau
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.isServerContext = exports.isReactServerNode = exports.isReactServerComponent = exports.isProvider = exports.isClientContext = void 0;
+exports.isServerContext = exports.isReactServerNode = exports.isReactServerComponent = exports.isProvider = exports.isClientContext = exports.Initiator = void 0;
 var _typeof2 = _interopRequireDefault(require("@babel/runtime/helpers/typeof"));
 /** Contains information about the client request, such as the headers */
 
@@ -17,6 +17,14 @@ var isServerContext = function isServerContext(context) {
 };
 /** Contains information about the server */
 exports.isServerContext = isServerContext;
+var Initiator;
+exports.Initiator = Initiator;
+(function (Initiator) {
+  Initiator[Initiator["RenderServer"] = 0] = "RenderServer";
+  Initiator[Initiator["RenderClient"] = 1] = "RenderClient";
+  Initiator[Initiator["FunctionCall"] = 2] = "FunctionCall";
+  Initiator[Initiator["StateUpdate"] = 3] = "StateUpdate";
+})(Initiator || (exports.Initiator = Initiator = {}));
 var isReactServerComponent = function isReactServerComponent(node) {
   return node && (0, _typeof2["default"])(node) === 'object' && 'Component' in node && 'props' in node && 'key' in node;
 };

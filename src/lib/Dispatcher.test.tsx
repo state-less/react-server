@@ -3,7 +3,7 @@ import { Store } from '../store/MemoryStore';
 import Dispatcher, { createContext } from './Dispatcher';
 import { render } from './internals';
 import { useContext, useEffect, useState } from './reactServer';
-import { isReactServerNode } from './types';
+import { Initiator, isReactServerNode } from './types';
 
 const store = new Store({});
 const pubSub = new PubSub();
@@ -86,6 +86,7 @@ describe('Dispatcher', () => {
     render(component, {
       clientProps: {},
       context: { headers: { 'x-unique-id': 'client' } },
+      initiator: Initiator.RenderServer,
     });
     expect(effectMock).toBeCalledTimes(1);
   });

@@ -1,5 +1,5 @@
 import { IComponent, ReactServerComponent, ReactServerNode, RenderOptions } from './types';
-export declare const Lifecycle: <T>(Component: IComponent<T>, props: Record<string, any>, { key, context, clientProps }: RenderOptions & {
+export declare const Lifecycle: <T>(Component: IComponent<T>, props: Record<string, any>, { key, context, clientProps, initiator }: RenderOptions & {
     key: string;
 }) => ReactServerNode<T>;
 export declare const isServer: (context: RenderOptions) => boolean;

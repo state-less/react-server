@@ -96,7 +96,8 @@ describe('Dispatcher', function () {
         headers: {
           'x-unique-id': 'client'
         }
-      }
+      },
+      initiator: _types.Initiator.RenderServer
     });
     expect(effectMock).toBeCalledTimes(1);
   });
