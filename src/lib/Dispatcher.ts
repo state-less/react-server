@@ -4,6 +4,7 @@ import { render } from './internals';
 import { useEffect } from './reactServer';
 import { Scopes } from './scopes';
 import {
+  Initiator,
   isClientContext,
   isProvider,
   isServerContext,
@@ -143,7 +144,10 @@ class Dispatcher {
       for (const listener of Listeners[listenerKey] || []) {
         state.off('change', listener);
       }
-      render(_currentComponent, renderOptions);
+      render(_currentComponent, {
+        ...renderOptions,
+        initiator: Initiator.StateUpdate,
+      });
     };
 
     for (const listener of Listeners[listenerKey] || []) {
