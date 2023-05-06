@@ -227,6 +227,7 @@ var Dispatcher = /*#__PURE__*/function () {
               cleanup();
             }
             delete cleanupFns[componentKey][currentIndex];
+            delete lastDeps[indexComponentKey];
           };
           cleanupFns[componentKey] = cleanupFns[componentKey] || [];
           if (typeof cleanup === 'function') {

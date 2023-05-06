@@ -231,6 +231,7 @@ class Dispatcher {
             cleanup();
           }
           delete cleanupFns[componentKey][currentIndex];
+          delete lastDeps[indexComponentKey];
         };
         cleanupFns[componentKey] = cleanupFns[componentKey] || [];
 
