@@ -32,13 +32,14 @@ declare class Dispatcher {
     setStore(store: Store): void;
     setRootComponent(component: ReactServerNode<unknown>): void;
     setParentNode(key: string, component: ReactServerNode<unknown>): void;
+    getCleanupFns: (key: any) => (() => void)[];
     getParentNode(key: string): ReactServerNode<unknown>;
     getStore(): Store;
     addCurrentComponent: (component: ReactServerComponent<unknown>) => void;
     popCurrentComponent: () => void;
     useState<T>(initialValue: StateValue<T>, options: StateOptions): [StateValue<T>, (value: StateValue<T>) => void];
     useEffect(fn: () => void, deps: Array<any>): [StateValue, (value: StateValue) => void];
-    useClientEffect(fn: () => void, deps?: Array<any>): [StateValue, (value: StateValue) => void];
+    useClientEffect(fn: () => void | (() => void), deps?: Array<any>): [StateValue, (value: StateValue) => void];
     useContext: (context: Context<unknown>) => unknown;
     destroy: (component?: any) => void;
 }

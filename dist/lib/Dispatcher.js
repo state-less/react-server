@@ -49,6 +49,7 @@ var Listeners = {};
 var recordedStates = [];
 var lastDeps = {};
 var usedStates = {};
+var cleanupFns = {};
 var Dispatcher = /*#__PURE__*/function () {
   function Dispatcher() {
     var _this = this;
@@ -58,6 +59,9 @@ var Dispatcher = /*#__PURE__*/function () {
     });
     (0, _defineProperty2["default"])(this, "setClientContext", function (context) {
       _this._renderOptions = context;
+    });
+    (0, _defineProperty2["default"])(this, "getCleanupFns", function (key) {
+      return cleanupFns[key] || [];
     });
     (0, _defineProperty2["default"])(this, "addCurrentComponent", function (component) {
       _this._currentComponent.push(component);
@@ -195,6 +199,7 @@ var Dispatcher = /*#__PURE__*/function () {
   }, {
     key: "useClientEffect",
     value: function useClientEffect(fn, deps) {
+      var _this2 = this;
       var clientContext = this._renderOptions;
 
       // Don't run during server side rendering
@@ -202,18 +207,30 @@ var Dispatcher = /*#__PURE__*/function () {
         return;
       }
       if ((0, _types.isClientContext)(clientContext.context)) {
-        var componentKey = (0, _util.clientKey)(this._currentComponent.at(-1).key, clientContext.context) + '-' + this._currentClientEffect++;
+        var componentKey = (0, _util.clientKey)(this._currentComponent.at(-1).key, clientContext.context);
+        var indexComponentKey = componentKey + '-' + this._currentClientEffect;
         var changed = false;
         for (var i = 0; i < (deps === null || deps === void 0 ? void 0 : deps.length) || 0; i++) {
-          var _lastDeps$componentKe;
-          if (((_lastDeps$componentKe = lastDeps[componentKey]) === null || _lastDeps$componentKe === void 0 ? void 0 : _lastDeps$componentKe[i]) !== deps[i]) {
+          var _lastDeps$indexCompon;
+          if (((_lastDeps$indexCompon = lastDeps[indexComponentKey]) === null || _lastDeps$indexCompon === void 0 ? void 0 : _lastDeps$indexCompon[i]) !== deps[i]) {
             changed = true;
             break;
           }
         }
-        if (changed || (deps === null || deps === void 0 ? void 0 : deps.length) === 0 && !lastDeps[componentKey] || !deps) {
-          lastDeps[componentKey] = deps;
-          fn();
+        if (changed || (deps === null || deps === void 0 ? void 0 : deps.length) === 0 && !lastDeps[indexComponentKey] || !deps) {
+          lastDeps[indexComponentKey] = deps;
+          var cleanup = fn();
+          var wrapped = function wrapped() {
+            if (typeof cleanup === 'function') {
+              cleanup();
+            }
+            delete cleanupFns[componentKey][_this2._currentClientEffect];
+          };
+          cleanupFns[componentKey] = cleanupFns[componentKey] || [];
+          if (typeof cleanup === 'function') {
+            cleanupFns[componentKey][this._currentClientEffect] = wrapped;
+          }
+          this._currentClientEffect++;
         }
       }
     }

@@ -57,6 +57,7 @@ const Listeners = {};
 const recordedStates: State<unknown>[] = [];
 const lastDeps: Record<string, any[]> = {};
 const usedStates: Record<string, Record<string, State<unknown>>> = {};
+const cleanupFns: Record<string, Array<() => void>> = {};
 class Dispatcher {
   store: Store;
   _pubsub: PubSub;
@@ -100,6 +101,11 @@ class Dispatcher {
   setParentNode(key: string, component: ReactServerNode<unknown>) {
     this._parentLookup.set(key, component);
   }
+
+  getCleanupFns = (key) => {
+    return cleanupFns[key] || [];
+  };
+
   getParentNode(key: string): ReactServerNode<unknown> {
     return this._parentLookup.get(key);
   }
@@ -186,7 +192,7 @@ class Dispatcher {
   }
 
   useClientEffect(
-    fn: () => void,
+    fn: () => void | (() => void),
     deps?: Array<any>
   ): [StateValue, (value: StateValue) => void] {
     const clientContext = this._renderOptions;
@@ -196,21 +202,40 @@ class Dispatcher {
       return;
     }
     if (isClientContext(clientContext.context)) {
-      const componentKey =
-        clientKey(this._currentComponent.at(-1).key, clientContext.context) +
-        '-' +
-        this._currentClientEffect++;
+      const componentKey = clientKey(
+        this._currentComponent.at(-1).key,
+        clientContext.context
+      );
+
+      const indexComponentKey = componentKey + '-' + this._currentClientEffect;
 
       let changed = false;
       for (let i = 0; i < deps?.length || 0; i++) {
-        if (lastDeps[componentKey]?.[i] !== deps[i]) {
+        if (lastDeps[indexComponentKey]?.[i] !== deps[i]) {
           changed = true;
           break;
         }
       }
-      if (changed || (deps?.length === 0 && !lastDeps[componentKey]) || !deps) {
-        lastDeps[componentKey] = deps;
-        fn();
+      if (
+        changed ||
+        (deps?.length === 0 && !lastDeps[indexComponentKey]) ||
+        !deps
+      ) {
+        lastDeps[indexComponentKey] = deps;
+        const cleanup = fn();
+        const wrapped = () => {
+          if (typeof cleanup === 'function') {
+            cleanup();
+          }
+          delete cleanupFns[componentKey][this._currentClientEffect];
+        };
+        cleanupFns[componentKey] = cleanupFns[componentKey] || [];
+
+        if (typeof cleanup === 'function') {
+          cleanupFns[componentKey][this._currentClientEffect] = wrapped;
+        }
+
+        this._currentClientEffect++;
       }
     }
   }
