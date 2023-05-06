@@ -199,8 +199,8 @@ var Dispatcher = /*#__PURE__*/function () {
   }, {
     key: "useClientEffect",
     value: function useClientEffect(fn, deps) {
-      var _this2 = this;
       var clientContext = this._renderOptions;
+      var currentIndex = this._currentClientEffect;
 
       // Don't run during server side rendering
       if ((0, _types.isServerContext)(clientContext.context)) {
@@ -208,7 +208,7 @@ var Dispatcher = /*#__PURE__*/function () {
       }
       if ((0, _types.isClientContext)(clientContext.context)) {
         var componentKey = (0, _util.clientKey)(this._currentComponent.at(-1).key, clientContext.context);
-        var indexComponentKey = componentKey + '-' + this._currentClientEffect;
+        var indexComponentKey = componentKey + '-' + currentIndex;
         var changed = false;
         for (var i = 0; i < (deps === null || deps === void 0 ? void 0 : deps.length) || 0; i++) {
           var _lastDeps$indexCompon;
@@ -224,7 +224,7 @@ var Dispatcher = /*#__PURE__*/function () {
             if (typeof cleanup === 'function') {
               cleanup();
             }
-            delete cleanupFns[componentKey][_this2._currentClientEffect];
+            delete cleanupFns[componentKey][currentIndex];
           };
           cleanupFns[componentKey] = cleanupFns[componentKey] || [];
           if (typeof cleanup === 'function') {

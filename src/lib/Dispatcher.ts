@@ -196,6 +196,7 @@ class Dispatcher {
     deps?: Array<any>
   ): [StateValue, (value: StateValue) => void] {
     const clientContext = this._renderOptions;
+    const currentIndex = this._currentClientEffect;
 
     // Don't run during server side rendering
     if (isServerContext(clientContext.context)) {
@@ -207,7 +208,7 @@ class Dispatcher {
         clientContext.context
       );
 
-      const indexComponentKey = componentKey + '-' + this._currentClientEffect;
+      const indexComponentKey = componentKey + '-' + currentIndex;
 
       let changed = false;
       for (let i = 0; i < deps?.length || 0; i++) {
@@ -227,7 +228,7 @@ class Dispatcher {
           if (typeof cleanup === 'function') {
             cleanup();
           }
-          delete cleanupFns[componentKey][this._currentClientEffect];
+          delete cleanupFns[componentKey][currentIndex];
         };
         cleanupFns[componentKey] = cleanupFns[componentKey] || [];
 
