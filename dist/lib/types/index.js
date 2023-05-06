@@ -24,6 +24,7 @@ exports.Initiator = Initiator;
   Initiator[Initiator["RenderClient"] = 1] = "RenderClient";
   Initiator[Initiator["FunctionCall"] = 2] = "FunctionCall";
   Initiator[Initiator["StateUpdate"] = 3] = "StateUpdate";
+  Initiator[Initiator["Mount"] = 4] = "Mount";
 })(Initiator || (exports.Initiator = Initiator = {}));
 var isReactServerComponent = function isReactServerComponent(node) {
   return node && (0, _typeof2["default"])(node) === 'object' && 'Component' in node && 'props' in node && 'key' in node;

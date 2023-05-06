@@ -28,6 +28,7 @@ export enum Initiator {
   RenderClient,
   FunctionCall,
   StateUpdate,
+  Mount,
 }
 
 export type RenderOptions = {
