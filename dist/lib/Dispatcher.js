@@ -233,8 +233,8 @@ var Dispatcher = /*#__PURE__*/function () {
           if (typeof cleanup === 'function') {
             cleanupFns[componentKey][this._currentClientEffect] = wrapped;
           }
-          this._currentClientEffect++;
         }
+        this._currentClientEffect++;
       }
     }
   }]);
