@@ -55,15 +55,12 @@ var Store = /*#__PURE__*/function () {
       var key = options.key,
         scope = options.scope;
       var states = _this2.getScope(scope);
-      console.log("Deleting state ".concat(key));
       states["delete"](key);
       _this2._states["delete"](Store.getKey(options));
     });
     (0, _defineProperty2["default"])(this, "purgeLabels", function (labels) {
-      console.log('purging labels', labels);
       for (var _i = 0, _arr = (0, _toConsumableArray2["default"])(_this2._states.values()); _i < _arr.length; _i++) {
         var state = _arr[_i];
-        console.log("Checking state ".concat(state.key, " ").concat(state.labels, "}"));
         if (state.labels.some(function (label) {
           return labels.includes(label);
         })) {

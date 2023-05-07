@@ -78,7 +78,6 @@ export class Store {
   deleteState = (options: StateOptions) => {
     const { key, scope } = options;
     const states = this.getScope(scope);
-    console.log(`Deleting state ${key}`);
     states.delete(key);
     this._states.delete(Store.getKey(options));
   };
@@ -101,9 +100,7 @@ export class Store {
   }
 
   purgeLabels = (labels: string[]) => {
-    console.log('purging labels', labels);
     for (const state of [...this._states.values()]) {
-      console.log(`Checking state ${state.key} ${state.labels}}`);
       if (state.labels.some((label) => labels.includes(label))) {
         this.deleteState({ scope: state.scope, key: state.key });
       }

@@ -150,7 +150,7 @@ class Dispatcher {
       for (const listener of Listeners[listenerKey] || []) {
         state.off('change', listener);
       }
-      console.log('Rerender');
+
       render(_currentComponent, {
         ...renderOptions,
         initiator: Initiator.StateUpdate,
@@ -171,7 +171,6 @@ class Dispatcher {
     return [
       value,
       (value: StateValue<T>) => {
-        console.log('Setting Value', value);
         state.setValue(value);
       },
     ];

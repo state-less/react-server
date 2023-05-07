@@ -158,7 +158,6 @@ var Dispatcher = /*#__PURE__*/function () {
         } finally {
           _iterator2.f();
         }
-        console.log('Rerender');
         (0, _internals.render)(_currentComponent, _objectSpread(_objectSpread({}, renderOptions), {}, {
           initiator: _types.Initiator.StateUpdate
         }));
@@ -181,7 +180,6 @@ var Dispatcher = /*#__PURE__*/function () {
       Listeners[listenerKey].push(rerender);
       var value = state.value;
       return [value, function (value) {
-        console.log('Setting Value', value);
         state.setValue(value);
       }];
     }
