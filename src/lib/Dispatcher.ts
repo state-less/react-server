@@ -229,9 +229,9 @@ class Dispatcher {
         const wrapped = () => {
           if (typeof cleanup === 'function') {
             cleanup();
+            delete lastDeps[indexComponentKey];
+            delete cleanupFns[componentKey][currentIndex];
           }
-          delete cleanupFns[componentKey][currentIndex];
-          delete lastDeps[indexComponentKey];
         };
         cleanupFns[componentKey] = cleanupFns[componentKey] || [];
 
