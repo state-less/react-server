@@ -38,6 +38,7 @@ export const Lifecycle = <T,>(
 
 const serverContext = () => ({ __typename: 'ServerContext' } as ServerContext);
 
+const renderCache = {};
 export const render = <T,>(
   tree: ReactServerComponent<T>,
   renderOptions: RenderOptions = {
@@ -121,7 +122,10 @@ export const render = <T,>(
 
   const rendered = { key, ...node };
 
-  if (isClientContext(requestContext)) {
+  if (
+    isClientContext(requestContext) &&
+    JSON.stringify(rendered) !== JSON.stringify(renderCache[key])
+  ) {
     Dispatcher.getCurrent()._pubsub.publish(
       generateComponentPubSubKey(tree, requestContext as ClientContext),
       {
@@ -129,6 +133,8 @@ export const render = <T,>(
       }
     );
   }
+
+  renderCache[key] = rendered;
   return rendered;
 };
 

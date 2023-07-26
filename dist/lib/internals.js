@@ -44,6 +44,7 @@ var serverContext = function serverContext() {
     __typename: 'ServerContext'
   };
 };
+var renderCache = {};
 var render = function render(tree) {
   var renderOptions = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {
     clientProps: null,
@@ -114,13 +115,14 @@ var render = function render(tree) {
   var rendered = _objectSpread({
     key: key
   }, node);
-  if ((0, _types.isClientContext)(requestContext)) {
+  if ((0, _types.isClientContext)(requestContext) && JSON.stringify(rendered) !== JSON.stringify(renderCache[key])) {
     _Dispatcher["default"].getCurrent()._pubsub.publish((0, _util.generateComponentPubSubKey)(tree, requestContext), {
       updateComponent: {
         rendered: rendered
       }
     });
   }
+  renderCache[key] = rendered;
   return rendered;
 };
 exports.render = render;

@@ -2,6 +2,7 @@ import { v4 } from 'uuid';
 import { StateOptions } from '../store/MemoryStore';
 import { ClientContext, ReactServerComponent, RequestContext } from './types';
 import jwt from 'jsonwebtoken';
+import { PartialAuth } from '../types/auth';
 
 export const serverKey = 'server';
 
@@ -26,7 +27,10 @@ export const isStateOptions = (options: any): options is StateOptions => {
   return options && options.scope && options.key;
 };
 
-export const authenticate = (headers, secret = process.env.JWT_SECRET) => {
+export const authenticate = (
+  headers: Record<string, string>,
+  secret: string = process.env.JWT_SECRET
+): PartialAuth<unknown> => {
   const token = headers?.authorization;
 
   if (!token) throw new Error('Not authorized');
