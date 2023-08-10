@@ -1,4 +1,5 @@
 /// <reference types="node" />
+/// <reference types="node" />
 import { EventEmitter } from 'events';
 type PrimitiveValue = string | number;
 export type GenericStateValue = PrimitiveValue | Array<PrimitiveValue>;
@@ -18,13 +19,20 @@ export declare class State<T> extends EventEmitter {
     constructor(initialValue: StateValue<T>, options: StateOptions);
     setValue(value: StateValue<T>): void;
 }
-export type StoreOptions = {};
+export type StoreOptions = {
+    file?: string;
+};
 export declare class Store {
     _scopes: Map<string, Map<string, State<unknown>>>;
     _states: Map<string, State<any>>;
     _options: StoreOptions;
     static getKey: (options: StateOptions) => string;
     constructor(options: StoreOptions);
+    restore: () => void;
+    store: () => void;
+    sync: (interval?: number) => NodeJS.Timer;
+    deserialize: (json: any) => void;
+    serialize: () => string;
     getScope: (scope: string) => Map<string, State<unknown>>;
     createState<T>(value: StateValue<T>, options?: StateOptions): State<T>;
     deleteState: (options: StateOptions) => void;

@@ -4,9 +4,7 @@ var _MemoryStore = require("./MemoryStore");
 describe('MemoryStore', function () {
   var store;
   it('should be able to create a new store', function () {
-    store = new _MemoryStore.Store({
-      scope: 'root'
-    });
+    store = new _MemoryStore.Store({});
     expect(store).toBeDefined();
   });
   it('should be able to create a new state', function () {

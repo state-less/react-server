@@ -14,10 +14,12 @@ var _possibleConstructorReturn2 = _interopRequireDefault(require("@babel/runtime
 var _getPrototypeOf2 = _interopRequireDefault(require("@babel/runtime/helpers/getPrototypeOf"));
 var _util = require("../lib/util");
 var _events = require("events");
+var _fs = _interopRequireDefault(require("fs"));
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { (0, _defineProperty2["default"])(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = (0, _getPrototypeOf2["default"])(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = (0, _getPrototypeOf2["default"])(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return (0, _possibleConstructorReturn2["default"])(this, result); }; }
 function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
+// | { [key: string]: GenericStateValue };
 var State = /*#__PURE__*/function (_EventEmitter) {
   (0, _inherits2["default"])(State, _EventEmitter);
   var _super = _createSuper(State);
@@ -46,6 +48,34 @@ var Store = /*#__PURE__*/function () {
   function Store(_options) {
     var _this2 = this;
     (0, _classCallCheck2["default"])(this, Store);
+    (0, _defineProperty2["default"])(this, "restore", function () {
+      var fn = _this2._options.file;
+      if (_fs["default"].existsSync(fn)) {
+        var json = _fs["default"].readFileSync(fn, 'utf8');
+        _this2.deserialize(json);
+      }
+    });
+    (0, _defineProperty2["default"])(this, "store", function () {
+      var fn = _this2._options.file;
+      if (_fs["default"].existsSync(fn)) {
+        _fs["default"].writeFileSync(fn, _this2.serialize());
+      }
+    });
+    (0, _defineProperty2["default"])(this, "sync", function () {
+      var interval = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1000 * 60;
+      return setInterval(_this2.store, interval);
+    });
+    (0, _defineProperty2["default"])(this, "deserialize", function (json) {
+      try {
+        var obj = JSON.parse(json);
+        Object.assign(_this2, obj);
+      } catch (e) {
+        throw new Error("Invalid JSON");
+      }
+    });
+    (0, _defineProperty2["default"])(this, "serialize", function () {
+      return JSON.stringify(_this2);
+    });
     (0, _defineProperty2["default"])(this, "getScope", function (scope) {
       if (_this2._scopes.has(scope)) return _this2._scopes.get(scope);
       _this2._scopes.set(scope, new Map());
@@ -74,6 +104,9 @@ var Store = /*#__PURE__*/function () {
     this._states = new Map();
     this._scopes = new Map();
     this._options = _options;
+    if (_options.file) {
+      this.restore();
+    }
   }
   (0, _createClass2["default"])(Store, [{
     key: "createState",

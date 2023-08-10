@@ -3,7 +3,7 @@ import { Store } from './MemoryStore';
 describe('MemoryStore', () => {
   let store;
   it('should be able to create a new store', () => {
-    store = new Store({ scope: 'root' });
+    store = new Store({});
     expect(store).toBeDefined();
   });
 

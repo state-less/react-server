@@ -1,6 +1,6 @@
 import { createId, isStateOptions } from '../lib/util';
-import ee from 'event-emitter';
 import { EventEmitter } from 'events';
+import fs from 'fs';
 
 type PrimitiveValue = string | number;
 
@@ -41,7 +41,9 @@ export class State<T> extends EventEmitter {
 
 // ee(State.prototype);
 
-export type StoreOptions = {};
+export type StoreOptions = {
+  file?: string;
+};
 
 export class Store {
   _scopes: Map<string, Map<string, State<unknown>>>;
@@ -56,7 +58,42 @@ export class Store {
     this._states = new Map();
     this._scopes = new Map();
     this._options = options;
+    if (options.file) {
+      this.restore();
+    }
   }
+
+  restore = () => {
+    const fn = this._options.file;
+    if (fs.existsSync(fn)) {
+      const json = fs.readFileSync(fn, 'utf8');
+      this.deserialize(json);
+    }
+  };
+
+  store = () => {
+    const fn = this._options.file;
+    if (fs.existsSync(fn)) {
+      fs.writeFileSync(fn, this.serialize());
+    }
+  };
+
+  sync = (interval = 1000 * 60) => {
+    return setInterval(this.store, interval);
+  };
+
+  deserialize = (json) => {
+    try {
+      const obj = JSON.parse(json);
+      Object.assign(this, obj);
+    } catch (e) {
+      throw new Error(`Invalid JSON`);
+    }
+  };
+
+  serialize = () => {
+    return JSON.stringify(this);
+  };
 
   getScope = (scope: string) => {
     if (this._scopes.has(scope)) return this._scopes.get(scope);

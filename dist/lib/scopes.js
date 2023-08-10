@@ -4,11 +4,11 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.Scopes = void 0;
-var Scopes;
-exports.Scopes = Scopes;
-(function (Scopes) {
+var Scopes = /*#__PURE__*/function (Scopes) {
   Scopes["Client"] = "$client";
   Scopes["User"] = "$user";
   Scopes["Component"] = "$component";
   Scopes["Global"] = "$global";
-})(Scopes || (exports.Scopes = Scopes = {}));
+  return Scopes;
+}({});
+exports.Scopes = Scopes;
