@@ -1,6 +1,7 @@
 import { createId, isStateOptions } from '../lib/util';
 import { EventEmitter } from 'events';
 import fs from 'fs';
+import path from 'path';
 
 type PrimitiveValue = string | number;
 
@@ -64,7 +65,7 @@ export class Store {
   }
 
   restore = () => {
-    const fn = this._options.file;
+    const fn = path.resolve(this._options.file);
     if (fs.existsSync(fn)) {
       const json = fs.readFileSync(fn, 'utf8');
       this.deserialize(json);
@@ -72,7 +73,7 @@ export class Store {
   };
 
   store = () => {
-    const fn = this._options.file;
+    const fn = path.resolve(this._options.file);
     if (fs.existsSync(fn)) {
       fs.writeFileSync(fn, this.serialize());
     }
