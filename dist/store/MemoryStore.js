@@ -6,20 +6,22 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.Store = exports.State = void 0;
 var _toConsumableArray2 = _interopRequireDefault(require("@babel/runtime/helpers/toConsumableArray"));
-var _objectWithoutProperties2 = _interopRequireDefault(require("@babel/runtime/helpers/objectWithoutProperties"));
 var _taggedTemplateLiteral2 = _interopRequireDefault(require("@babel/runtime/helpers/taggedTemplateLiteral"));
-var _defineProperty2 = _interopRequireDefault(require("@babel/runtime/helpers/defineProperty"));
+var _objectWithoutProperties2 = _interopRequireDefault(require("@babel/runtime/helpers/objectWithoutProperties"));
 var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
 var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
+var _assertThisInitialized2 = _interopRequireDefault(require("@babel/runtime/helpers/assertThisInitialized"));
 var _inherits2 = _interopRequireDefault(require("@babel/runtime/helpers/inherits"));
 var _possibleConstructorReturn2 = _interopRequireDefault(require("@babel/runtime/helpers/possibleConstructorReturn"));
 var _getPrototypeOf2 = _interopRequireDefault(require("@babel/runtime/helpers/getPrototypeOf"));
+var _defineProperty2 = _interopRequireDefault(require("@babel/runtime/helpers/defineProperty"));
 var _util = require("../lib/util");
 var _events = require("events");
 var _fs = _interopRequireDefault(require("fs"));
 var _path = _interopRequireDefault(require("path"));
-var _excluded = ["_options"];
 var _templateObject;
+var _excluded = ["_store"],
+  _excluded2 = ["_options"];
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { (0, _defineProperty2["default"])(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = (0, _getPrototypeOf2["default"])(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = (0, _getPrototypeOf2["default"])(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return (0, _possibleConstructorReturn2["default"])(this, result); }; }
@@ -32,6 +34,12 @@ var State = /*#__PURE__*/function (_EventEmitter) {
     var _this;
     (0, _classCallCheck2["default"])(this, State);
     _this = _super.call(this);
+    (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "toJSON", function () {
+      var _assertThisInitialize = (0, _assertThisInitialized2["default"])(_this),
+        _ = _assertThisInitialize._store,
+        rest = (0, _objectWithoutProperties2["default"])(_assertThisInitialize, _excluded);
+      return rest;
+    });
     _this.id = (0, _util.createId)(options.scope);
     _this.key = options.key;
     _this.scope = options.scope;
@@ -88,7 +96,7 @@ var Store = /*#__PURE__*/function () {
     });
     (0, _defineProperty2["default"])(this, "serialize", function () {
       var _ = _this2._options,
-        rest = (0, _objectWithoutProperties2["default"])(_this2, _excluded);
+        rest = (0, _objectWithoutProperties2["default"])(_this2, _excluded2);
       var states = (0, _toConsumableArray2["default"])(_this2._states.entries());
       var scopes = (0, _toConsumableArray2["default"])(_this2._scopes.entries());
       return JSON.stringify({

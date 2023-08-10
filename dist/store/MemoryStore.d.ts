@@ -18,6 +18,7 @@ export declare class State<T> extends EventEmitter {
     _store: Store;
     constructor(initialValue: StateValue<T>, options: StateOptions);
     setValue(value: StateValue<T>): void;
+    toJSON: () => Omit<this, "_store" | "setValue">;
 }
 export type StoreOptions = {
     file?: string;

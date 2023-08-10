@@ -38,6 +38,11 @@ export class State<T> extends EventEmitter {
     this.value = value;
     this.emit('change', this.value);
   }
+
+  toJSON = () => {
+    const { _store: _, ...rest } = this;
+    return rest;
+  };
 }
 
 // ee(State.prototype);
