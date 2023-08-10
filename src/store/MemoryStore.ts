@@ -95,7 +95,8 @@ export class Store {
   };
 
   serialize = () => {
-    return JSON.stringify(this);
+    const { _options: _, ...rest } = this;
+    return JSON.stringify(rest);
   };
 
   getScope = (scope: string) => {
