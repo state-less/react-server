@@ -89,8 +89,8 @@ export class Store {
     try {
       const obj = JSON.parse(json);
       const { _scopes, _states } = obj;
-      const scopes = new Map(Object.entries(_scopes));
-      const states = new Map(Object.entries(_states));
+      const scopes = new Map(_scopes);
+      const states = new Map(_states);
       Object.assign(this, { _scopes: scopes, _states: states });
     } catch (e) {
       throw new Error(`Invalid JSON`);
@@ -99,7 +99,10 @@ export class Store {
 
   serialize = () => {
     const { _options: _, ...rest } = this;
-    return JSON.stringify(rest);
+    const states = this._states.entries();
+    const scopes = this._scopes.entries();
+
+    return JSON.stringify({ _scopes: scopes, _states: states });
   };
 
   getScope = (scope: string) => {

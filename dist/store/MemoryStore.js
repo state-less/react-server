@@ -76,8 +76,8 @@ var Store = /*#__PURE__*/function () {
         var obj = JSON.parse(json);
         var _scopes = obj._scopes,
           _states = obj._states;
-        var scopes = new Map(Object.entries(_scopes));
-        var states = new Map(Object.entries(_states));
+        var scopes = new Map(_scopes);
+        var states = new Map(_states);
         Object.assign(_this2, {
           _scopes: scopes,
           _states: states
@@ -89,7 +89,12 @@ var Store = /*#__PURE__*/function () {
     (0, _defineProperty2["default"])(this, "serialize", function () {
       var _ = _this2._options,
         rest = (0, _objectWithoutProperties2["default"])(_this2, _excluded);
-      return JSON.stringify(rest);
+      var states = _this2._states.entries();
+      var scopes = _this2._scopes.entries();
+      return JSON.stringify({
+        _scopes: scopes,
+        _states: states
+      });
     });
     (0, _defineProperty2["default"])(this, "getScope", function (scope) {
       if (_this2._scopes.has(scope)) return _this2._scopes.get(scope);
