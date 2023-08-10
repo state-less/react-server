@@ -99,8 +99,8 @@ export class Store {
 
   serialize = () => {
     const { _options: _, ...rest } = this;
-    const states = this._states.entries();
-    const scopes = this._scopes.entries();
+    const states = [...this._states.entries()];
+    const scopes = [...this._scopes.entries()];
 
     return JSON.stringify({ _scopes: scopes, _states: states });
   };

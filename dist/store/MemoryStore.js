@@ -89,8 +89,8 @@ var Store = /*#__PURE__*/function () {
     (0, _defineProperty2["default"])(this, "serialize", function () {
       var _ = _this2._options,
         rest = (0, _objectWithoutProperties2["default"])(_this2, _excluded);
-      var states = _this2._states.entries();
-      var scopes = _this2._scopes.entries();
+      var states = (0, _toConsumableArray2["default"])(_this2._states.entries());
+      var scopes = (0, _toConsumableArray2["default"])(_this2._scopes.entries());
       return JSON.stringify({
         _scopes: scopes,
         _states: states
