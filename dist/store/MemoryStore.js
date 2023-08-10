@@ -5,6 +5,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.Store = exports.State = void 0;
+var _slicedToArray2 = _interopRequireDefault(require("@babel/runtime/helpers/slicedToArray"));
 var _toConsumableArray2 = _interopRequireDefault(require("@babel/runtime/helpers/toConsumableArray"));
 var _taggedTemplateLiteral2 = _interopRequireDefault(require("@babel/runtime/helpers/taggedTemplateLiteral"));
 var _objectWithoutProperties2 = _interopRequireDefault(require("@babel/runtime/helpers/objectWithoutProperties"));
@@ -85,6 +86,9 @@ var Store = /*#__PURE__*/function () {
         var _scopes = obj._scopes,
           _states = obj._states;
         var scopes = new Map(_scopes);
+        scopes.forEach(function (value, key) {
+          scopes.set(key, new Map(value));
+        });
         var states = new Map(_states);
         Object.assign(_this2, {
           _scopes: scopes,
@@ -98,7 +102,12 @@ var Store = /*#__PURE__*/function () {
       var _ = _this2._options,
         rest = (0, _objectWithoutProperties2["default"])(_this2, _excluded2);
       var states = (0, _toConsumableArray2["default"])(_this2._states.entries());
-      var scopes = (0, _toConsumableArray2["default"])(_this2._scopes.entries());
+      var scopes = (0, _toConsumableArray2["default"])(_this2._scopes.entries()).map(function (_ref) {
+        var _ref2 = (0, _slicedToArray2["default"])(_ref, 2),
+          key = _ref2[0],
+          value = _ref2[1];
+        return [key, (0, _toConsumableArray2["default"])(value.entries())];
+      });
       return JSON.stringify({
         _scopes: scopes,
         _states: states

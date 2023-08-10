@@ -95,6 +95,9 @@ export class Store {
       const obj = JSON.parse(json);
       const { _scopes, _states } = obj;
       const scopes = new Map(_scopes);
+      scopes.forEach((value: any, key) => {
+        scopes.set(key, new Map(value));
+      });
       const states = new Map(_states);
       Object.assign(this, { _scopes: scopes, _states: states });
     } catch (e) {
@@ -105,7 +108,9 @@ export class Store {
   serialize = () => {
     const { _options: _, ...rest } = this;
     const states = [...this._states.entries()];
-    const scopes = [...this._scopes.entries()];
+    const scopes = [...this._scopes.entries()].map(([key, value]) => {
+      return [key, [...value.entries()]];
+    });
 
     return JSON.stringify({ _scopes: scopes, _states: states });
   };
