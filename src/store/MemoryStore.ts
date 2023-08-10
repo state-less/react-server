@@ -14,6 +14,7 @@ export type StateOptions = {
   scope: string;
   key: string;
   labels?: string[];
+  id?: string;
 };
 
 export class State<T> extends EventEmitter {
@@ -27,7 +28,7 @@ export class State<T> extends EventEmitter {
 
   constructor(initialValue: StateValue<T>, options: StateOptions) {
     super();
-    this.id = createId(options.scope);
+    this.id = options.id || createId(options.scope);
     this.key = options.key;
     this.scope = options.scope;
     this.labels = options.labels || [];
@@ -95,10 +96,18 @@ export class Store {
       const obj = JSON.parse(json);
       const { _scopes, _states } = obj;
       const scopes = new Map(_scopes);
-      scopes.forEach((value: any, key) => {
-        scopes.set(key, new Map(value));
-      });
+
       const states = new Map(_states);
+      states.forEach((value: any, key) => {
+        states.set(key, new State(value.value, value));
+      });
+      scopes.forEach((value: any, key) => {
+        const _states = new Map(value);
+        _states.forEach((value: any, key) => {
+          _states.set(key, states.get(key));
+        });
+        scopes.set(key, states);
+      });
       Object.assign(this, { _scopes: scopes, _states: states });
     } catch (e) {
       throw new Error(`Invalid JSON`);

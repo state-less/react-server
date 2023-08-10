@@ -8,6 +8,7 @@ export type StateOptions = {
     scope: string;
     key: string;
     labels?: string[];
+    id?: string;
 };
 export declare class State<T> extends EventEmitter {
     id: string;

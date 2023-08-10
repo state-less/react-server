@@ -41,7 +41,7 @@ var State = /*#__PURE__*/function (_EventEmitter) {
         rest = (0, _objectWithoutProperties2["default"])(_assertThisInitialize, _excluded);
       return rest;
     });
-    _this.id = (0, _util.createId)(options.scope);
+    _this.id = options.id || (0, _util.createId)(options.scope);
     _this.key = options.key;
     _this.scope = options.scope;
     _this.labels = options.labels || [];
@@ -86,10 +86,17 @@ var Store = /*#__PURE__*/function () {
         var _scopes = obj._scopes,
           _states = obj._states;
         var scopes = new Map(_scopes);
-        scopes.forEach(function (value, key) {
-          scopes.set(key, new Map(value));
-        });
         var states = new Map(_states);
+        states.forEach(function (value, key) {
+          states.set(key, new State(value.value, value));
+        });
+        scopes.forEach(function (value, key) {
+          var _states = new Map(value);
+          _states.forEach(function (value, key) {
+            _states.set(key, states.get(key));
+          });
+          scopes.set(key, states);
+        });
         Object.assign(_this2, {
           _scopes: scopes,
           _states: states
