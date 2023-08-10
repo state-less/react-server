@@ -88,7 +88,10 @@ export class Store {
   deserialize = (json) => {
     try {
       const obj = JSON.parse(json);
-      Object.assign(this, obj);
+      const { _scopes, _states } = obj;
+      const scopes = new Map(Object.entries(_scopes));
+      const states = new Map(Object.entries(_states));
+      Object.assign(this, { _scopes: scopes, _states: states });
     } catch (e) {
       throw new Error(`Invalid JSON`);
     }

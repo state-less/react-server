@@ -74,7 +74,14 @@ var Store = /*#__PURE__*/function () {
     (0, _defineProperty2["default"])(this, "deserialize", function (json) {
       try {
         var obj = JSON.parse(json);
-        Object.assign(_this2, obj);
+        var _scopes = obj._scopes,
+          _states = obj._states;
+        var scopes = new Map(Object.entries(_scopes));
+        var states = new Map(Object.entries(_states));
+        Object.assign(_this2, {
+          _scopes: scopes,
+          _states: states
+        });
       } catch (e) {
         throw new Error("Invalid JSON");
       }
