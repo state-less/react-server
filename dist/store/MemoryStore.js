@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.Store = exports.State = void 0;
 var _toConsumableArray2 = _interopRequireDefault(require("@babel/runtime/helpers/toConsumableArray"));
+var _taggedTemplateLiteral2 = _interopRequireDefault(require("@babel/runtime/helpers/taggedTemplateLiteral"));
 var _defineProperty2 = _interopRequireDefault(require("@babel/runtime/helpers/defineProperty"));
 var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
 var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
@@ -16,6 +17,7 @@ var _util = require("../lib/util");
 var _events = require("events");
 var _fs = _interopRequireDefault(require("fs"));
 var _path = _interopRequireDefault(require("path"));
+var _templateObject;
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { (0, _defineProperty2["default"])(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = (0, _getPrototypeOf2["default"])(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = (0, _getPrototypeOf2["default"])(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return (0, _possibleConstructorReturn2["default"])(this, result); }; }
@@ -58,9 +60,10 @@ var Store = /*#__PURE__*/function () {
     });
     (0, _defineProperty2["default"])(this, "store", function () {
       var fn = _path["default"].resolve(_this2._options.file);
-      if (_fs["default"].existsSync(fn)) {
-        _fs["default"].writeFileSync(fn, _this2.serialize());
+      if (_this2._options.logger) {
+        _this2._options.logger.info(_templateObject || (_templateObject = (0, _taggedTemplateLiteral2["default"])(["Serializing store to ", ""])), fn);
       }
+      _fs["default"].writeFileSync(fn, _this2.serialize());
     });
     (0, _defineProperty2["default"])(this, "sync", function () {
       var interval = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1000 * 60;

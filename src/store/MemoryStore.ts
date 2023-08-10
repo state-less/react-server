@@ -44,6 +44,7 @@ export class State<T> extends EventEmitter {
 
 export type StoreOptions = {
   file?: string;
+  logger?: any;
 };
 
 export class Store {
@@ -74,9 +75,10 @@ export class Store {
 
   store = () => {
     const fn = path.resolve(this._options.file);
-    if (fs.existsSync(fn)) {
-      fs.writeFileSync(fn, this.serialize());
+    if (this._options.logger) {
+      this._options.logger.info`Serializing store to ${fn}`;
     }
+    fs.writeFileSync(fn, this.serialize());
   };
 
   sync = (interval = 1000 * 60) => {

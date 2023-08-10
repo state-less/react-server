@@ -21,6 +21,7 @@ export declare class State<T> extends EventEmitter {
 }
 export type StoreOptions = {
     file?: string;
+    logger?: any;
 };
 export declare class Store {
     _scopes: Map<string, Map<string, State<unknown>>>;
