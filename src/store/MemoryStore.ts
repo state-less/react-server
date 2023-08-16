@@ -81,11 +81,13 @@ export class Store {
 
       const stream = fs.createReadStream(fn);
       const parseStream = json.createParseStream();
-      stream.pipe(parseStream);
 
       parseStream.on('data', (pojo) => {
+        console.log('POJO', pojo);
         this.deserialize(pojo);
       });
+
+      stream.pipe(parseStream);
     }
   };
 

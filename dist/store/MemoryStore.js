@@ -74,10 +74,11 @@ var Store = /*#__PURE__*/function () {
         }
         var stream = _fs["default"].createReadStream(fn);
         var parseStream = _bigJson["default"].createParseStream();
-        stream.pipe(parseStream);
         parseStream.on('data', function (pojo) {
+          console.log('POJO', pojo);
           _this2.deserialize(pojo);
         });
+        stream.pipe(parseStream);
       }
     });
     (0, _defineProperty2["default"])(this, "store", function () {
