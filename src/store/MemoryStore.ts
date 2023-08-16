@@ -42,8 +42,8 @@ export class State<T> extends EventEmitter {
   }
 
   toJSON = () => {
-    const { _store: _, ...rest } = this;
-    return rest;
+    const { scope, key, value } = this;
+    return { scope, key, value };
   };
 }
 

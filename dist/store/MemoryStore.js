@@ -7,8 +7,8 @@ Object.defineProperty(exports, "__esModule", {
 exports.Store = exports.State = void 0;
 var _slicedToArray2 = _interopRequireDefault(require("@babel/runtime/helpers/slicedToArray"));
 var _toConsumableArray2 = _interopRequireDefault(require("@babel/runtime/helpers/toConsumableArray"));
-var _taggedTemplateLiteral2 = _interopRequireDefault(require("@babel/runtime/helpers/taggedTemplateLiteral"));
 var _objectWithoutProperties2 = _interopRequireDefault(require("@babel/runtime/helpers/objectWithoutProperties"));
+var _taggedTemplateLiteral2 = _interopRequireDefault(require("@babel/runtime/helpers/taggedTemplateLiteral"));
 var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
 var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
 var _assertThisInitialized2 = _interopRequireDefault(require("@babel/runtime/helpers/assertThisInitialized"));
@@ -21,9 +21,8 @@ var _events = require("events");
 var _fs = _interopRequireDefault(require("fs"));
 var _path = _interopRequireDefault(require("path"));
 var _bigJson = _interopRequireDefault(require("big-json"));
+var _excluded = ["_options"];
 var _templateObject, _templateObject2, _templateObject3;
-var _excluded = ["_store"],
-  _excluded2 = ["_options"];
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { (0, _defineProperty2["default"])(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = (0, _getPrototypeOf2["default"])(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = (0, _getPrototypeOf2["default"])(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return (0, _possibleConstructorReturn2["default"])(this, result); }; }
@@ -37,9 +36,14 @@ var State = /*#__PURE__*/function (_EventEmitter) {
     _this = _super.call(this);
     (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "toJSON", function () {
       var _assertThisInitialize = (0, _assertThisInitialized2["default"])(_this),
-        _ = _assertThisInitialize._store,
-        rest = (0, _objectWithoutProperties2["default"])(_assertThisInitialize, _excluded);
-      return rest;
+        scope = _assertThisInitialize.scope,
+        key = _assertThisInitialize.key,
+        value = _assertThisInitialize.value;
+      return {
+        scope: scope,
+        key: key,
+        value: value
+      };
     });
     _this.id = options.id || (0, _util.createId)(options.scope);
     _this.key = options.key;
@@ -121,7 +125,7 @@ var Store = /*#__PURE__*/function () {
     });
     (0, _defineProperty2["default"])(this, "serialize", function () {
       var _ = _this2._options,
-        rest = (0, _objectWithoutProperties2["default"])(_this2, _excluded2);
+        rest = (0, _objectWithoutProperties2["default"])(_this2, _excluded);
       var states = (0, _toConsumableArray2["default"])(_this2._states.entries());
       var scopes = (0, _toConsumableArray2["default"])(_this2._scopes.entries()).map(function (_ref) {
         var _ref2 = (0, _slicedToArray2["default"])(_ref, 2),
