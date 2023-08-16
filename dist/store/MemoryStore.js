@@ -22,7 +22,7 @@ var _fs = _interopRequireDefault(require("fs"));
 var _path = _interopRequireDefault(require("path"));
 var _bigJson = _interopRequireDefault(require("big-json"));
 var _excluded = ["_options"];
-var _templateObject, _templateObject2, _templateObject3;
+var _templateObject, _templateObject2, _templateObject3, _templateObject4;
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { (0, _defineProperty2["default"])(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = (0, _getPrototypeOf2["default"])(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = (0, _getPrototypeOf2["default"])(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return (0, _possibleConstructorReturn2["default"])(this, result); }; }
@@ -69,8 +69,12 @@ var Store = /*#__PURE__*/function () {
     (0, _defineProperty2["default"])(this, "restore", function () {
       var fn = _path["default"].resolve(_this2._options.file);
       if (_fs["default"].existsSync(fn)) {
+        if (_this2._options.logger) {
+          _this2._options.logger.info(_templateObject || (_templateObject = (0, _taggedTemplateLiteral2["default"])(["Deserializing store from ", ""])), fn);
+        }
         var stream = _fs["default"].createReadStream(fn);
         var parseStream = _bigJson["default"].createParseStream();
+        stream.pipe(parseStream);
         parseStream.on('data', function (pojo) {
           _this2.deserialize(pojo);
         });
@@ -79,15 +83,17 @@ var Store = /*#__PURE__*/function () {
     (0, _defineProperty2["default"])(this, "store", function () {
       var fn = _path["default"].resolve(_this2._options.file);
       if (_this2._options.logger) {
-        _this2._options.logger.info(_templateObject || (_templateObject = (0, _taggedTemplateLiteral2["default"])(["Serializing store to ", ""])), fn);
+        _this2._options.logger.info(_templateObject2 || (_templateObject2 = (0, _taggedTemplateLiteral2["default"])(["Serializing store to ", ""])), fn);
       }
+      if (_fs["default"].existsSync(fn)) {
+        _fs["default"].unlinkSync(fn);
+      }
+      var writeStream = _fs["default"].createWriteStream(fn);
       var stream = _this2.serialize();
-      stream.on('data', function (strChunk) {
-        _fs["default"].appendFileSync(fn, strChunk);
-      });
+      stream.pipe(writeStream);
       stream.on('end', function () {
         if (_this2._options.logger) {
-          _this2._options.logger.info(_templateObject2 || (_templateObject2 = (0, _taggedTemplateLiteral2["default"])(["Serialized store to ", ""])), fn);
+          _this2._options.logger.info(_templateObject3 || (_templateObject3 = (0, _taggedTemplateLiteral2["default"])(["Serialized store to ", ""])), fn);
         }
       });
     });
@@ -117,7 +123,7 @@ var Store = /*#__PURE__*/function () {
           _states: states
         });
         if (_this2._options.logger) {
-          _this2._options.logger.info(_templateObject3 || (_templateObject3 = (0, _taggedTemplateLiteral2["default"])(["Deserialized store."])));
+          _this2._options.logger.info(_templateObject4 || (_templateObject4 = (0, _taggedTemplateLiteral2["default"])(["Deserialized store."])));
         }
       } catch (e) {
         throw new Error("Invalid JSON");

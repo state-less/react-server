@@ -75,8 +75,13 @@ export class Store {
   restore = () => {
     const fn = path.resolve(this._options.file);
     if (fs.existsSync(fn)) {
+      if (this._options.logger) {
+        this._options.logger.info`Deserializing store from ${fn}`;
+      }
+
       const stream = fs.createReadStream(fn);
       const parseStream = json.createParseStream();
+      stream.pipe(parseStream);
 
       parseStream.on('data', (pojo) => {
         this.deserialize(pojo);
@@ -90,10 +95,13 @@ export class Store {
       this._options.logger.info`Serializing store to ${fn}`;
     }
 
+    if (fs.existsSync(fn)) {
+      fs.unlinkSync(fn);
+    }
+
+    const writeStream = fs.createWriteStream(fn);
     const stream = this.serialize();
-    stream.on('data', function (strChunk) {
-      fs.appendFileSync(fn, strChunk);
-    });
+    stream.pipe(writeStream);
 
     stream.on('end', () => {
       if (this._options.logger) {
