@@ -82,7 +82,9 @@ var Store = /*#__PURE__*/function () {
         _fs["default"].appendFileSync(fn, strChunk);
       });
       stream.on('end', function () {
-        this._options.logger.info(_templateObject2 || (_templateObject2 = (0, _taggedTemplateLiteral2["default"])(["Serialized store to ", ""])), fn);
+        if (_this2._options.logger) {
+          _this2._options.logger.info(_templateObject2 || (_templateObject2 = (0, _taggedTemplateLiteral2["default"])(["Serialized store to ", ""])), fn);
+        }
       });
     });
     (0, _defineProperty2["default"])(this, "sync", function () {

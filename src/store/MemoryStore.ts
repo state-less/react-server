@@ -95,8 +95,10 @@ export class Store {
       fs.appendFileSync(fn, strChunk);
     });
 
-    stream.on('end', function () {
-      this._options.logger.info`Serialized store to ${fn}`;
+    stream.on('end', () => {
+      if (this._options.logger) {
+        this._options.logger.info`Serialized store to ${fn}`;
+      }
     });
   };
 
