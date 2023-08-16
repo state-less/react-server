@@ -75,8 +75,7 @@ var Store = /*#__PURE__*/function () {
         var stream = _fs["default"].createReadStream(fn);
         var parseStream = _bigJson["default"].createParseStream();
         parseStream.on('data', function (pojo) {
-          console.log('POJO', pojo);
-          _this2.deserialize(pojo);
+          _this2.dehydrate(pojo);
         });
         stream.pipe(parseStream);
       }
@@ -102,9 +101,8 @@ var Store = /*#__PURE__*/function () {
       var interval = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1000 * 60;
       return setInterval(_this2.store, interval);
     });
-    (0, _defineProperty2["default"])(this, "deserialize", function (json) {
+    (0, _defineProperty2["default"])(this, "dehydrate", function (obj) {
       try {
-        var obj = JSON.parse(json);
         var _scopes = obj._scopes,
           _states = obj._states;
         var scopes = new Map(_scopes);

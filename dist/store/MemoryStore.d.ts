@@ -38,7 +38,7 @@ export declare class Store {
     restore: () => void;
     store: () => void;
     sync: (interval?: number) => NodeJS.Timer;
-    deserialize: (json: any) => void;
+    dehydrate: (obj: any) => void;
     serialize: () => any;
     getScope: (scope: string) => Map<string, State<unknown>>;
     createState<T>(value: StateValue<T>, options?: StateOptions): State<T>;

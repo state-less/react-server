@@ -83,8 +83,7 @@ export class Store {
       const parseStream = json.createParseStream();
 
       parseStream.on('data', (pojo) => {
-        console.log('POJO', pojo);
-        this.deserialize(pojo);
+        this.dehydrate(pojo);
       });
 
       stream.pipe(parseStream);
@@ -116,9 +115,8 @@ export class Store {
     return setInterval(this.store, interval);
   };
 
-  deserialize = (json) => {
+  dehydrate = (obj) => {
     try {
-      const obj = JSON.parse(json);
       const { _scopes, _states } = obj;
       const scopes = new Map(_scopes);
 
