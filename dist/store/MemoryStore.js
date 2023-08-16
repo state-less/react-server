@@ -20,14 +20,14 @@ var _util = require("../lib/util");
 var _events = require("events");
 var _fs = _interopRequireDefault(require("fs"));
 var _path = _interopRequireDefault(require("path"));
-var _templateObject;
+var _bigJson = _interopRequireDefault(require("big-json"));
+var _templateObject, _templateObject2, _templateObject3;
 var _excluded = ["_store"],
   _excluded2 = ["_options"];
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { (0, _defineProperty2["default"])(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = (0, _getPrototypeOf2["default"])(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = (0, _getPrototypeOf2["default"])(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return (0, _possibleConstructorReturn2["default"])(this, result); }; }
 function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
-// | { [key: string]: GenericStateValue };
 var State = /*#__PURE__*/function (_EventEmitter) {
   (0, _inherits2["default"])(State, _EventEmitter);
   var _super = _createSuper(State);
@@ -65,8 +65,11 @@ var Store = /*#__PURE__*/function () {
     (0, _defineProperty2["default"])(this, "restore", function () {
       var fn = _path["default"].resolve(_this2._options.file);
       if (_fs["default"].existsSync(fn)) {
-        var json = _fs["default"].readFileSync(fn, 'utf8');
-        _this2.deserialize(json);
+        var stream = _fs["default"].createReadStream(fn);
+        var parseStream = _bigJson["default"].createParseStream();
+        parseStream.on('data', function (pojo) {
+          _this2.deserialize(pojo);
+        });
       }
     });
     (0, _defineProperty2["default"])(this, "store", function () {
@@ -74,7 +77,13 @@ var Store = /*#__PURE__*/function () {
       if (_this2._options.logger) {
         _this2._options.logger.info(_templateObject || (_templateObject = (0, _taggedTemplateLiteral2["default"])(["Serializing store to ", ""])), fn);
       }
-      _fs["default"].writeFileSync(fn, _this2.serialize());
+      var stream = _this2.serialize();
+      stream.on('data', function (strChunk) {
+        _fs["default"].appendFileSync(fn, strChunk);
+      });
+      stream.on('end', function () {
+        this._options.logger.info(_templateObject2 || (_templateObject2 = (0, _taggedTemplateLiteral2["default"])(["Serialized store to ", ""])), fn);
+      });
     });
     (0, _defineProperty2["default"])(this, "sync", function () {
       var interval = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1000 * 60;
@@ -101,6 +110,9 @@ var Store = /*#__PURE__*/function () {
           _scopes: scopes,
           _states: states
         });
+        if (_this2._options.logger) {
+          _this2._options.logger.info(_templateObject3 || (_templateObject3 = (0, _taggedTemplateLiteral2["default"])(["Deserialized store."])));
+        }
       } catch (e) {
         throw new Error("Invalid JSON");
       }
@@ -115,9 +127,12 @@ var Store = /*#__PURE__*/function () {
           value = _ref2[1];
         return [key, (0, _toConsumableArray2["default"])(value.entries())];
       });
-      return JSON.stringify({
+      var out = {
         _scopes: scopes,
         _states: states
+      };
+      return _bigJson["default"].createStringifyStream({
+        body: out
       });
     });
     (0, _defineProperty2["default"])(this, "getScope", function (scope) {

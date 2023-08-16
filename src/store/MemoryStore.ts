@@ -2,6 +2,7 @@ import { createId, isStateOptions } from '../lib/util';
 import { EventEmitter } from 'events';
 import fs from 'fs';
 import path from 'path';
+import json from 'big-json';
 
 type PrimitiveValue = string | number;
 
@@ -74,8 +75,12 @@ export class Store {
   restore = () => {
     const fn = path.resolve(this._options.file);
     if (fs.existsSync(fn)) {
-      const json = fs.readFileSync(fn, 'utf8');
-      this.deserialize(json);
+      const stream = fs.createReadStream(fn);
+      const parseStream = json.createParseStream();
+
+      parseStream.on('data', (pojo) => {
+        this.deserialize(pojo);
+      });
     }
   };
 
@@ -84,7 +89,15 @@ export class Store {
     if (this._options.logger) {
       this._options.logger.info`Serializing store to ${fn}`;
     }
-    fs.writeFileSync(fn, this.serialize());
+
+    const stream = this.serialize();
+    stream.on('data', function (strChunk) {
+      fs.appendFileSync(fn, strChunk);
+    });
+
+    stream.on('end', function () {
+      this._options.logger.info`Serialized store to ${fn}`;
+    });
   };
 
   sync = (interval = 1000 * 60) => {
@@ -109,6 +122,9 @@ export class Store {
         scopes.set(key, states);
       });
       Object.assign(this, { _scopes: scopes, _states: states });
+      if (this._options.logger) {
+        this._options.logger.info`Deserialized store.`;
+      }
     } catch (e) {
       throw new Error(`Invalid JSON`);
     }
@@ -120,8 +136,10 @@ export class Store {
     const scopes = [...this._scopes.entries()].map(([key, value]) => {
       return [key, [...value.entries()]];
     });
-
-    return JSON.stringify({ _scopes: scopes, _states: states });
+    const out = { _scopes: scopes, _states: states };
+    return json.createStringifyStream({
+      body: out,
+    });
   };
 
   getScope = (scope: string) => {
