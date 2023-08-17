@@ -90,6 +90,7 @@ var Store = /*#__PURE__*/function (_EventEmitter2) {
         _this2._options.logger.info(_templateObject2 || (_templateObject2 = (0, _taggedTemplateLiteral2["default"])(["Serializing store to ", ""])), fn);
       }
       if (_fs["default"].existsSync(fn)) {
+        _fs["default"].copyFileSync(fn, fn + '.bak');
         _fs["default"].unlinkSync(fn);
       }
       var writeStream = _fs["default"].createWriteStream(fn);
@@ -98,7 +99,7 @@ var Store = /*#__PURE__*/function (_EventEmitter2) {
       stream.on('end', function () {
         if (_this2._options.logger) {
           _this2._options.logger.info(_templateObject3 || (_templateObject3 = (0, _taggedTemplateLiteral2["default"])(["Serialized store to ", ""])), fn);
-          stream.end();
+          writeStream.close();
         }
       });
     });

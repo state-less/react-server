@@ -98,6 +98,7 @@ export class Store extends EventEmitter {
     }
 
     if (fs.existsSync(fn)) {
+      fs.copyFileSync(fn, fn + '.bak');
       fs.unlinkSync(fn);
     }
 
@@ -108,7 +109,7 @@ export class Store extends EventEmitter {
     stream.on('end', () => {
       if (this._options.logger) {
         this._options.logger.info`Serialized store to ${fn}`;
-        stream.end();
+        writeStream.close();
       }
     });
   };
