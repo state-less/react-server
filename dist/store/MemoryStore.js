@@ -27,6 +27,7 @@ function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (O
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { (0, _defineProperty2["default"])(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = (0, _getPrototypeOf2["default"])(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = (0, _getPrototypeOf2["default"])(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return (0, _possibleConstructorReturn2["default"])(this, result); }; }
 function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
+// | { [key: string]: GenericStateValue };
 var State = /*#__PURE__*/function (_EventEmitter) {
   (0, _inherits2["default"])(State, _EventEmitter);
   var _super = _createSuper(State);
@@ -62,11 +63,14 @@ var State = /*#__PURE__*/function (_EventEmitter) {
   return State;
 }(_events.EventEmitter); // ee(State.prototype);
 exports.State = State;
-var Store = /*#__PURE__*/function () {
+var Store = /*#__PURE__*/function (_EventEmitter2) {
+  (0, _inherits2["default"])(Store, _EventEmitter2);
+  var _super2 = _createSuper(Store);
   function Store(_options) {
-    var _this2 = this;
+    var _this2;
     (0, _classCallCheck2["default"])(this, Store);
-    (0, _defineProperty2["default"])(this, "restore", function () {
+    _this2 = _super2.call(this);
+    (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this2), "restore", function () {
       var fn = _path["default"].resolve(_this2._options.file);
       if (_fs["default"].existsSync(fn)) {
         if (_this2._options.logger) {
@@ -80,7 +84,7 @@ var Store = /*#__PURE__*/function () {
         stream.pipe(parseStream);
       }
     });
-    (0, _defineProperty2["default"])(this, "store", function () {
+    (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this2), "store", function () {
       var fn = _path["default"].resolve(_this2._options.file);
       if (_this2._options.logger) {
         _this2._options.logger.info(_templateObject2 || (_templateObject2 = (0, _taggedTemplateLiteral2["default"])(["Serializing store to ", ""])), fn);
@@ -97,11 +101,11 @@ var Store = /*#__PURE__*/function () {
         }
       });
     });
-    (0, _defineProperty2["default"])(this, "sync", function () {
+    (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this2), "sync", function () {
       var interval = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1000 * 60;
       return setInterval(_this2.store, interval);
     });
-    (0, _defineProperty2["default"])(this, "dehydrate", function (obj) {
+    (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this2), "dehydrate", function (obj) {
       try {
         var _scopes = obj._scopes,
           _states = obj._states;
@@ -117,20 +121,22 @@ var Store = /*#__PURE__*/function () {
           });
           scopes.set(key, states);
         });
-        Object.assign(_this2, {
+        Object.assign((0, _assertThisInitialized2["default"])(_this2), {
           _scopes: scopes,
           _states: states
         });
         if (_this2._options.logger) {
           _this2._options.logger.info(_templateObject4 || (_templateObject4 = (0, _taggedTemplateLiteral2["default"])(["Deserialized store."])));
+          _this2.emit('dehydrate', (0, _assertThisInitialized2["default"])(_this2));
         }
       } catch (e) {
         throw new Error("Invalid JSON");
       }
     });
-    (0, _defineProperty2["default"])(this, "serialize", function () {
-      var _ = _this2._options,
-        rest = (0, _objectWithoutProperties2["default"])(_this2, _excluded);
+    (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this2), "serialize", function () {
+      var _assertThisInitialize2 = (0, _assertThisInitialized2["default"])(_this2),
+        _ = _assertThisInitialize2._options,
+        rest = (0, _objectWithoutProperties2["default"])(_assertThisInitialize2, _excluded);
       var states = (0, _toConsumableArray2["default"])(_this2._states.entries());
       var scopes = (0, _toConsumableArray2["default"])(_this2._scopes.entries()).map(function (_ref) {
         var _ref2 = (0, _slicedToArray2["default"])(_ref, 2),
@@ -146,19 +152,19 @@ var Store = /*#__PURE__*/function () {
         body: out
       });
     });
-    (0, _defineProperty2["default"])(this, "getScope", function (scope) {
+    (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this2), "getScope", function (scope) {
       if (_this2._scopes.has(scope)) return _this2._scopes.get(scope);
       _this2._scopes.set(scope, new Map());
       return _this2._scopes.get(scope);
     });
-    (0, _defineProperty2["default"])(this, "deleteState", function (options) {
+    (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this2), "deleteState", function (options) {
       var key = options.key,
         scope = options.scope;
       var states = _this2.getScope(scope);
       states["delete"](key);
       _this2._states["delete"](Store.getKey(options));
     });
-    (0, _defineProperty2["default"])(this, "purgeLabels", function (labels) {
+    (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this2), "purgeLabels", function (labels) {
       for (var _i = 0, _arr = (0, _toConsumableArray2["default"])(_this2._states.values()); _i < _arr.length; _i++) {
         var state = _arr[_i];
         if (state.labels.some(function (label) {
@@ -171,12 +177,13 @@ var Store = /*#__PURE__*/function () {
         }
       }
     });
-    this._states = new Map();
-    this._scopes = new Map();
-    this._options = _options;
+    _this2._states = new Map();
+    _this2._scopes = new Map();
+    _this2._options = _options;
     if (_options.file) {
-      this.restore();
+      _this2.restore();
     }
+    return _this2;
   }
   (0, _createClass2["default"])(Store, [{
     key: "createState",
@@ -207,7 +214,7 @@ var Store = /*#__PURE__*/function () {
     }
   }]);
   return Store;
-}();
+}(_events.EventEmitter);
 exports.Store = Store;
 (0, _defineProperty2["default"])(Store, "getKey", function (options) {
   return "".concat(options.scope, ":").concat(options.key);

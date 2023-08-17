@@ -29,7 +29,7 @@ export type StoreOptions = {
     file?: string;
     logger?: any;
 };
-export declare class Store {
+export declare class Store extends EventEmitter {
     _scopes: Map<string, Map<string, State<unknown>>>;
     _states: Map<string, State<any>>;
     _options: StoreOptions;

@@ -54,7 +54,7 @@ export type StoreOptions = {
   logger?: any;
 };
 
-export class Store {
+export class Store extends EventEmitter {
   _scopes: Map<string, Map<string, State<unknown>>>;
   _states: Map<string, State<any>>;
   _options: StoreOptions;
@@ -64,6 +64,7 @@ export class Store {
   };
 
   constructor(options: StoreOptions) {
+    super();
     this._states = new Map();
     this._scopes = new Map();
     this._options = options;
@@ -134,6 +135,7 @@ export class Store {
       Object.assign(this, { _scopes: scopes, _states: states });
       if (this._options.logger) {
         this._options.logger.info`Deserialized store.`;
+        this.emit('dehydrate', this);
       }
     } catch (e) {
       throw new Error(`Invalid JSON`);
