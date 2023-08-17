@@ -101,12 +101,12 @@ var Store = /*#__PURE__*/function (_EventEmitter2) {
       stream.on('end', function () {
         if (_this2._options.logger) {
           _this2._options.logger.info(_templateObject3 || (_templateObject3 = (0, _taggedTemplateLiteral2["default"])(["Serialized store to ", ""])), fn);
-          writeStream.close();
-          _this2._storing = false;
         }
+        writeStream.end();
+        _this2._storing = false;
       });
       writeStream.on('error', function (err) {
-        writeStream.close();
+        writeStream.end();
         _this2._storing = false;
       });
     });

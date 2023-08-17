@@ -113,12 +113,12 @@ export class Store extends EventEmitter {
     stream.on('end', () => {
       if (this._options.logger) {
         this._options.logger.info`Serialized store to ${fn}`;
-        writeStream.close();
-        this._storing = false;
       }
+      writeStream.end();
+      this._storing = false;
     });
     writeStream.on('error', (err) => {
-      writeStream.close();
+      writeStream.end();
       this._storing = false;
     });
   };
