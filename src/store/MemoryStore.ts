@@ -143,9 +143,11 @@ export class Store extends EventEmitter {
         });
         scopes.set(key, states);
       });
-      Object.assign(this, { _scopes: scopes, _states: states });
+      // Object.assign(this, { _scopes: scopes, _states: states });
+      this._scopes = scopes as any;
+      this._states = states as any;
       if (this._options.logger) {
-        this._options.logger.info`Deserialized store.`;
+        this._options.logger.info`Deserialized store. ${this._states.size}`;
         this.emit('dehydrate');
       }
     } catch (e) {

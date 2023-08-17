@@ -130,12 +130,11 @@ var Store = /*#__PURE__*/function (_EventEmitter2) {
           });
           scopes.set(key, states);
         });
-        Object.assign((0, _assertThisInitialized2["default"])(_this2), {
-          _scopes: scopes,
-          _states: states
-        });
+        // Object.assign(this, { _scopes: scopes, _states: states });
+        _this2._scopes = scopes;
+        _this2._states = states;
         if (_this2._options.logger) {
-          _this2._options.logger.info(_templateObject4 || (_templateObject4 = (0, _taggedTemplateLiteral2["default"])(["Deserialized store."])));
+          _this2._options.logger.info(_templateObject4 || (_templateObject4 = (0, _taggedTemplateLiteral2["default"])(["Deserialized store. ", ""])), _this2._states.size);
           _this2.emit('dehydrate');
         }
       } catch (e) {
