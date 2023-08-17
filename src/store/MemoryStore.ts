@@ -3,6 +3,7 @@ import { EventEmitter } from 'events';
 import fs from 'fs';
 import path from 'path';
 import json from 'big-json';
+import cloneDeep from 'clone-deep';
 
 type PrimitiveValue = string | number;
 
@@ -159,7 +160,7 @@ export class Store extends EventEmitter {
     const { _options: _, ...rest } = this;
     const states = [...this._states.entries()];
     const scopes = [...this._scopes.entries()].map(([key, value]) => {
-      return [key, [...value.entries()]];
+      return [key, [...value.entries()].map((state) => cloneDeep(state))];
     });
     const out = { _scopes: scopes, _states: states };
     return json.createStringifyStream({

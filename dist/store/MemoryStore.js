@@ -21,13 +21,13 @@ var _events = require("events");
 var _fs = _interopRequireDefault(require("fs"));
 var _path = _interopRequireDefault(require("path"));
 var _bigJson = _interopRequireDefault(require("big-json"));
+var _cloneDeep = _interopRequireDefault(require("clone-deep"));
 var _excluded = ["_options"];
 var _templateObject, _templateObject2, _templateObject3, _templateObject4;
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { (0, _defineProperty2["default"])(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = (0, _getPrototypeOf2["default"])(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = (0, _getPrototypeOf2["default"])(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return (0, _possibleConstructorReturn2["default"])(this, result); }; }
 function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
-// | { [key: string]: GenericStateValue };
 var State = /*#__PURE__*/function (_EventEmitter) {
   (0, _inherits2["default"])(State, _EventEmitter);
   var _super = _createSuper(State);
@@ -150,7 +150,9 @@ var Store = /*#__PURE__*/function (_EventEmitter2) {
         var _ref2 = (0, _slicedToArray2["default"])(_ref, 2),
           key = _ref2[0],
           value = _ref2[1];
-        return [key, (0, _toConsumableArray2["default"])(value.entries())];
+        return [key, (0, _toConsumableArray2["default"])(value.entries()).map(function (state) {
+          return (0, _cloneDeep["default"])(state);
+        })];
       });
       var out = {
         _scopes: scopes,
