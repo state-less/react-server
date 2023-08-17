@@ -108,6 +108,7 @@ export class Store extends EventEmitter {
     stream.on('end', () => {
       if (this._options.logger) {
         this._options.logger.info`Serialized store to ${fn}`;
+        stream.end();
       }
     });
   };
@@ -135,7 +136,7 @@ export class Store extends EventEmitter {
       Object.assign(this, { _scopes: scopes, _states: states });
       if (this._options.logger) {
         this._options.logger.info`Deserialized store.`;
-        this.emit('dehydrate', this);
+        this.emit('dehydrate');
       }
     } catch (e) {
       throw new Error(`Invalid JSON`);

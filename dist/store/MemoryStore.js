@@ -98,6 +98,7 @@ var Store = /*#__PURE__*/function (_EventEmitter2) {
       stream.on('end', function () {
         if (_this2._options.logger) {
           _this2._options.logger.info(_templateObject3 || (_templateObject3 = (0, _taggedTemplateLiteral2["default"])(["Serialized store to ", ""])), fn);
+          stream.end();
         }
       });
     });
@@ -127,7 +128,7 @@ var Store = /*#__PURE__*/function (_EventEmitter2) {
         });
         if (_this2._options.logger) {
           _this2._options.logger.info(_templateObject4 || (_templateObject4 = (0, _taggedTemplateLiteral2["default"])(["Deserialized store."])));
-          _this2.emit('dehydrate', (0, _assertThisInitialized2["default"])(_this2));
+          _this2.emit('dehydrate');
         }
       } catch (e) {
         throw new Error("Invalid JSON");
