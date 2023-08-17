@@ -86,6 +86,8 @@ var Store = /*#__PURE__*/function (_EventEmitter2) {
     });
     (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this2), "store", function () {
       var fn = _path["default"].resolve(_this2._options.file);
+      if (_this2._storing) return;
+      _this2._storing = true;
       if (_this2._options.logger) {
         _this2._options.logger.info(_templateObject2 || (_templateObject2 = (0, _taggedTemplateLiteral2["default"])(["Serializing store to ", ""])), fn);
       }
@@ -100,7 +102,12 @@ var Store = /*#__PURE__*/function (_EventEmitter2) {
         if (_this2._options.logger) {
           _this2._options.logger.info(_templateObject3 || (_templateObject3 = (0, _taggedTemplateLiteral2["default"])(["Serialized store to ", ""])), fn);
           writeStream.close();
+          _this2._storing = false;
         }
+      });
+      writeStream.on('error', function (err) {
+        writeStream.close();
+        _this2._storing = false;
       });
     });
     (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this2), "sync", function () {
@@ -182,6 +189,7 @@ var Store = /*#__PURE__*/function (_EventEmitter2) {
     _this2._states = new Map();
     _this2._scopes = new Map();
     _this2._options = _options;
+    _this2._storing = false;
     if (_options.file) {
       _this2.restore();
     }

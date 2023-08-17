@@ -33,6 +33,7 @@ export declare class Store extends EventEmitter {
     _scopes: Map<string, Map<string, State<unknown>>>;
     _states: Map<string, State<any>>;
     _options: StoreOptions;
+    _storing: boolean;
     static getKey: (options: StateOptions) => string;
     constructor(options: StoreOptions);
     restore: () => void;

@@ -58,6 +58,7 @@ export class Store extends EventEmitter {
   _scopes: Map<string, Map<string, State<unknown>>>;
   _states: Map<string, State<any>>;
   _options: StoreOptions;
+  _storing: boolean;
 
   static getKey = (options: StateOptions) => {
     return `${options.scope}:${options.key}`;
@@ -68,6 +69,7 @@ export class Store extends EventEmitter {
     this._states = new Map();
     this._scopes = new Map();
     this._options = options;
+    this._storing = false;
     if (options.file) {
       this.restore();
     }
@@ -93,6 +95,8 @@ export class Store extends EventEmitter {
 
   store = () => {
     const fn = path.resolve(this._options.file);
+    if (this._storing) return;
+    this._storing = true;
     if (this._options.logger) {
       this._options.logger.info`Serializing store to ${fn}`;
     }
@@ -110,7 +114,12 @@ export class Store extends EventEmitter {
       if (this._options.logger) {
         this._options.logger.info`Serialized store to ${fn}`;
         writeStream.close();
+        this._storing = false;
       }
+    });
+    writeStream.on('error', (err) => {
+      writeStream.close();
+      this._storing = false;
     });
   };
 
