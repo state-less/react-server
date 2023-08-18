@@ -5,7 +5,6 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.Store = exports.State = void 0;
-var _slicedToArray2 = _interopRequireDefault(require("@babel/runtime/helpers/slicedToArray"));
 var _toConsumableArray2 = _interopRequireDefault(require("@babel/runtime/helpers/toConsumableArray"));
 var _objectWithoutProperties2 = _interopRequireDefault(require("@babel/runtime/helpers/objectWithoutProperties"));
 var _taggedTemplateLiteral2 = _interopRequireDefault(require("@babel/runtime/helpers/taggedTemplateLiteral"));
@@ -21,7 +20,6 @@ var _events = require("events");
 var _fs = _interopRequireDefault(require("fs"));
 var _path = _interopRequireDefault(require("path"));
 var _bigJson = _interopRequireDefault(require("big-json"));
-var _cloneDeep = _interopRequireDefault(require("clone-deep"));
 var _excluded = ["_options"];
 var _templateObject, _templateObject2, _templateObject3, _templateObject4;
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
@@ -76,6 +74,7 @@ var Store = /*#__PURE__*/function (_EventEmitter2) {
         if (_this2._options.logger) {
           _this2._options.logger.info(_templateObject || (_templateObject = (0, _taggedTemplateLiteral2["default"])(["Deserializing store from ", ""])), fn);
         }
+        _this2._storing = true;
         var stream = _fs["default"].createReadStream(fn);
         var parseStream = _bigJson["default"].createParseStream();
         parseStream.on('data', function (pojo) {
@@ -116,27 +115,33 @@ var Store = /*#__PURE__*/function (_EventEmitter2) {
     });
     (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this2), "dehydrate", function (obj) {
       try {
-        var _scopes = obj._scopes,
+        var _states;
+        if (Array.isArray(obj)) {
+          _states = obj;
+        } else if (obj._states) {
           _states = obj._states;
-        var scopes = new Map(_scopes);
+        }
+        // const scopes = new Map(_scopes);
+
         var states = new Map(_states);
         states.forEach(function (value, key) {
           states.set(key, new State(value.value, value));
         });
-        scopes.forEach(function (value, key) {
-          var _states = new Map(value);
-          _states.forEach(function (value, key) {
-            _states.set(key, states.get(key));
-          });
-          scopes.set(key, states);
-        });
+        // scopes.forEach((value: any, key) => {
+        //   const _states = new Map(value);
+        //   _states.forEach((value: any, key) => {
+        //     _states.set(key, states.get(key));
+        //   });
+        //   scopes.set(key, states);
+        // });
         // Object.assign(this, { _scopes: scopes, _states: states });
-        _this2._scopes = scopes;
+        // this._scopes = scopes as any;
         _this2._states = states;
         if (_this2._options.logger) {
           _this2._options.logger.info(_templateObject4 || (_templateObject4 = (0, _taggedTemplateLiteral2["default"])(["Deserialized store. ", ""])), _this2._states.size);
-          _this2.emit('dehydrate');
         }
+        _this2.emit('dehydrate');
+        _this2._storing = false;
       } catch (e) {
         throw new Error("Invalid JSON");
       }
@@ -146,16 +151,10 @@ var Store = /*#__PURE__*/function (_EventEmitter2) {
         _ = _assertThisInitialize2._options,
         rest = (0, _objectWithoutProperties2["default"])(_assertThisInitialize2, _excluded);
       var states = (0, _toConsumableArray2["default"])(_this2._states.entries());
-      var scopes = (0, _toConsumableArray2["default"])(_this2._scopes.entries()).map(function (_ref) {
-        var _ref2 = (0, _slicedToArray2["default"])(_ref, 2),
-          key = _ref2[0],
-          value = _ref2[1];
-        return [key, (0, _toConsumableArray2["default"])(value.entries()).map(function (state) {
-          return (0, _cloneDeep["default"])(state);
-        })];
-      });
+      // const scopes = [...this._scopes.entries()].map(([key, value]) => {
+      //   return [key, [...value.entries()].map((state) => cloneDeep(state))];
+      // });
       var out = {
-        _scopes: scopes,
         _states: states
       };
       return _bigJson["default"].createStringifyStream({

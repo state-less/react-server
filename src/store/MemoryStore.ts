@@ -78,11 +78,12 @@ export class Store extends EventEmitter {
 
   restore = () => {
     const fn = path.resolve(this._options.file);
+
     if (fs.existsSync(fn)) {
       if (this._options.logger) {
         this._options.logger.info`Deserializing store from ${fn}`;
       }
-
+      this._storing = true;
       const stream = fs.createReadStream(fn);
       const parseStream = json.createParseStream();
 
@@ -130,27 +131,33 @@ export class Store extends EventEmitter {
 
   dehydrate = (obj) => {
     try {
-      const { _scopes, _states } = obj;
-      const scopes = new Map(_scopes);
+      let _states;
+      if (Array.isArray(obj)) {
+        _states = obj;
+      } else if (obj._states) {
+        _states = obj._states;
+      }
+      // const scopes = new Map(_scopes);
 
       const states = new Map(_states);
       states.forEach((value: any, key) => {
         states.set(key, new State(value.value, value));
       });
-      scopes.forEach((value: any, key) => {
-        const _states = new Map(value);
-        _states.forEach((value: any, key) => {
-          _states.set(key, states.get(key));
-        });
-        scopes.set(key, states);
-      });
+      // scopes.forEach((value: any, key) => {
+      //   const _states = new Map(value);
+      //   _states.forEach((value: any, key) => {
+      //     _states.set(key, states.get(key));
+      //   });
+      //   scopes.set(key, states);
+      // });
       // Object.assign(this, { _scopes: scopes, _states: states });
-      this._scopes = scopes as any;
+      // this._scopes = scopes as any;
       this._states = states as any;
       if (this._options.logger) {
         this._options.logger.info`Deserialized store. ${this._states.size}`;
-        this.emit('dehydrate');
       }
+      this.emit('dehydrate');
+      this._storing = false;
     } catch (e) {
       throw new Error(`Invalid JSON`);
     }
@@ -159,10 +166,10 @@ export class Store extends EventEmitter {
   serialize = () => {
     const { _options: _, ...rest } = this;
     const states = [...this._states.entries()];
-    const scopes = [...this._scopes.entries()].map(([key, value]) => {
-      return [key, [...value.entries()].map((state) => cloneDeep(state))];
-    });
-    const out = { _scopes: scopes, _states: states };
+    // const scopes = [...this._scopes.entries()].map(([key, value]) => {
+    //   return [key, [...value.entries()].map((state) => cloneDeep(state))];
+    // });
+    const out = { _states: states };
     return json.createStringifyStream({
       body: out,
     });
