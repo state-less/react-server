@@ -71,7 +71,7 @@ export const render = <T,>(
     );
   }
   const children = Array.isArray(node.children)
-    ? node.children
+    ? node.children.flat()
     : [node.children].filter(Boolean);
 
   const components: ReactServerComponent<unknown>[] = [];

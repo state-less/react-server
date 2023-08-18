@@ -66,7 +66,7 @@ var render = function render(tree) {
   if ((0, _types.isReactServerComponent)(node)) {
     node = render(node, renderOptions, tree);
   }
-  var children = Array.isArray(node.children) ? node.children : [node.children].filter(Boolean);
+  var children = Array.isArray(node.children) ? node.children.flat() : [node.children].filter(Boolean);
   var components = [];
   var _iterator = _createForOfIteratorHelper(children),
     _step;

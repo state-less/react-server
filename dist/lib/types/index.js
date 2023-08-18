@@ -16,16 +16,18 @@ var isServerContext = function isServerContext(context) {
   return context && context.__typename === 'ServerContext';
 };
 /** Contains information about the server */
+
+/** Provides context about the current request the component is being rendered under (server / client) */
 exports.isServerContext = isServerContext;
-var Initiator;
-exports.Initiator = Initiator;
-(function (Initiator) {
+var Initiator = /*#__PURE__*/function (Initiator) {
   Initiator[Initiator["RenderServer"] = 0] = "RenderServer";
   Initiator[Initiator["RenderClient"] = 1] = "RenderClient";
   Initiator[Initiator["FunctionCall"] = 2] = "FunctionCall";
   Initiator[Initiator["StateUpdate"] = 3] = "StateUpdate";
   Initiator[Initiator["Mount"] = 4] = "Mount";
-})(Initiator || (exports.Initiator = Initiator = {}));
+  return Initiator;
+}({});
+exports.Initiator = Initiator;
 var isReactServerComponent = function isReactServerComponent(node) {
   return node && (0, _typeof2["default"])(node) === 'object' && 'Component' in node && 'props' in node && 'key' in node;
 };
