@@ -101,12 +101,11 @@ var render = function render(tree) {
         propName = _entry[0],
         propValue = _entry[1];
       if (typeof propValue === 'function') {
-        var _node;
         node.props[propName] = render((0, _jsxRuntime.jsx)(_Action.FunctionCall, {
           component: (parent === null || parent === void 0 ? void 0 : parent.key) || node.key,
           name: propName,
           fn: node.props[propName]
-        }, "".concat((parent === null || parent === void 0 ? void 0 : parent.key) || ((_node = node) === null || _node === void 0 ? void 0 : _node.key), ".").concat(propName)), renderOptions, tree);
+        }, "".concat((parent === null || parent === void 0 ? void 0 : parent.key) || node.key, ".").concat(propName)), renderOptions, tree);
       }
     }
   }
@@ -116,8 +115,8 @@ var render = function render(tree) {
   var rendered = _objectSpread({
     key: key
   }, node);
-  console.log('rendered', key, JSON.stringify(rendered) === JSON.stringify(renderCache[key]));
   if ((0, _types.isClientContext)(requestContext) && JSON.stringify(rendered) !== JSON.stringify(renderCache[key])) {
+    console.log("Rerendering component ".concat(key));
     _Dispatcher["default"].getCurrent()._pubsub.publish((0, _util.generateComponentPubSubKey)(tree, requestContext), {
       updateComponent: {
         rendered: rendered
