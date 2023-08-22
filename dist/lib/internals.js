@@ -115,11 +115,7 @@ var render = function render(tree) {
   var rendered = _objectSpread({
     key: key
   }, node);
-  // console.log(
-  //   'rendered',
-  //   JSON.stringify(rendered),
-  //   JSON.stringify(renderCache[key])
-  // );
+  console.log('rendered', key, JSON.stringify(rendered) === JSON.stringify(renderCache[key]));
   if ((0, _types.isClientContext)(requestContext) && JSON.stringify(rendered) !== JSON.stringify(renderCache[key])) {
     _Dispatcher["default"].getCurrent()._pubsub.publish((0, _util.generateComponentPubSubKey)(tree, requestContext), {
       updateComponent: {
