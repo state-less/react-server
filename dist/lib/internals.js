@@ -101,11 +101,12 @@ var render = function render(tree) {
         propName = _entry[0],
         propValue = _entry[1];
       if (typeof propValue === 'function') {
+        var _node;
         node.props[propName] = render((0, _jsxRuntime.jsx)(_Action.FunctionCall, {
           component: (parent === null || parent === void 0 ? void 0 : parent.key) || node.key,
           name: propName,
           fn: node.props[propName]
-        }, "".concat(parent.key || node.key, ".").concat(propName)), renderOptions, tree);
+        }, "".concat((parent === null || parent === void 0 ? void 0 : parent.key) || ((_node = node) === null || _node === void 0 ? void 0 : _node.key), ".").concat(propName)), renderOptions, tree);
       }
     }
   }
