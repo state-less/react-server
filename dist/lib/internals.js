@@ -105,7 +105,7 @@ var render = function render(tree) {
           component: (parent === null || parent === void 0 ? void 0 : parent.key) || node.key,
           name: propName,
           fn: node.props[propName]
-        }), renderOptions, tree);
+        }, "".concat(parent.key || node.key, ".").concat(propName)), renderOptions, tree);
       }
     }
   }
