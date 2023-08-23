@@ -101,15 +101,18 @@ export const render = <T,>(
   node.children = processedChildren;
 
   if (isServerSideProps(node)) {
+    if (tree.key === node.key) {
+      node.component = parent?.key || node.key;
+    } else {
+      node.component = tree?.key;
+    }
     for (const entry of Object.entries(node.props)) {
       const [propName, propValue] = entry;
       if (typeof propValue === 'function') {
-        const parentKey = Dispatcher.getCurrent().getParentNode(node.key)?.key;
-        console.log('PARENT KEY', parentKey);
         node.props[propName] = render(
           <FunctionCall
             key={`${node.key}.${propName}`}
-            component={parentKey}
+            component={node.component}
             name={propName}
             fn={node.props[propName]}
           />,
@@ -129,11 +132,6 @@ export const render = <T,>(
     isClientContext(requestContext) &&
     JSON.stringify(rendered) !== JSON.stringify(renderCache[key])
   ) {
-    console.log(
-      'DIFF',
-      JSON.stringify(rendered),
-      JSON.stringify(renderCache[key])
-    );
     console.log(`Rerendering component ${key}`);
     Dispatcher.getCurrent()._pubsub.publish(
       generateComponentPubSubKey(tree, requestContext as ClientContext),

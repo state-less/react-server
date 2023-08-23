@@ -95,17 +95,19 @@ var render = function render(tree) {
   _Dispatcher["default"].getCurrent().popCurrentComponent();
   node.children = processedChildren;
   if (isServerSideProps(node)) {
+    if (tree.key === node.key) {
+      node.component = (parent === null || parent === void 0 ? void 0 : parent.key) || node.key;
+    } else {
+      node.component = tree === null || tree === void 0 ? void 0 : tree.key;
+    }
     for (var _i = 0, _Object$entries = Object.entries(node.props); _i < _Object$entries.length; _i++) {
       var entry = _Object$entries[_i];
       var _entry = (0, _slicedToArray2["default"])(entry, 2),
         propName = _entry[0],
         propValue = _entry[1];
       if (typeof propValue === 'function') {
-        var _Dispatcher$getCurren;
-        var parentKey = (_Dispatcher$getCurren = _Dispatcher["default"].getCurrent().getParentNode(node.key)) === null || _Dispatcher$getCurren === void 0 ? void 0 : _Dispatcher$getCurren.key;
-        console.log('PARENT KEY', parentKey);
         node.props[propName] = render((0, _jsxRuntime.jsx)(_Action.FunctionCall, {
-          component: parentKey,
+          component: node.component,
           name: propName,
           fn: node.props[propName]
         }, "".concat(node.key, ".").concat(propName)), renderOptions, tree);
@@ -119,7 +121,6 @@ var render = function render(tree) {
     key: key
   }, node);
   if ((0, _types.isClientContext)(requestContext) && JSON.stringify(rendered) !== JSON.stringify(renderCache[key])) {
-    console.log('DIFF', JSON.stringify(rendered), JSON.stringify(renderCache[key]));
     console.log("Rerendering component ".concat(key));
     _Dispatcher["default"].getCurrent()._pubsub.publish((0, _util.generateComponentPubSubKey)(tree, requestContext), {
       updateComponent: {

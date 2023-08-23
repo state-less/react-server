@@ -27,6 +27,7 @@ export type RenderOptions = {
 export type ReactServerNode<T> = {
     __typename: string;
     children: Array<ReactServerNode<unknown>>;
+    component?: string;
     key: string;
 } & T;
 export interface IComponent<T> {
