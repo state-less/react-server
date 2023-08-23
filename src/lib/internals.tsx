@@ -104,10 +104,12 @@ export const render = <T,>(
     for (const entry of Object.entries(node.props)) {
       const [propName, propValue] = entry;
       if (typeof propValue === 'function') {
+        const parentKey = Dispatcher.getCurrent().getParentNode(node.key)?.key;
+        console.log('PARENT KEY', parentKey);
         node.props[propName] = render(
           <FunctionCall
             key={`${node.key}.${propName}`}
-            component={parent?.key || node.key}
+            component={parentKey}
             name={propName}
             fn={node.props[propName]}
           />,
@@ -130,7 +132,7 @@ export const render = <T,>(
     console.log(
       'DIFF',
       JSON.stringify(rendered),
-      JSON.stringify(renderCache[key]),
+      JSON.stringify(renderCache[key])
     );
     console.log(`Rerendering component ${key}`);
     Dispatcher.getCurrent()._pubsub.publish(

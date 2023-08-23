@@ -101,8 +101,11 @@ var render = function render(tree) {
         propName = _entry[0],
         propValue = _entry[1];
       if (typeof propValue === 'function') {
+        var _Dispatcher$getCurren;
+        var parentKey = (_Dispatcher$getCurren = _Dispatcher["default"].getCurrent().getParentNode(node.key)) === null || _Dispatcher$getCurren === void 0 ? void 0 : _Dispatcher$getCurren.key;
+        console.log('PARENT KEY', parentKey);
         node.props[propName] = render((0, _jsxRuntime.jsx)(_Action.FunctionCall, {
-          component: (parent === null || parent === void 0 ? void 0 : parent.key) || node.key,
+          component: parentKey,
           name: propName,
           fn: node.props[propName]
         }, "".concat(node.key, ".").concat(propName)), renderOptions, tree);
