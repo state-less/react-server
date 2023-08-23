@@ -118,9 +118,9 @@ var render = function render(tree) {
   if (parent === null) {
     _Dispatcher["default"].getCurrent().setRootComponent(node);
   }
-  var rendered = (0, _cloneDeep["default"])(_objectSpread({
+  var rendered = _objectSpread({
     key: key
-  }, node));
+  }, node);
   if ((0, _types.isClientContext)(requestContext) && JSON.stringify(rendered) !== JSON.stringify(renderCache[key])) {
     console.log("Rerendering component ".concat(key));
     _Dispatcher["default"].getCurrent()._pubsub.publish((0, _util.generateComponentPubSubKey)(tree, requestContext), {
@@ -129,7 +129,7 @@ var render = function render(tree) {
       }
     });
   }
-  renderCache[key] = rendered;
+  renderCache[key] = (0, _cloneDeep["default"])(rendered);
   return rendered;
 };
 exports.render = render;

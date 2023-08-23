@@ -127,7 +127,7 @@ export const render = <T,>(
     Dispatcher.getCurrent().setRootComponent(node);
   }
 
-  const rendered = cloneDeep({ key, ...node });
+  const rendered = { key, ...node };
 
   if (
     isClientContext(requestContext) &&
@@ -142,7 +142,7 @@ export const render = <T,>(
     );
   }
 
-  renderCache[key] = rendered;
+  renderCache[key] = cloneDeep(rendered);
   return rendered;
 };
 
