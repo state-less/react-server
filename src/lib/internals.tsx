@@ -13,6 +13,7 @@ import {
   ServerContext,
 } from './types';
 import { generateComponentPubSubKey } from './util';
+import cloneDeep from 'clone-deep';
 
 export const Lifecycle = <T,>(
   Component: IComponent<T>,
@@ -126,7 +127,7 @@ export const render = <T,>(
     Dispatcher.getCurrent().setRootComponent(node);
   }
 
-  const rendered = { key, ...node };
+  const rendered = cloneDeep({ key, ...node });
 
   if (
     isClientContext(requestContext) &&
