@@ -151,10 +151,14 @@ class Dispatcher {
         state.off('change', listener);
       }
 
-      render(_currentComponent, {
-        ...renderOptions,
-        initiator: Initiator.StateUpdate,
-      });
+      render(
+        _currentComponent,
+        {
+          ...renderOptions,
+          initiator: Initiator.StateUpdate,
+        },
+        this._currentComponent.at(-2)
+      );
     };
 
     for (const listener of Listeners[listenerKey] || []) {
