@@ -116,6 +116,7 @@ var render = function render(tree) {
     key: key
   }, node);
   if ((0, _types.isClientContext)(requestContext) && JSON.stringify(rendered) !== JSON.stringify(renderCache[key])) {
+    console.log('DIFF', JSON.stringify(rendered), JSON.stringify(renderCache[key]));
     console.log("Rerendering component ".concat(key));
     _Dispatcher["default"].getCurrent()._pubsub.publish((0, _util.generateComponentPubSubKey)(tree, requestContext), {
       updateComponent: {
