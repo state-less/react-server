@@ -128,8 +128,8 @@ var render = function render(tree) {
         rendered: rendered
       }
     });
+    renderCache[key] = (0, _cloneDeep["default"])(rendered);
   }
-  renderCache[key] = (0, _cloneDeep["default"])(rendered);
   return rendered;
 };
 exports.render = render;

@@ -140,9 +140,9 @@ export const render = <T,>(
         updateComponent: { rendered },
       }
     );
+    renderCache[key] = cloneDeep(rendered);
   }
 
-  renderCache[key] = cloneDeep(rendered);
   return rendered;
 };
 
