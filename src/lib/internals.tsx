@@ -127,7 +127,12 @@ export const render = <T,>(
     isClientContext(requestContext) &&
     JSON.stringify(rendered) !== JSON.stringify(renderCache[key])
   ) {
-    console.log('DIFF', rendered, renderCache[key]);
+    console.log(
+      'DIFF',
+      JSON.stringify(rendered),
+      JSON.stringify(renderCache[key]),
+      parent?.key
+    );
     console.log(`Rerendering component ${key}`);
     Dispatcher.getCurrent()._pubsub.publish(
       generateComponentPubSubKey(tree, requestContext as ClientContext),
