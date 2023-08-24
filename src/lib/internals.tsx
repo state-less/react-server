@@ -127,8 +127,8 @@ export const render = <T,>(
     Dispatcher.getCurrent().setRootComponent(node);
   }
 
-  const rendered = { key, ...node };
-
+  const rendered: any = { key, ...node };
+  console.log('Rendered', key, rendered?.props, renderCache[key]?.props);
   if (
     isClientContext(requestContext) &&
     JSON.stringify(rendered) !== JSON.stringify(renderCache[key])
@@ -140,8 +140,9 @@ export const render = <T,>(
         updateComponent: { rendered },
       }
     );
-    renderCache[key] = cloneDeep(rendered);
   }
+  console.log('Caching', rendered);
+  renderCache[key] = rendered;
 
   return rendered;
 };
