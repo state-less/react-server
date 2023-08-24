@@ -13,6 +13,7 @@ import {
   ServerContext,
 } from './types';
 import { generateComponentPubSubKey } from './util';
+import cloneDeep from 'clone-deep';
 
 export const Lifecycle = <T,>(
   Component: IComponent<T>,
@@ -101,13 +102,18 @@ export const render = <T,>(
   node.children = processedChildren;
 
   if (isServerSideProps(node)) {
+    if (tree.key === node.key) {
+      node.component = parent?.key || node.key;
+    } else {
+      node.component = tree?.key;
+    }
     for (const entry of Object.entries(node.props)) {
       const [propName, propValue] = entry;
       if (typeof propValue === 'function') {
         node.props[propName] = render(
           <FunctionCall
-            key={`${parent?.key || node.key}.${propName}`}
-            component={parent?.key || node.key}
+            key={`${node.key}.${propName}`}
+            component={node.component}
             name={propName}
             fn={node.props[propName]}
           />,
@@ -121,22 +127,22 @@ export const render = <T,>(
     Dispatcher.getCurrent().setRootComponent(node);
   }
 
-  const rendered = { key, ...node };
-
+  const rendered: any = { key, ...node };
   if (
     isClientContext(requestContext) &&
     JSON.stringify(rendered) !== JSON.stringify(renderCache[key])
   ) {
-    console.log(`Rerendering component ${key}`);
-    Dispatcher.getCurrent()._pubsub.publish(
-      generateComponentPubSubKey(tree, requestContext as ClientContext),
-      {
-        updateComponent: { rendered },
-      }
+    const pubsubKey = generateComponentPubSubKey(
+      tree,
+      requestContext as ClientContext
     );
+    console.log(`Publishing ${pubsubKey}`);
+    Dispatcher.getCurrent()._pubsub.publish(pubsubKey, {
+      updateComponent: { rendered },
+    });
   }
-
   renderCache[key] = rendered;
+
   return rendered;
 };
 

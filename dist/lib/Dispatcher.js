@@ -121,6 +121,7 @@ var Dispatcher = /*#__PURE__*/function () {
   }, {
     key: "useState",
     value: function useState(initialValue, options) {
+      var _this2 = this;
       var _currentComponent = this._currentComponent.at(-1);
       var renderOptions = this._renderOptions;
       var scope = getRuntimeScope(options.scope, renderOptions.context);
@@ -160,7 +161,7 @@ var Dispatcher = /*#__PURE__*/function () {
         }
         (0, _internals.render)(_currentComponent, _objectSpread(_objectSpread({}, renderOptions), {}, {
           initiator: _types.Initiator.StateUpdate
-        }));
+        }), _this2._currentComponent.at(-2));
       };
       var _iterator3 = _createForOfIteratorHelper(Listeners[listenerKey] || []),
         _step3;
