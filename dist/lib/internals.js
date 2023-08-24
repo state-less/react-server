@@ -46,7 +46,6 @@ var serverContext = function serverContext() {
 };
 var renderCache = {};
 var render = function render(tree) {
-  var _renderCache$key;
   var renderOptions = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {
     clientProps: null,
     context: null,
@@ -121,16 +120,15 @@ var render = function render(tree) {
   var rendered = _objectSpread({
     key: key
   }, node);
-  console.log('Rendered', key, rendered === null || rendered === void 0 ? void 0 : rendered.props, (_renderCache$key = renderCache[key]) === null || _renderCache$key === void 0 ? void 0 : _renderCache$key.props);
   if ((0, _types.isClientContext)(requestContext) && JSON.stringify(rendered) !== JSON.stringify(renderCache[key])) {
-    console.log("Rerendering component ".concat(key));
-    _Dispatcher["default"].getCurrent()._pubsub.publish((0, _util.generateComponentPubSubKey)(tree, requestContext), {
+    var pubsubKey = (0, _util.generateComponentPubSubKey)(tree, requestContext);
+    console.log("Publishing ".concat(pubsubKey));
+    _Dispatcher["default"].getCurrent()._pubsub.publish(pubsubKey, {
       updateComponent: {
         rendered: rendered
       }
     });
   }
-  console.log('Caching', rendered);
   renderCache[key] = rendered;
   return rendered;
 };

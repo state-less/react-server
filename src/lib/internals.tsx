@@ -128,20 +128,19 @@ export const render = <T,>(
   }
 
   const rendered: any = { key, ...node };
-  console.log('Rendered', key, rendered?.props, renderCache[key]?.props);
   if (
     isClientContext(requestContext) &&
     JSON.stringify(rendered) !== JSON.stringify(renderCache[key])
   ) {
-    console.log(`Rerendering component ${key}`);
-    Dispatcher.getCurrent()._pubsub.publish(
-      generateComponentPubSubKey(tree, requestContext as ClientContext),
-      {
-        updateComponent: { rendered },
-      }
+    const pubsubKey = generateComponentPubSubKey(
+      tree,
+      requestContext as ClientContext
     );
+    console.log(`Publishing ${pubsubKey}`);
+    Dispatcher.getCurrent()._pubsub.publish(pubsubKey, {
+      updateComponent: { rendered },
+    });
   }
-  console.log('Caching', rendered);
   renderCache[key] = rendered;
 
   return rendered;
