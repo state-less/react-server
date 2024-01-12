@@ -96,7 +96,8 @@ describe('Dispatcher', function () {
         headers: {
           'x-unique-id': 'client'
         }
-      }
+      },
+      initiator: _types.Initiator.RenderServer
     });
     expect(effectMock).toBeCalledTimes(1);
   });
@@ -127,13 +128,17 @@ describe('Dispatcher', function () {
   });
   it('should be able to use a context higher up the tree', function () {
     var component = (0, _jsxRuntime.jsx)(Provider, {
-      value: 1,
+      value: {
+        foo: 'bar'
+      },
       children: (0, _jsxRuntime.jsx)(Children, {
         children: (0, _jsxRuntime.jsx)(ContextComponent, {}, "context")
       }, "children")
     }, "provider");
     var node = (0, _internals.render)(component);
-    expect(node.children[0].children[0].ctx).toBe(1);
+    expect(node.children[0].children[0].ctx).toEqual({
+      foo: 'bar'
+    });
   });
   it('should return null if no provider is found', function () {
     var dispatcher = _Dispatcher["default"].getCurrent();

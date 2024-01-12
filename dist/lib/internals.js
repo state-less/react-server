@@ -20,22 +20,19 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
 var Lifecycle = function Lifecycle(Component, props, _ref) {
   var key = _ref.key,
     context = _ref.context,
-    clientProps = _ref.clientProps;
-  _Dispatcher["default"].getCurrent().addCurrentComponent({
-    Component: Component,
-    props: props,
-    key: key
-  });
+    clientProps = _ref.clientProps,
+    initiator = _ref.initiator;
   _Dispatcher["default"].getCurrent().setClientContext({
     context: context,
-    clientProps: clientProps
+    clientProps: clientProps,
+    initiator: initiator
   });
   var rendered = Component(_objectSpread({}, props), {
     context: context,
     clientProps: clientProps,
-    key: key
+    key: key,
+    initiator: initiator
   });
-  _Dispatcher["default"].getCurrent().popCurrentComponent();
   return _objectSpread({
     __typename: Component.name,
     key: key
@@ -48,10 +45,12 @@ var serverContext = function serverContext() {
   };
 };
 exports.serverContext = serverContext;
+var renderCache = {};
 var render = function render(tree) {
   var renderOptions = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {
     clientProps: null,
-    context: null
+    context: null,
+    initiator: _types.Initiator.RenderServer
   };
   var parent = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
   var Component = tree.Component,
@@ -59,15 +58,17 @@ var render = function render(tree) {
     props = tree.props;
   var processedChildren = [];
   var requestContext = !renderOptions || (renderOptions === null || renderOptions === void 0 ? void 0 : renderOptions.context) === null ? serverContext() : renderOptions.context;
-  var node = Lifecycle(Component, props, {
-    key: key,
-    clientProps: renderOptions === null || renderOptions === void 0 ? void 0 : renderOptions.clientProps,
+  _Dispatcher["default"].getCurrent().addCurrentComponent(tree);
+  var node = Lifecycle(Component, props, _objectSpread(_objectSpread({
+    key: key
+  }, renderOptions), {}, {
     context: requestContext
-  });
+  }));
   if ((0, _types.isReactServerComponent)(node)) {
     node = render(node, renderOptions, tree);
   }
-  var children = Array.isArray(node.children) ? node.children : [node.children].filter(Boolean);
+  var children = Array.isArray(node.children) ? node.children.flat() : [node.children].filter(Boolean);
+  var components = [];
   var _iterator = _createForOfIteratorHelper(children),
     _step;
   try {
@@ -80,6 +81,7 @@ var render = function render(tree) {
         continue;
       }
       var childResult = null;
+      components.push(child);
       do {
         _Dispatcher["default"].getCurrent().setParentNode((childResult || child).key, node);
         childResult = render(childResult || child, renderOptions, tree);
@@ -91,8 +93,14 @@ var render = function render(tree) {
   } finally {
     _iterator.f();
   }
+  _Dispatcher["default"].getCurrent().popCurrentComponent();
   node.children = processedChildren;
   if (isServerSideProps(node)) {
+    if (tree.key === node.key) {
+      node.component = (parent === null || parent === void 0 ? void 0 : parent.key) || node.key;
+    } else {
+      node.component = tree === null || tree === void 0 ? void 0 : tree.key;
+    }
     for (var _i = 0, _Object$entries = Object.entries(node.props); _i < _Object$entries.length; _i++) {
       var entry = _Object$entries[_i];
       var _entry = (0, _slicedToArray2["default"])(entry, 2),
@@ -100,10 +108,10 @@ var render = function render(tree) {
         propValue = _entry[1];
       if (typeof propValue === 'function') {
         node.props[propName] = render((0, _jsxRuntime.jsx)(_Action.FunctionCall, {
-          component: (parent === null || parent === void 0 ? void 0 : parent.key) || node.key,
+          component: node.component,
           name: propName,
           fn: node.props[propName]
-        }), renderOptions, tree);
+        }, "".concat(node.key, ".").concat(propName)), renderOptions, tree);
       }
     }
   }
@@ -113,13 +121,16 @@ var render = function render(tree) {
   var rendered = _objectSpread({
     key: key
   }, node);
-  if ((0, _types.isClientContext)(requestContext)) {
-    _Dispatcher["default"].getCurrent()._pubsub.publish((0, _util.generateComponentPubSubKey)(tree, requestContext), {
+  if ((0, _types.isClientContext)(requestContext) && JSON.stringify(rendered) !== JSON.stringify(renderCache[key])) {
+    var pubsubKey = (0, _util.generateComponentPubSubKey)(tree, requestContext);
+    console.log("Publishing ".concat(pubsubKey));
+    _Dispatcher["default"].getCurrent()._pubsub.publish(pubsubKey, {
       updateComponent: {
         rendered: rendered
       }
     });
   }
+  renderCache[key] = rendered;
   return rendered;
 };
 exports.render = render;

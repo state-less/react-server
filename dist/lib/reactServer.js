@@ -4,7 +4,7 @@ var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefau
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.useState = exports.useEffect = exports.useContext = exports.globalInstance = void 0;
+exports.useState = exports.useEffect = exports.useContext = exports.useClientEffect = exports.globalInstance = exports.destroy = void 0;
 var _Dispatcher = _interopRequireDefault(require("./Dispatcher"));
 var globalInstance = {
   components: new Map()
@@ -18,6 +18,14 @@ var useEffect = function useEffect(fn, deps) {
   return _Dispatcher["default"].getCurrent().useEffect(fn, deps);
 };
 exports.useEffect = useEffect;
+var useClientEffect = function useClientEffect(fn, deps) {
+  return _Dispatcher["default"].getCurrent().useClientEffect(fn, deps);
+};
+exports.useClientEffect = useClientEffect;
+var destroy = function destroy() {
+  return _Dispatcher["default"].getCurrent().destroy();
+};
+exports.destroy = destroy;
 var useContext = function useContext(context) {
   return _Dispatcher["default"].getCurrent().useContext(context);
 };

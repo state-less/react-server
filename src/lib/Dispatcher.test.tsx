@@ -3,7 +3,7 @@ import { Store } from '../store/MemoryStore';
 import Dispatcher, { createContext } from './Dispatcher';
 import { render } from './internals';
 import { useContext, useEffect, useState } from './reactServer';
-import { isReactServerNode } from './types';
+import { Initiator, isReactServerNode } from './types';
 
 const store = new Store({});
 const pubSub = new PubSub();
@@ -86,6 +86,7 @@ describe('Dispatcher', () => {
     render(component, {
       clientProps: {},
       context: { headers: { 'x-unique-id': 'client' } },
+      initiator: Initiator.RenderServer,
     });
     expect(effectMock).toBeCalledTimes(1);
   });
@@ -122,7 +123,7 @@ describe('Dispatcher', () => {
 
   it('should be able to use a context higher up the tree', () => {
     const component = (
-      <Provider value={1} key="provider">
+      <Provider value={{ foo: 'bar' }} key="provider">
         <Children key="children">
           <ContextComponent key="context" />
         </Children>
@@ -131,7 +132,7 @@ describe('Dispatcher', () => {
 
     const node = render<any>(component);
 
-    expect(node.children[0].children[0].ctx).toBe(1);
+    expect(node.children[0].children[0].ctx).toEqual({ foo: 'bar' });
   });
 
   it('should return null if no provider is found', () => {

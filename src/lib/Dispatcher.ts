@@ -1,9 +1,10 @@
 import { PubSub } from 'graphql-subscriptions';
-import { StateOptions, StateValue, Store } from '../store/MemoryStore';
+import { State, StateOptions, StateValue, Store } from '../store/MemoryStore';
 import { render } from './internals';
 import { useEffect } from './reactServer';
 import { Scopes } from './scopes';
 import {
+  Initiator,
   isClientContext,
   isProvider,
   isServerContext,
@@ -12,7 +13,6 @@ import {
   RenderOptions,
   RequestContext,
 } from './types';
-import { ClientContext, Maybe } from './types';
 import { clientKey } from './util';
 
 type ProviderComponent = {
@@ -54,12 +54,19 @@ export const getRuntimeScope = (scope: string, context: RequestContext) => {
 };
 
 const Listeners = {};
+const recordedStates: State<unknown>[] = [];
+const lastDeps: Record<string, any[]> = {};
+const usedStates: Record<string, Record<string, State<unknown>>> = {};
+const cleanupFns: Record<string, Array<() => void>> = {};
 class Dispatcher {
   store: Store;
   _pubsub: PubSub;
   _currentComponent: ReactServerComponent<unknown>[];
   _renderOptions: RenderOptions;
   _parentLookup: Map<string, ReactServerNode<unknown>>;
+  _recordStates: boolean;
+  _currentClientEffect: number;
+  _currentServerEffect: number;
 
   static _tree: ReactServerNode<unknown>;
   static _current: Dispatcher;
@@ -94,6 +101,11 @@ class Dispatcher {
   setParentNode(key: string, component: ReactServerNode<unknown>) {
     this._parentLookup.set(key, component);
   }
+
+  getCleanupFns = (key) => {
+    return cleanupFns[key] || [];
+  };
+
   getParentNode(key: string): ReactServerNode<unknown> {
     return this._parentLookup.get(key);
   }
@@ -103,6 +115,7 @@ class Dispatcher {
 
   addCurrentComponent = (component: ReactServerComponent<unknown>) => {
     this._currentComponent.push(component);
+    this._currentClientEffect = 0;
   };
 
   popCurrentComponent = () => {
@@ -118,26 +131,44 @@ class Dispatcher {
     const scope = getRuntimeScope(options.scope, renderOptions.context);
     const state = this.store.getState<T>(initialValue, { ...options, scope });
 
+    for (const comp of this._currentComponent) {
+      if (!state.labels.includes(comp.key)) {
+        state.labels.push(comp.key);
+      }
+    }
+
+    const listenerKey =
+      clientKey(_currentComponent.key, renderOptions.context) +
+      '::' +
+      state.key;
+
+    if (this._recordStates) {
+      recordedStates.push(state);
+    }
+
     const rerender = () => {
-      for (const listener of Listeners[
-        clientKey(_currentComponent.key, renderOptions.context)
-      ] || []) {
+      for (const listener of Listeners[listenerKey] || []) {
         state.off('change', listener);
       }
-      render(_currentComponent, renderOptions);
+
+      render(
+        _currentComponent,
+        {
+          ...renderOptions,
+          initiator: Initiator.StateUpdate,
+        },
+        this._currentComponent.at(-2)
+      );
     };
 
-    for (const listener of Listeners[
-      clientKey(_currentComponent.key, renderOptions.context)
-    ] || []) {
+    for (const listener of Listeners[listenerKey] || []) {
       state.off('change', listener);
     }
-    state.once('change', rerender);
-    Listeners[clientKey(_currentComponent.key, renderOptions.context)] =
-      Listeners[clientKey(_currentComponent.key, renderOptions.context)] || [];
-    Listeners[clientKey(_currentComponent.key, renderOptions.context)].push(
-      rerender
-    );
+
+    Listeners[listenerKey] = [];
+    state.on('change', rerender);
+    Listeners[listenerKey] = Listeners[listenerKey] || [];
+    Listeners[listenerKey].push(rerender);
 
     state.getValue(+new Date());
     const value = state.value as T;
@@ -166,6 +197,56 @@ class Dispatcher {
     }
   }
 
+  useClientEffect(
+    fn: () => void | (() => void),
+    deps?: Array<any>
+  ): [StateValue, (value: StateValue) => void] {
+    const clientContext = this._renderOptions;
+    const currentIndex = this._currentClientEffect;
+
+    // Don't run during server side rendering
+    if (isServerContext(clientContext.context)) {
+      return;
+    }
+    if (isClientContext(clientContext.context)) {
+      const componentKey = clientKey(
+        this._currentComponent.at(-1).key,
+        clientContext.context
+      );
+
+      const indexComponentKey = componentKey + '-' + currentIndex;
+
+      let changed = false;
+      for (let i = 0; i < deps?.length || 0; i++) {
+        if (lastDeps[indexComponentKey]?.[i] !== deps[i]) {
+          changed = true;
+          break;
+        }
+      }
+      if (
+        changed ||
+        (deps?.length === 0 && !lastDeps[indexComponentKey]) ||
+        !deps
+      ) {
+        lastDeps[indexComponentKey] = deps;
+        const cleanup = fn();
+        const wrapped = () => {
+          if (typeof cleanup === 'function') {
+            cleanup();
+            delete lastDeps[indexComponentKey];
+            delete cleanupFns[componentKey][currentIndex];
+          }
+        };
+        cleanupFns[componentKey] = cleanupFns[componentKey] || [];
+
+        if (typeof cleanup === 'function') {
+          cleanupFns[componentKey][this._currentClientEffect] = wrapped;
+        }
+      }
+      this._currentClientEffect++;
+    }
+  }
+
   useContext = (context: Context<unknown>) => {
     const _currentComponent = this._currentComponent.at(-1);
     if (!_currentComponent) {
@@ -182,6 +263,11 @@ class Dispatcher {
       }
     } while (parent);
     return null;
+  };
+
+  destroy = (component?) => {
+    const _currentComponent = component || this._currentComponent.at(-1);
+    this.store.purgeLabels(_currentComponent.key);
   };
 }
 

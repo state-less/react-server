@@ -3,6 +3,7 @@ import Dispatcher from './Dispatcher';
 import {
   ClientContext,
   IComponent,
+  Initiator,
   isClientContext,
   isReactServerComponent,
   isReactServerNode,
@@ -12,19 +13,22 @@ import {
   ServerContext,
 } from './types';
 import { generateComponentPubSubKey } from './util';
+import cloneDeep from 'clone-deep';
 
 export const Lifecycle = <T,>(
   Component: IComponent<T>,
   props: Record<string, any>,
-  { key, context, clientProps }: RenderOptions & { key: string }
+  { key, context, clientProps, initiator }: RenderOptions & { key: string }
 ): ReactServerNode<T> => {
-  Dispatcher.getCurrent().addCurrentComponent({ Component, props, key });
   Dispatcher.getCurrent().setClientContext({
     context,
     clientProps,
+    initiator,
   });
-  const rendered = Component({ ...props }, { context, clientProps, key });
-  Dispatcher.getCurrent().popCurrentComponent();
+  const rendered = Component(
+    { ...props },
+    { context, clientProps, key, initiator }
+  );
 
   return {
     __typename: Component.name,
@@ -38,9 +42,14 @@ export const serverContext = () =>
     __typename: 'ServerContext',
   } as ServerContext);
 
+const renderCache = {};
 export const render = <T,>(
   tree: ReactServerComponent<T>,
-  renderOptions: RenderOptions = { clientProps: null, context: null },
+  renderOptions: RenderOptions = {
+    clientProps: null,
+    context: null,
+    initiator: Initiator.RenderServer,
+  },
   parent: ReactServerComponent<unknown> | null = null
 ): ReactServerNode<T> => {
   const { Component, key, props } = tree;
@@ -51,9 +60,11 @@ export const render = <T,>(
       ? serverContext()
       : renderOptions.context;
 
+  Dispatcher.getCurrent().addCurrentComponent(tree);
+
   let node = Lifecycle(Component, props, {
     key,
-    clientProps: renderOptions?.clientProps,
+    ...renderOptions,
     context: requestContext,
   });
   if (isReactServerComponent(node)) {
@@ -64,9 +75,10 @@ export const render = <T,>(
     );
   }
   const children = Array.isArray(node.children)
-    ? node.children
+    ? node.children.flat()
     : [node.children].filter(Boolean);
 
+  const components: ReactServerComponent<unknown>[] = [];
   for (const child of children) {
     if (!isReactServerComponent(child)) {
       if (isReactServerNode(child)) {
@@ -76,6 +88,7 @@ export const render = <T,>(
     }
 
     let childResult: ReactServerNode<T> | ReactServerComponent<unknown> = null;
+    components.push(child);
     do {
       Dispatcher.getCurrent().setParentNode((childResult || child).key, node);
       childResult = render(
@@ -88,15 +101,22 @@ export const render = <T,>(
     processedChildren.push(childResult);
   }
 
+  Dispatcher.getCurrent().popCurrentComponent();
   node.children = processedChildren;
 
   if (isServerSideProps(node)) {
+    if (tree.key === node.key) {
+      node.component = parent?.key || node.key;
+    } else {
+      node.component = tree?.key;
+    }
     for (const entry of Object.entries(node.props)) {
       const [propName, propValue] = entry;
       if (typeof propValue === 'function') {
         node.props[propName] = render(
           <FunctionCall
-            component={parent?.key || node.key}
+            key={`${node.key}.${propName}`}
+            component={node.component}
             name={propName}
             fn={node.props[propName]}
           />,
@@ -110,16 +130,22 @@ export const render = <T,>(
     Dispatcher.getCurrent().setRootComponent(node);
   }
 
-  const rendered = { key, ...node };
-
-  if (isClientContext(requestContext)) {
-    Dispatcher.getCurrent()._pubsub.publish(
-      generateComponentPubSubKey(tree, requestContext as ClientContext),
-      {
-        updateComponent: { rendered },
-      }
+  const rendered: any = { key, ...node };
+  if (
+    isClientContext(requestContext) &&
+    JSON.stringify(rendered) !== JSON.stringify(renderCache[key])
+  ) {
+    const pubsubKey = generateComponentPubSubKey(
+      tree,
+      requestContext as ClientContext
     );
+    console.log(`Publishing ${pubsubKey}`);
+    Dispatcher.getCurrent()._pubsub.publish(pubsubKey, {
+      updateComponent: { rendered },
+    });
   }
+  renderCache[key] = rendered;
+
   return rendered;
 };
 

@@ -46,6 +46,10 @@ var getRuntimeScope = function getRuntimeScope(scope, context) {
 };
 exports.getRuntimeScope = getRuntimeScope;
 var Listeners = {};
+var recordedStates = [];
+var lastDeps = {};
+var usedStates = {};
+var cleanupFns = {};
 var Dispatcher = /*#__PURE__*/function () {
   function Dispatcher() {
     var _this = this;
@@ -56,8 +60,12 @@ var Dispatcher = /*#__PURE__*/function () {
     (0, _defineProperty2["default"])(this, "setClientContext", function (context) {
       _this._renderOptions = context;
     });
+    (0, _defineProperty2["default"])(this, "getCleanupFns", function (key) {
+      return cleanupFns[key] || [];
+    });
     (0, _defineProperty2["default"])(this, "addCurrentComponent", function (component) {
       _this._currentComponent.push(component);
+      _this._currentClientEffect = 0;
     });
     (0, _defineProperty2["default"])(this, "popCurrentComponent", function () {
       _this._currentComponent.pop();
@@ -77,6 +85,10 @@ var Dispatcher = /*#__PURE__*/function () {
         }
       } while (parent);
       return null;
+    });
+    (0, _defineProperty2["default"])(this, "destroy", function (component) {
+      var _currentComponent = component || _this._currentComponent.at(-1);
+      _this.store.purgeLabels(_currentComponent.key);
     });
     this._currentComponent = [];
     this._parentLookup = new Map();
@@ -109,42 +121,64 @@ var Dispatcher = /*#__PURE__*/function () {
   }, {
     key: "useState",
     value: function useState(initialValue, options) {
+      var _this2 = this;
       var _currentComponent = this._currentComponent.at(-1);
       var renderOptions = this._renderOptions;
       var scope = getRuntimeScope(options.scope, renderOptions.context);
       var state = this.store.getState(initialValue, _objectSpread(_objectSpread({}, options), {}, {
         scope: scope
       }));
+      var _iterator = _createForOfIteratorHelper(this._currentComponent),
+        _step;
+      try {
+        for (_iterator.s(); !(_step = _iterator.n()).done;) {
+          var comp = _step.value;
+          if (!state.labels.includes(comp.key)) {
+            state.labels.push(comp.key);
+          }
+        }
+      } catch (err) {
+        _iterator.e(err);
+      } finally {
+        _iterator.f();
+      }
+      var listenerKey = (0, _util.clientKey)(_currentComponent.key, renderOptions.context) + '::' + state.key;
+      if (this._recordStates) {
+        recordedStates.push(state);
+      }
       var rerender = function rerender() {
-        var _iterator = _createForOfIteratorHelper(Listeners[(0, _util.clientKey)(_currentComponent.key, renderOptions.context)] || []),
-          _step;
+        var _iterator2 = _createForOfIteratorHelper(Listeners[listenerKey] || []),
+          _step2;
         try {
-          for (_iterator.s(); !(_step = _iterator.n()).done;) {
-            var listener = _step.value;
+          for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
+            var listener = _step2.value;
             state.off('change', listener);
           }
         } catch (err) {
-          _iterator.e(err);
+          _iterator2.e(err);
         } finally {
-          _iterator.f();
+          _iterator2.f();
         }
-        (0, _internals.render)(_currentComponent, renderOptions);
+        (0, _internals.render)(_currentComponent, _objectSpread(_objectSpread({}, renderOptions), {}, {
+          initiator: _types.Initiator.StateUpdate
+        }), _this2._currentComponent.at(-2));
       };
-      var _iterator2 = _createForOfIteratorHelper(Listeners[(0, _util.clientKey)(_currentComponent.key, renderOptions.context)] || []),
-        _step2;
+      var _iterator3 = _createForOfIteratorHelper(Listeners[listenerKey] || []),
+        _step3;
       try {
-        for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
-          var listener = _step2.value;
+        for (_iterator3.s(); !(_step3 = _iterator3.n()).done;) {
+          var listener = _step3.value;
           state.off('change', listener);
         }
       } catch (err) {
-        _iterator2.e(err);
+        _iterator3.e(err);
       } finally {
-        _iterator2.f();
+        _iterator3.f();
       }
-      state.once('change', rerender);
-      Listeners[(0, _util.clientKey)(_currentComponent.key, renderOptions.context)] = Listeners[(0, _util.clientKey)(_currentComponent.key, renderOptions.context)] || [];
-      Listeners[(0, _util.clientKey)(_currentComponent.key, renderOptions.context)].push(rerender);
+      Listeners[listenerKey] = [];
+      state.on('change', rerender);
+      Listeners[listenerKey] = Listeners[listenerKey] || [];
+      Listeners[listenerKey].push(rerender);
       state.getValue(+new Date());
       var value = state.value;
       return [value, function (value) {
@@ -162,6 +196,45 @@ var Dispatcher = /*#__PURE__*/function () {
       }
       if ((0, _types.isServerContext)(clientContext.context)) {
         fn();
+      }
+    }
+  }, {
+    key: "useClientEffect",
+    value: function useClientEffect(fn, deps) {
+      var clientContext = this._renderOptions;
+      var currentIndex = this._currentClientEffect;
+
+      // Don't run during server side rendering
+      if ((0, _types.isServerContext)(clientContext.context)) {
+        return;
+      }
+      if ((0, _types.isClientContext)(clientContext.context)) {
+        var componentKey = (0, _util.clientKey)(this._currentComponent.at(-1).key, clientContext.context);
+        var indexComponentKey = componentKey + '-' + currentIndex;
+        var changed = false;
+        for (var i = 0; i < (deps === null || deps === void 0 ? void 0 : deps.length) || 0; i++) {
+          var _lastDeps$indexCompon;
+          if (((_lastDeps$indexCompon = lastDeps[indexComponentKey]) === null || _lastDeps$indexCompon === void 0 ? void 0 : _lastDeps$indexCompon[i]) !== deps[i]) {
+            changed = true;
+            break;
+          }
+        }
+        if (changed || (deps === null || deps === void 0 ? void 0 : deps.length) === 0 && !lastDeps[indexComponentKey] || !deps) {
+          lastDeps[indexComponentKey] = deps;
+          var cleanup = fn();
+          var wrapped = function wrapped() {
+            if (typeof cleanup === 'function') {
+              cleanup();
+              delete lastDeps[indexComponentKey];
+              delete cleanupFns[componentKey][currentIndex];
+            }
+          };
+          cleanupFns[componentKey] = cleanupFns[componentKey] || [];
+          if (typeof cleanup === 'function') {
+            cleanupFns[componentKey][this._currentClientEffect] = wrapped;
+          }
+        }
+        this._currentClientEffect++;
       }
     }
   }]);

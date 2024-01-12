@@ -12,13 +12,22 @@ export type ServerContext = {
 };
 /** Provides context about the current request the component is being rendered under (server / client) */
 export type RequestContext = ClientContext | ServerContext;
+export declare enum Initiator {
+    RenderServer = 0,
+    RenderClient = 1,
+    FunctionCall = 2,
+    StateUpdate = 3,
+    Mount = 4
+}
 export type RenderOptions = {
     context: Maybe<RequestContext>;
     clientProps: Maybe<Record<string, any>>;
+    initiator: Initiator;
 };
 export type ReactServerNode<T> = {
     __typename: string;
     children: Array<ReactServerNode<unknown>>;
+    component?: string;
     key: string;
 } & T;
 export interface IComponent<T> {
