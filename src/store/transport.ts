@@ -34,7 +34,7 @@ export class PostgresTransport extends Transport {
     const { scope, key, value } = state;
     const query = `INSERT INTO states (scope, key, value) VALUES ($1, $2, $3) ON CONFLICT (scope, key) DO UPDATE SET value = $3`;
     const result = await this._db.query(query, [scope, key, { value }]);
-    console.log('Inserting state ', scope, key, result);
+    
     return result;
   }
 

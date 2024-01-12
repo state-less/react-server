@@ -62,7 +62,7 @@ export class State<T> extends EventEmitter {
       await this._store._options.transport.setState(this);
       this.publish();
     } else {
-      console.log("Transport doesn't exist.");
+      
       this.publish();
     }
 
@@ -75,13 +75,12 @@ export class State<T> extends EventEmitter {
         this.scope,
         this.key
       );
-      console.log('Getvalue', this.key, new Error().stack);
+      
       if (storedState !== null) {
         const oldValue = this.value;
         this.value = storedState.value;
-        console.log('Comparing values', oldValue, this.value);
+        
         if (JSON.stringify(oldValue) !== JSON.stringify(this.value)) {
-          console.log('Publishing change');
           this.publish();
         }
       }

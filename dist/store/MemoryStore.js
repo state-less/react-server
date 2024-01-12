@@ -85,14 +85,13 @@ var State = /*#__PURE__*/function (_EventEmitter) {
               return this._store._options.transport.setState(this);
             case 6:
               this.publish();
-              _context.next = 11;
+              _context.next = 10;
               break;
             case 9:
-              console.log("Transport doesn't exist.");
               this.publish();
-            case 11:
+            case 10:
               return _context.abrupt("return", this);
-            case 12:
+            case 11:
             case "end":
               return _context.stop();
           }
@@ -113,26 +112,23 @@ var State = /*#__PURE__*/function (_EventEmitter) {
           while (1) switch (_context2.prev = _context2.next) {
             case 0:
               if (!(this !== null && this !== void 0 && (_this$_store2 = this._store) !== null && _this$_store2 !== void 0 && (_this$_store2$_option = _this$_store2._options) !== null && _this$_store2$_option !== void 0 && _this$_store2$_option.transport)) {
-                _context2.next = 6;
+                _context2.next = 5;
                 break;
               }
               _context2.next = 3;
               return this._store._options.transport.getState(this.scope, this.key);
             case 3:
               storedState = _context2.sent;
-              console.log('Getvalue', this.key, new Error().stack);
               if (storedState !== null) {
                 oldValue = this.value;
                 this.value = storedState.value;
-                console.log('Comparing values', oldValue, this.value);
                 if (JSON.stringify(oldValue) !== JSON.stringify(this.value)) {
-                  console.log('Publishing change');
                   this.publish();
                 }
               }
-            case 6:
+            case 5:
               return _context2.abrupt("return", this.value);
-            case 7:
+            case 6:
             case "end":
               return _context2.stop();
           }

@@ -71,9 +71,8 @@ var PostgresTransport = /*#__PURE__*/function (_Transport) {
               }]);
             case 4:
               result = _context.sent;
-              console.log('Inserting state ', scope, key, result);
               return _context.abrupt("return", result);
-            case 7:
+            case 6:
             case "end":
               return _context.stop();
           }

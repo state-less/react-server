@@ -124,7 +124,6 @@ var render = function render(tree) {
   }, node);
   if ((0, _types.isClientContext)(requestContext) && JSON.stringify(rendered) !== JSON.stringify(renderCache[key])) {
     var pubsubKey = (0, _util.generateComponentPubSubKey)(tree, requestContext);
-    console.log("Publishing ".concat(pubsubKey));
     _Dispatcher["default"].getCurrent()._pubsub.publish(pubsubKey, {
       updateComponent: {
         rendered: rendered
