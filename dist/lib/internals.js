@@ -4,7 +4,7 @@ var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefau
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.serverContext = exports.render = exports.Lifecycle = void 0;
+exports.serverContext = exports.renderCache = exports.render = exports.Lifecycle = void 0;
 var _slicedToArray2 = _interopRequireDefault(require("@babel/runtime/helpers/slicedToArray"));
 var _defineProperty2 = _interopRequireDefault(require("@babel/runtime/helpers/defineProperty"));
 var _Action = require("../components/Action");
@@ -46,6 +46,7 @@ var serverContext = function serverContext() {
 };
 exports.serverContext = serverContext;
 var renderCache = {};
+exports.renderCache = renderCache;
 var render = function render(tree) {
   var renderOptions = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {
     clientProps: null,

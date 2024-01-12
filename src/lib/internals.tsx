@@ -42,7 +42,7 @@ export const serverContext = () =>
     __typename: 'ServerContext',
   } as ServerContext);
 
-const renderCache = {};
+export const renderCache = {};
 export const render = <T,>(
   tree: ReactServerComponent<T>,
   renderOptions: RenderOptions = {
