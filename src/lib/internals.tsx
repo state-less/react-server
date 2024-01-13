@@ -131,6 +131,11 @@ export const render = <T,>(
   }
 
   const rendered: any = { key, ...node };
+  console.log(
+    'Rendered',
+    isClientContext(requestContext),
+    JSON.stringify(rendered) !== JSON.stringify(renderCache[key])
+  );
   if (
     isClientContext(requestContext) &&
     JSON.stringify(rendered) !== JSON.stringify(renderCache[key])

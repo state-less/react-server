@@ -122,6 +122,7 @@ var render = function render(tree) {
   var rendered = _objectSpread({
     key: key
   }, node);
+  console.log('Rendered', (0, _types.isClientContext)(requestContext), JSON.stringify(rendered) !== JSON.stringify(renderCache[key]));
   if ((0, _types.isClientContext)(requestContext) && JSON.stringify(rendered) !== JSON.stringify(renderCache[key])) {
     var pubsubKey = (0, _util.generateComponentPubSubKey)(tree, requestContext);
     console.log('Publishing component update', pubsubKey);
