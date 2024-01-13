@@ -150,7 +150,7 @@ class Dispatcher {
       for (const listener of Listeners[listenerKey] || []) {
         state.off('change', listener);
       }
-
+      console.log('Rerendering component', _currentComponent.key);
       render(
         _currentComponent,
         {
