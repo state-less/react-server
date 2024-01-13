@@ -139,7 +139,7 @@ export const render = <T,>(
       tree,
       requestContext as ClientContext
     );
-
+    console.log('Publishing component update', pubsubKey);
     Dispatcher.getCurrent()._pubsub.publish(pubsubKey, {
       updateComponent: { rendered },
     });

@@ -76,22 +76,15 @@ var State = /*#__PURE__*/function (_EventEmitter) {
             case 0:
               this.value = value;
               this.timestamp = +new Date();
-              if (!(this !== null && this !== void 0 && (_this$_store = this._store) !== null && _this$_store !== void 0 && (_this$_store$_options = _this$_store._options) !== null && _this$_store$_options !== void 0 && _this$_store$_options.transport)) {
-                _context.next = 9;
-                break;
+              if (this !== null && this !== void 0 && (_this$_store = this._store) !== null && _this$_store !== void 0 && (_this$_store$_options = _this$_store._options) !== null && _this$_store$_options !== void 0 && _this$_store$_options.transport) {
+                console.log('!!!!!!!!!!!! Transport exists, calling setState on transport');
+                this._store._options.transport.setState(this);
+                this.publish();
+              } else {
+                this.publish();
               }
-              console.log('Transport exists, calling setState on transport');
-              _context.next = 6;
-              return this._store._options.transport.setState(this);
-            case 6:
-              this.publish();
-              _context.next = 10;
-              break;
-            case 9:
-              this.publish();
-            case 10:
               return _context.abrupt("return", this);
-            case 11:
+            case 4:
             case "end":
               return _context.stop();
           }

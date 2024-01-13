@@ -58,11 +58,12 @@ export class State<T> extends EventEmitter {
     this.timestamp = +new Date();
 
     if (this?._store?._options?.transport) {
-      console.log('Transport exists, calling setState on transport');
-      await this._store._options.transport.setState(this);
+      console.log(
+        '!!!!!!!!!!!! Transport exists, calling setState on transport'
+      );
+      this._store._options.transport.setState(this);
       this.publish();
     } else {
-      
       this.publish();
     }
 
@@ -75,11 +76,11 @@ export class State<T> extends EventEmitter {
         this.scope,
         this.key
       );
-      
+
       if (storedState !== null) {
         const oldValue = this.value;
         this.value = storedState.value;
-        
+
         if (JSON.stringify(oldValue) !== JSON.stringify(this.value)) {
           this.publish();
         }
