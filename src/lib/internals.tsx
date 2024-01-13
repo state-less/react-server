@@ -131,11 +131,7 @@ export const render = <T,>(
   }
 
   const rendered: any = { key, ...node };
-  console.log(
-    'Rendered',
-    isClientContext(requestContext),
-    JSON.stringify(rendered) !== JSON.stringify(renderCache[key])
-  );
+
   if (
     isClientContext(requestContext) &&
     JSON.stringify(rendered) !== JSON.stringify(renderCache[key])
@@ -144,11 +140,13 @@ export const render = <T,>(
       tree,
       requestContext as ClientContext
     );
-    console.log('Publishing component update', pubsubKey);
+
     Dispatcher.getCurrent()._pubsub.publish(pubsubKey, {
       updateComponent: { rendered },
     });
   }
+
+  /** TODO: remove client specific key logic from userland to here */
   renderCache[key] = rendered;
 
   return rendered;

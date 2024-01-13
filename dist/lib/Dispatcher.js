@@ -159,7 +159,6 @@ var Dispatcher = /*#__PURE__*/function () {
         } finally {
           _iterator2.f();
         }
-        console.log('Rerendering component', _currentComponent.key);
         (0, _internals.render)(_currentComponent, _objectSpread(_objectSpread({}, renderOptions), {}, {
           initiator: _types.Initiator.StateUpdate
         }), _this2._currentComponent.at(-2));
