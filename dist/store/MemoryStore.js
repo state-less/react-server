@@ -69,11 +69,17 @@ var State = /*#__PURE__*/function (_EventEmitter) {
   }, {
     key: "setValue",
     value: function () {
-      var _setValue = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee(value) {
+      var _setValue = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee(valueAction) {
         var _this$_store, _this$_store$_options;
+        var value;
         return _regenerator["default"].wrap(function _callee$(_context) {
           while (1) switch (_context.prev = _context.next) {
             case 0:
+              if (typeof valueAction === 'function') {
+                value = valueAction(this.value);
+              } else {
+                value = valueAction;
+              }
               this.value = value;
               this.timestamp = +new Date();
               if (this !== null && this !== void 0 && (_this$_store = this._store) !== null && _this$_store !== void 0 && (_this$_store$_options = _this$_store._options) !== null && _this$_store$_options !== void 0 && _this$_store$_options.transport) {
@@ -84,7 +90,7 @@ var State = /*#__PURE__*/function (_EventEmitter) {
                 this.publish();
               }
               return _context.abrupt("return", this);
-            case 4:
+            case 5:
             case "end":
               return _context.stop();
           }

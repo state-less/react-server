@@ -5,6 +5,7 @@ import { EventEmitter } from 'events';
 type PrimitiveValue = string | number;
 export type GenericStateValue = PrimitiveValue | Array<PrimitiveValue>;
 export type StateValue<T = unknown> = T;
+export type SetValueAction<T> = StateValue<T> | ((value: StateValue<T>) => StateValue<T>);
 export type StateOptions = {
     scope: string;
     key: string;
@@ -21,7 +22,7 @@ export declare class State<T> extends EventEmitter {
     _store: Store;
     constructor(initialValue: StateValue<T>, options: StateOptions);
     publish(): void;
-    setValue(value: StateValue<T>): Promise<this>;
+    setValue(valueAction: SetValueAction<T>): Promise<this>;
     getValue(timestamp: number): Promise<T>;
     toJSON: () => {
         scope: string;

@@ -14,6 +14,10 @@ export type GenericStateValue = PrimitiveValue | Array<PrimitiveValue>;
 
 export type StateValue<T = unknown> = T;
 
+export type SetValueAction<T> =
+  | StateValue<T>
+  | ((value: StateValue<T>) => StateValue<T>);
+
 export type StateOptions = {
   scope: string;
   key: string;
@@ -53,7 +57,16 @@ export class State<T> extends EventEmitter {
     this.emit('change', this.value);
   }
 
-  async setValue(value: StateValue<T>) {
+  async setValue(valueAction: SetValueAction<T>) {
+    let value;
+    if (typeof valueAction === 'function') {
+      value = (valueAction as (value: StateValue<T>) => StateValue<T>)(
+        this.value
+      );
+    } else {
+      value = valueAction;
+    }
+
     this.value = value;
     this.timestamp = +new Date();
 
