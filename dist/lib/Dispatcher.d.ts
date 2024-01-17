@@ -1,5 +1,5 @@
 import { PubSub } from 'graphql-subscriptions';
-import { StateOptions, StateValue, Store } from '../store/MemoryStore';
+import { SetValueAction, StateOptions, StateValue, Store } from '../store/MemoryStore';
 import { ReactServerComponent, ReactServerNode, RenderOptions, RequestContext } from './types';
 type ProviderComponent = {
     context: unknown;
@@ -37,7 +37,7 @@ declare class Dispatcher {
     getStore(): Store;
     addCurrentComponent: (component: ReactServerComponent<unknown>) => void;
     popCurrentComponent: () => void;
-    useState<T>(initialValue: StateValue<T>, options: StateOptions): [StateValue<T>, (value: StateValue<T>) => void];
+    useState<T>(initialValue: StateValue<T>, options: StateOptions): [StateValue<T>, (value: SetValueAction<T>) => void];
     useEffect(fn: () => void, deps: Array<any>): [StateValue, (value: StateValue) => void];
     useClientEffect(fn: () => void | (() => void), deps?: Array<any>): [StateValue, (value: StateValue) => void];
     useContext: (context: Context<unknown>) => unknown;

@@ -71,11 +71,6 @@ export class State<T> extends EventEmitter {
     this.timestamp = +new Date();
 
     if (this?._store?._options?.transport) {
-      console.log(
-        '!!!!!!!!!!!! Transport exists, calling setState on transport',
-        this.key,
-        this.value
-      );
       this._store._options.transport.setState(this);
       this.publish();
     } else {

@@ -83,7 +83,6 @@ var State = /*#__PURE__*/function (_EventEmitter) {
               this.value = value;
               this.timestamp = +new Date();
               if (this !== null && this !== void 0 && (_this$_store = this._store) !== null && _this$_store !== void 0 && (_this$_store$_options = _this$_store._options) !== null && _this$_store$_options !== void 0 && _this$_store$_options.transport) {
-                console.log('!!!!!!!!!!!! Transport exists, calling setState on transport', this.key, this.value);
                 this._store._options.transport.setState(this);
                 this.publish();
               } else {

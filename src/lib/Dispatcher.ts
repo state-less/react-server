@@ -1,5 +1,11 @@
 import { PubSub } from 'graphql-subscriptions';
-import { State, StateOptions, StateValue, Store } from '../store/MemoryStore';
+import {
+  SetValueAction,
+  State,
+  StateOptions,
+  StateValue,
+  Store,
+} from '../store/MemoryStore';
 import { render } from './internals';
 import { useEffect } from './reactServer';
 import { Scopes } from './scopes';
@@ -125,7 +131,7 @@ class Dispatcher {
   useState<T>(
     initialValue: StateValue<T>,
     options: StateOptions
-  ): [StateValue<T>, (value: StateValue<T>) => void] {
+  ): [StateValue<T>, (value: SetValueAction<T>) => void] {
     const _currentComponent = this._currentComponent.at(-1);
     const renderOptions = this._renderOptions;
     const scope = getRuntimeScope(options.scope, renderOptions.context);
