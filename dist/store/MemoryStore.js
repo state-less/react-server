@@ -89,8 +89,9 @@ var State = /*#__PURE__*/function (_EventEmitter) {
               } else {
                 this.publish();
               }
+              this.timestamp = +new Date();
               return _context.abrupt("return", this);
-            case 5:
+            case 6:
             case "end":
               return _context.stop();
           }
@@ -103,16 +104,16 @@ var State = /*#__PURE__*/function (_EventEmitter) {
     }()
   }, {
     key: "getValue",
-    value: function getValue(timestamp) {
+    value: function getValue() {
       var _this$_store2,
         _this$_store2$_option,
         _this2 = this;
+      var timestamp = +new Date();
       if (this !== null && this !== void 0 && (_this$_store2 = this._store) !== null && _this$_store2 !== void 0 && (_this$_store2$_option = _this$_store2._options) !== null && _this$_store2$_option !== void 0 && _this$_store2$_option.transport) {
         this._store._options.transport.getState(this.scope, this.key).then(function (storedState) {
           if (storedState !== null) {
-            var oldValue = _this2.value;
-            _this2.value = storedState.value;
-            if (JSON.stringify(oldValue) !== JSON.stringify(_this2.value)) {
+            if (timestamp > _this2.timestamp) {
+              _this2.value = storedState.value;
               _this2.publish();
             }
           }

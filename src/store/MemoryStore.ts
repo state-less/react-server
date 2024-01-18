@@ -77,20 +77,19 @@ export class State<T> extends EventEmitter {
     } else {
       this.publish();
     }
-
+    this.timestamp = +new Date();
     return this;
   }
 
-  getValue(timestamp: number) {
+  getValue() {
+    const timestamp = +new Date();
     if (this?._store?._options?.transport) {
       this._store._options.transport
         .getState<T>(this.scope, this.key)
         .then((storedState) => {
           if (storedState !== null) {
-            const oldValue = this.value;
-            this.value = storedState.value;
-
-            if (JSON.stringify(oldValue) !== JSON.stringify(this.value)) {
+            if (timestamp > this.timestamp) {
+              this.value = storedState.value;
               this.publish();
             }
           }

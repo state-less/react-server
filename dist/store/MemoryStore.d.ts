@@ -23,7 +23,7 @@ export declare class State<T> extends EventEmitter {
     constructor(initialValue: StateValue<T>, options: StateOptions);
     publish(): void;
     setValue(valueAction: SetValueAction<T>): Promise<this>;
-    getValue(timestamp: number): T;
+    getValue(): T;
     toJSON: () => {
         scope: string;
         key: string;

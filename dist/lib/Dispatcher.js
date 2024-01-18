@@ -178,7 +178,7 @@ var Dispatcher = /*#__PURE__*/function () {
         Listeners[listenerKey] = Listeners[listenerKey] || [];
         Listeners[listenerKey].push(rerender);
       }
-      state.getValue(+new Date());
+      state.getValue();
       var value = state.value;
       return [value, function (value) {
         state.setValue(value);

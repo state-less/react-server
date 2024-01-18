@@ -188,7 +188,7 @@ class Dispatcher {
       Listeners[listenerKey] = Listeners[listenerKey] || [];
       Listeners[listenerKey].push(rerender);
     }
-    state.getValue(+new Date());
+    state.getValue();
     const value = state.value as T;
 
     return [

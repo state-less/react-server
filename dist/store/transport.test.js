@@ -59,7 +59,7 @@ describe('transport', function () {
           });
           expect(state.value).toBe('hello');
           _context2.next = 6;
-          return state.getValue(+new Date());
+          return state.getValue();
         case 6:
           expect(state.value).toBe('world');
         case 7:

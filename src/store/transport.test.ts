@@ -35,7 +35,7 @@ describe('transport', () => {
     const store = new Store({ transport });
     const state = store.createState('hello', { scope: 'test', key: 'test' });
     expect(state.value).toBe('hello');
-    await state.getValue(+new Date());
+    await state.getValue();
     expect(state.value).toBe('world');
   });
 });
