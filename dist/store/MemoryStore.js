@@ -89,9 +89,8 @@ var State = /*#__PURE__*/function (_EventEmitter) {
               } else {
                 this.publish();
               }
-              this.timestamp = +new Date();
               return _context.abrupt("return", this);
-            case 6:
+            case 5:
             case "end":
               return _context.stop();
           }
@@ -114,7 +113,9 @@ var State = /*#__PURE__*/function (_EventEmitter) {
           if (storedState !== null) {
             if (timestamp > _this2.timestamp) {
               _this2.value = storedState.value;
-              _this2.publish();
+              if (JSON.stringify(_this2.value) !== JSON.stringify(storedState.value)) {
+                _this2.publish();
+              }
             }
           }
         });

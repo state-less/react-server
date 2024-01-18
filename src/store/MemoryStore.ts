@@ -77,7 +77,7 @@ export class State<T> extends EventEmitter {
     } else {
       this.publish();
     }
-    this.timestamp = +new Date();
+
     return this;
   }
 
@@ -90,7 +90,11 @@ export class State<T> extends EventEmitter {
           if (storedState !== null) {
             if (timestamp > this.timestamp) {
               this.value = storedState.value;
-              this.publish();
+              if (
+                JSON.stringify(this.value) !== JSON.stringify(storedState.value)
+              ) {
+                this.publish();
+              }
             }
           }
         });
