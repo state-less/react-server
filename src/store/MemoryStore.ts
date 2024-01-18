@@ -81,21 +81,20 @@ export class State<T> extends EventEmitter {
     return this;
   }
 
-  async getValue(timestamp: number) {
+  getValue(timestamp: number) {
     if (this?._store?._options?.transport) {
-      const storedState = await this._store._options.transport.getState<T>(
-        this.scope,
-        this.key
-      );
+      this._store._options.transport
+        .getState<T>(this.scope, this.key)
+        .then((storedState) => {
+          if (storedState !== null) {
+            const oldValue = this.value;
+            this.value = storedState.value;
 
-      if (storedState !== null) {
-        const oldValue = this.value;
-        this.value = storedState.value;
-
-        if (JSON.stringify(oldValue) !== JSON.stringify(this.value)) {
-          this.publish();
-        }
-      }
+            if (JSON.stringify(oldValue) !== JSON.stringify(this.value)) {
+              this.publish();
+            }
+          }
+        });
     }
     return this.value;
   }
