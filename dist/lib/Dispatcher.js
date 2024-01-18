@@ -177,7 +177,7 @@ var Dispatcher = /*#__PURE__*/function () {
         _iterator3.f();
       }
       Listeners[listenerKey] = [];
-      if (renderOptions.initiator === _types.Initiator.RenderClient || renderOptions.initiator === _types.Initiator.StateUpdate) {
+      if (renderOptions.initiator === _types.Initiator.RenderClient || renderOptions.initiator === _types.Initiator.StateUpdate || renderOptions.initiator === _types.Initiator.FunctionCall) {
         state.on('change', rerender);
         Listeners[listenerKey] = Listeners[listenerKey] || [];
         Listeners[listenerKey].push(rerender);
