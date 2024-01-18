@@ -30,6 +30,7 @@ export class State<T> extends EventEmitter {
   key: string;
   scope: string;
   value: StateValue<T>;
+  initialValue: StateValue<T>;
   timestamp: number;
   labels: string[];
 
@@ -42,6 +43,7 @@ export class State<T> extends EventEmitter {
     this.scope = options.scope;
     this.labels = options.labels || [];
     this.value = initialValue;
+    this.initialValue = initialValue;
     this.timestamp = 0;
     if (this?._store?._options?.transport) {
       this._store._options.transport
@@ -90,11 +92,9 @@ export class State<T> extends EventEmitter {
         .then((storedState) => {
           if (storedState !== null) {
             if (timestamp > this.timestamp) {
-              if (
-                JSON.stringify(this.value) !== JSON.stringify(storedState.value)
-              ) {
-                this.value = storedState.value;
-                // this.publish();
+              this.value = storedState.value;
+              if (this.initialValue !== this.value) {
+                this.publish();
               }
             }
           }
