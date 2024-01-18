@@ -119,8 +119,6 @@ var State = /*#__PURE__*/function (_EventEmitter) {
               if (_this3.initialValue === _this3.value) {
                 _this3.value = storedState.value;
                 _this3.publish();
-              } else {
-                _this3.value = storedState.value;
               }
             }
           }

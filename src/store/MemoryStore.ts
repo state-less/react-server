@@ -95,8 +95,6 @@ export class State<T> extends EventEmitter {
               if (this.initialValue === this.value) {
                 this.value = storedState.value;
                 this.publish();
-              } else {
-                this.value = storedState.value;
               }
             }
           }
