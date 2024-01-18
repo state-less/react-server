@@ -89,10 +89,10 @@ export class State<T> extends EventEmitter {
         .then((storedState) => {
           if (storedState !== null) {
             if (timestamp > this.timestamp) {
-              this.value = storedState.value;
               if (
                 JSON.stringify(this.value) !== JSON.stringify(storedState.value)
               ) {
+                this.value = storedState.value;
                 this.publish();
               }
             }

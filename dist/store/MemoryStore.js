@@ -112,8 +112,8 @@ var State = /*#__PURE__*/function (_EventEmitter) {
         this._store._options.transport.getState(this.scope, this.key).then(function (storedState) {
           if (storedState !== null) {
             if (timestamp > _this2.timestamp) {
-              _this2.value = storedState.value;
               if (JSON.stringify(_this2.value) !== JSON.stringify(storedState.value)) {
+                _this2.value = storedState.value;
                 _this2.publish();
               }
             }
