@@ -94,7 +94,7 @@ export class State<T> extends EventEmitter {
                 JSON.stringify(this.value) !== JSON.stringify(storedState.value)
               ) {
                 this.value = storedState.value;
-                this.publish();
+                // this.publish();
               }
             }
           }
