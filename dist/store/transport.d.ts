@@ -1,7 +1,7 @@
 import { State } from './MemoryStore';
 export declare class Transport {
     constructor();
-    setState(state: State<any>): void;
+    setState<T>(state: State<any>): Promise<State<T> | null>;
     getState<T>(scope: string, key: string): Promise<State<T> | null>;
 }
 export declare class PostgresTransport extends Transport {

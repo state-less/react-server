@@ -3,7 +3,7 @@ import { State } from './MemoryStore';
 
 export class Transport {
   constructor() {}
-  setState(state: State<any>) {
+  setState<T>(state: State<any>): Promise<State<T> | null> {
     throw new Error('Not implemented');
   }
   getState<T>(scope: string, key: string): Promise<State<T> | null> {

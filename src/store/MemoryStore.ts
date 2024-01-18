@@ -69,10 +69,11 @@ export class State<T> extends EventEmitter {
     }
 
     this.value = value;
-    this.timestamp = +new Date();
 
     if (this?._store?._options?.transport) {
-      this._store._options.transport.setState(this);
+      this._store._options.transport.setState(this).then(() => {
+        this.timestamp = +new Date();
+      });
       this.publish();
     } else {
       this.publish();

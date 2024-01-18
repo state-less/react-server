@@ -71,7 +71,9 @@ var State = /*#__PURE__*/function (_EventEmitter) {
     key: "setValue",
     value: function () {
       var _setValue = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee(valueAction) {
-        var _this$_store, _this$_store$_options;
+        var _this$_store,
+          _this$_store$_options,
+          _this2 = this;
         var value;
         return _regenerator["default"].wrap(function _callee$(_context) {
           while (1) switch (_context.prev = _context.next) {
@@ -82,15 +84,16 @@ var State = /*#__PURE__*/function (_EventEmitter) {
                 value = valueAction;
               }
               this.value = value;
-              this.timestamp = +new Date();
               if (this !== null && this !== void 0 && (_this$_store = this._store) !== null && _this$_store !== void 0 && (_this$_store$_options = _this$_store._options) !== null && _this$_store$_options !== void 0 && _this$_store$_options.transport) {
-                this._store._options.transport.setState(this);
+                this._store._options.transport.setState(this).then(function () {
+                  _this2.timestamp = +new Date();
+                });
                 this.publish();
               } else {
                 this.publish();
               }
               return _context.abrupt("return", this);
-            case 5:
+            case 4:
             case "end":
               return _context.stop();
           }
@@ -106,15 +109,15 @@ var State = /*#__PURE__*/function (_EventEmitter) {
     value: function getValue() {
       var _this$_store2,
         _this$_store2$_option,
-        _this2 = this;
+        _this3 = this;
       var timestamp = +new Date();
       if (this !== null && this !== void 0 && (_this$_store2 = this._store) !== null && _this$_store2 !== void 0 && (_this$_store2$_option = _this$_store2._options) !== null && _this$_store2$_option !== void 0 && _this$_store2$_option.transport) {
         this._store._options.transport.getState(this.scope, this.key).then(function (storedState) {
           if (storedState !== null) {
-            if (timestamp > _this2.timestamp) {
-              if (JSON.stringify(_this2.value) !== JSON.stringify(storedState.value)) {
-                _this2.value = storedState.value;
-                _this2.publish();
+            if (timestamp > _this3.timestamp) {
+              if (JSON.stringify(_this3.value) !== JSON.stringify(storedState.value)) {
+                _this3.value = storedState.value;
+                _this3.publish();
               }
             }
           }
@@ -130,55 +133,55 @@ var Store = /*#__PURE__*/function (_EventEmitter2) {
   (0, _inherits2["default"])(Store, _EventEmitter2);
   var _super2 = _createSuper(Store);
   function Store(_options) {
-    var _this3;
+    var _this4;
     (0, _classCallCheck2["default"])(this, Store);
-    _this3 = _super2.call(this);
-    (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this3), "restore", function () {
-      var fn = _path["default"].resolve(_this3._options.file);
+    _this4 = _super2.call(this);
+    (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this4), "restore", function () {
+      var fn = _path["default"].resolve(_this4._options.file);
       if (_fs["default"].existsSync(fn)) {
-        if (_this3._options.logger) {
-          _this3._options.logger.info(_templateObject || (_templateObject = (0, _taggedTemplateLiteral2["default"])(["Deserializing store from ", ""])), fn);
+        if (_this4._options.logger) {
+          _this4._options.logger.info(_templateObject || (_templateObject = (0, _taggedTemplateLiteral2["default"])(["Deserializing store from ", ""])), fn);
         }
-        _this3._storing = true;
+        _this4._storing = true;
         var stream = _fs["default"].createReadStream(fn);
         var parseStream = _bigJson["default"].createParseStream();
         parseStream.on('data', function (pojo) {
-          _this3.dehydrate(pojo);
+          _this4.dehydrate(pojo);
         });
         stream.pipe(parseStream);
       }
     });
-    (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this3), "store", function () {
-      var fn = _path["default"].resolve(_this3._options.file);
-      if (_this3._storing) return;
-      _this3._storing = true;
-      if (_this3._options.logger) {
-        _this3._options.logger.info(_templateObject2 || (_templateObject2 = (0, _taggedTemplateLiteral2["default"])(["Serializing store to ", ""])), fn);
+    (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this4), "store", function () {
+      var fn = _path["default"].resolve(_this4._options.file);
+      if (_this4._storing) return;
+      _this4._storing = true;
+      if (_this4._options.logger) {
+        _this4._options.logger.info(_templateObject2 || (_templateObject2 = (0, _taggedTemplateLiteral2["default"])(["Serializing store to ", ""])), fn);
       }
       if (_fs["default"].existsSync(fn)) {
         _fs["default"].copyFileSync(fn, fn + '.bak');
         _fs["default"].unlinkSync(fn);
       }
       var writeStream = _fs["default"].createWriteStream(fn);
-      var stream = _this3.serialize();
+      var stream = _this4.serialize();
       stream.pipe(writeStream);
       stream.on('end', function () {
-        if (_this3._options.logger) {
-          _this3._options.logger.info(_templateObject3 || (_templateObject3 = (0, _taggedTemplateLiteral2["default"])(["Serialized store to ", ""])), fn);
+        if (_this4._options.logger) {
+          _this4._options.logger.info(_templateObject3 || (_templateObject3 = (0, _taggedTemplateLiteral2["default"])(["Serialized store to ", ""])), fn);
         }
         writeStream.end();
-        _this3._storing = false;
+        _this4._storing = false;
       });
       writeStream.on('error', function (err) {
         writeStream.end();
-        _this3._storing = false;
+        _this4._storing = false;
       });
     });
-    (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this3), "sync", function () {
+    (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this4), "sync", function () {
       var interval = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1000 * 60;
-      return setInterval(_this3.store, interval);
+      return setInterval(_this4.store, interval);
     });
-    (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this3), "dehydrate", function (obj) {
+    (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this4), "dehydrate", function (obj) {
       try {
         var _states;
         if (Array.isArray(obj)) {
@@ -201,21 +204,21 @@ var Store = /*#__PURE__*/function (_EventEmitter2) {
         // });
         // Object.assign(this, { _scopes: scopes, _states: states });
         // this._scopes = scopes as any;
-        _this3._states = states;
-        if (_this3._options.logger) {
-          _this3._options.logger.info(_templateObject4 || (_templateObject4 = (0, _taggedTemplateLiteral2["default"])(["Deserialized store. ", ""])), _this3._states.size);
+        _this4._states = states;
+        if (_this4._options.logger) {
+          _this4._options.logger.info(_templateObject4 || (_templateObject4 = (0, _taggedTemplateLiteral2["default"])(["Deserialized store. ", ""])), _this4._states.size);
         }
-        _this3.emit('dehydrate');
-        _this3._storing = false;
+        _this4.emit('dehydrate');
+        _this4._storing = false;
       } catch (e) {
         throw new Error("Invalid JSON");
       }
     });
-    (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this3), "serialize", function () {
-      var _assertThisInitialize5 = (0, _assertThisInitialized2["default"])(_this3),
+    (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this4), "serialize", function () {
+      var _assertThisInitialize5 = (0, _assertThisInitialized2["default"])(_this4),
         _ = _assertThisInitialize5._options,
         rest = (0, _objectWithoutProperties2["default"])(_assertThisInitialize5, _excluded);
-      var states = (0, _toConsumableArray2["default"])(_this3._states.entries());
+      var states = (0, _toConsumableArray2["default"])(_this4._states.entries());
       // const scopes = [...this._scopes.entries()].map(([key, value]) => {
       //   return [key, [...value.entries()].map((state) => cloneDeep(state))];
       // });
@@ -226,39 +229,39 @@ var Store = /*#__PURE__*/function (_EventEmitter2) {
         body: out
       });
     });
-    (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this3), "getScope", function (scope) {
-      if (_this3._scopes.has(scope)) return _this3._scopes.get(scope);
-      _this3._scopes.set(scope, new Map());
-      return _this3._scopes.get(scope);
+    (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this4), "getScope", function (scope) {
+      if (_this4._scopes.has(scope)) return _this4._scopes.get(scope);
+      _this4._scopes.set(scope, new Map());
+      return _this4._scopes.get(scope);
     });
-    (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this3), "deleteState", function (options) {
+    (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this4), "deleteState", function (options) {
       var key = options.key,
         scope = options.scope;
-      var states = _this3.getScope(scope);
+      var states = _this4.getScope(scope);
       states["delete"](key);
-      _this3._states["delete"](Store.getKey(options));
+      _this4._states["delete"](Store.getKey(options));
     });
-    (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this3), "purgeLabels", function (labels) {
-      for (var _i = 0, _arr = (0, _toConsumableArray2["default"])(_this3._states.values()); _i < _arr.length; _i++) {
+    (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this4), "purgeLabels", function (labels) {
+      for (var _i = 0, _arr = (0, _toConsumableArray2["default"])(_this4._states.values()); _i < _arr.length; _i++) {
         var state = _arr[_i];
         if (state.labels.some(function (label) {
           return labels.includes(label);
         })) {
-          _this3.deleteState({
+          _this4.deleteState({
             scope: state.scope,
             key: state.key
           });
         }
       }
     });
-    _this3._states = new Map();
-    _this3._scopes = new Map();
-    _this3._options = _options;
-    _this3._storing = false;
+    _this4._states = new Map();
+    _this4._scopes = new Map();
+    _this4._options = _options;
+    _this4._storing = false;
     if (_options.file) {
-      _this3.restore();
+      _this4.restore();
     }
-    return _this3;
+    return _this4;
   }
   (0, _createClass2["default"])(Store, [{
     key: "createState",
