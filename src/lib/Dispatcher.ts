@@ -153,11 +153,13 @@ class Dispatcher {
     }
 
     const rerender = () => {
-      for (const listener of Listeners[listenerKey] || []) {
-        state.removeListener('change', listener);
-      }
       console.log('Rerendering', listenerKey, Listeners[listenerKey].length);
-
+      // for (const listener of Listeners[listenerKey] || []) {
+      //   state.removeListener('change', listener);
+      //   (Listeners[listenerKey] || []).splice(
+      //     Listeners[listenerKey].indexOf(listener)
+      //   );
+      // }
       render(
         _currentComponent,
         {
@@ -170,6 +172,9 @@ class Dispatcher {
 
     for (const listener of Listeners[listenerKey] || []) {
       state.removeListener('change', listener);
+      (Listeners[listenerKey] || []).splice(
+        Listeners[listenerKey].indexOf(listener)
+      );
     }
 
     // Listeners[listenerKey] = [];

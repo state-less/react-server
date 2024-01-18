@@ -147,36 +147,31 @@ var Dispatcher = /*#__PURE__*/function () {
         recordedStates.push(state);
       }
       var rerender = function rerender() {
-        var _iterator2 = _createForOfIteratorHelper(Listeners[listenerKey] || []),
-          _step2;
-        try {
-          for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
-            var listener = _step2.value;
-            state.removeListener('change', listener);
-          }
-        } catch (err) {
-          _iterator2.e(err);
-        } finally {
-          _iterator2.f();
-        }
         console.log('Rerendering', listenerKey, Listeners[listenerKey].length);
+        // for (const listener of Listeners[listenerKey] || []) {
+        //   state.removeListener('change', listener);
+        //   (Listeners[listenerKey] || []).splice(
+        //     Listeners[listenerKey].indexOf(listener)
+        //   );
+        // }
         (0, _internals.render)(_currentComponent, _objectSpread(_objectSpread({}, renderOptions), {}, {
           initiator: _types.Initiator.StateUpdate
         }), _this2._currentComponent.at(-2));
       };
-      var _iterator3 = _createForOfIteratorHelper(Listeners[listenerKey] || []),
-        _step3;
+      var _iterator2 = _createForOfIteratorHelper(Listeners[listenerKey] || []),
+        _step2;
       try {
-        for (_iterator3.s(); !(_step3 = _iterator3.n()).done;) {
-          var listener = _step3.value;
+        for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
+          var listener = _step2.value;
           state.removeListener('change', listener);
+          (Listeners[listenerKey] || []).splice(Listeners[listenerKey].indexOf(listener));
         }
 
         // Listeners[listenerKey] = [];
       } catch (err) {
-        _iterator3.e(err);
+        _iterator2.e(err);
       } finally {
-        _iterator3.f();
+        _iterator2.f();
       }
       if (renderOptions.initiator === _types.Initiator.RenderClient || renderOptions.initiator === _types.Initiator.StateUpdate || renderOptions.initiator === _types.Initiator.FunctionCall) {
         state.on('change', rerender);
