@@ -149,7 +149,10 @@ export const render = <T,>(
   }
 
   /** TODO: remove client specific key logic from userland to here */
-  if (renderOptions.initiator !== Initiator.FunctionCall) {
+  if (
+    isClientContext(requestContext) &&
+    renderOptions.initiator !== Initiator.FunctionCall
+  ) {
     renderCache[key] = rendered;
   }
 

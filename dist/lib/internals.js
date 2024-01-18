@@ -133,7 +133,7 @@ var render = function render(tree) {
   }
 
   /** TODO: remove client specific key logic from userland to here */
-  if (renderOptions.initiator !== _types.Initiator.FunctionCall) {
+  if ((0, _types.isClientContext)(requestContext) && renderOptions.initiator !== _types.Initiator.FunctionCall) {
     renderCache[key] = rendered;
   }
   return rendered;
