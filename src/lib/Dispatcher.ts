@@ -174,7 +174,7 @@ class Dispatcher {
 
     Listeners[listenerKey] = [];
 
-    if (renderOptions.initiator !== Initiator.StateUpdate) {
+    if (renderOptions.initiator === Initiator.RenderClient) {
       state.on('change', rerender);
       Listeners[listenerKey] = Listeners[listenerKey] || [];
       Listeners[listenerKey].push(rerender);
