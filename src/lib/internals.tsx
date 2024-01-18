@@ -134,6 +134,7 @@ export const render = <T,>(
 
   if (
     isClientContext(requestContext) &&
+    renderOptions.initiator !== Initiator.FunctionCall &&
     JSON.stringify(rendered) !== JSON.stringify(renderCache[key])
   ) {
     const pubsubKey = generateComponentPubSubKey(
