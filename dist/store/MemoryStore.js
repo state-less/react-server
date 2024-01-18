@@ -116,9 +116,11 @@ var State = /*#__PURE__*/function (_EventEmitter) {
         this._store._options.transport.getState(this.scope, this.key).then(function (storedState) {
           if (storedState !== null) {
             if (timestamp > _this3.timestamp) {
-              _this3.value = storedState.value;
               if (_this3.initialValue === _this3.value) {
+                _this3.value = storedState.value;
                 _this3.publish();
+              } else {
+                _this3.value = storedState.value;
               }
             }
           }
