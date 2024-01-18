@@ -154,7 +154,7 @@ class Dispatcher {
 
     const rerender = () => {
       for (const listener of Listeners[listenerKey] || []) {
-        state.off('change', listener);
+        state.removeListener('change', listener);
       }
       console.log('Rerendering', listenerKey, Listeners[listenerKey].length);
 
@@ -169,10 +169,10 @@ class Dispatcher {
     };
 
     for (const listener of Listeners[listenerKey] || []) {
-      state.off('change', listener);
+      state.removeListener('change', listener);
     }
 
-    Listeners[listenerKey] = [];
+    // Listeners[listenerKey] = [];
 
     if (
       renderOptions.initiator === Initiator.RenderClient ||

@@ -152,7 +152,7 @@ var Dispatcher = /*#__PURE__*/function () {
         try {
           for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
             var listener = _step2.value;
-            state.off('change', listener);
+            state.removeListener('change', listener);
           }
         } catch (err) {
           _iterator2.e(err);
@@ -169,14 +169,15 @@ var Dispatcher = /*#__PURE__*/function () {
       try {
         for (_iterator3.s(); !(_step3 = _iterator3.n()).done;) {
           var listener = _step3.value;
-          state.off('change', listener);
+          state.removeListener('change', listener);
         }
+
+        // Listeners[listenerKey] = [];
       } catch (err) {
         _iterator3.e(err);
       } finally {
         _iterator3.f();
       }
-      Listeners[listenerKey] = [];
       if (renderOptions.initiator === _types.Initiator.RenderClient || renderOptions.initiator === _types.Initiator.StateUpdate || renderOptions.initiator === _types.Initiator.FunctionCall) {
         state.on('change', rerender);
         Listeners[listenerKey] = Listeners[listenerKey] || [];
