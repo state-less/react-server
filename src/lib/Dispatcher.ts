@@ -156,6 +156,7 @@ class Dispatcher {
       for (const listener of Listeners[listenerKey] || []) {
         state.off('change', listener);
       }
+      console.log('Rerendering', listenerKey, Listeners[listenerKey].length);
 
       render(
         _currentComponent,
@@ -172,10 +173,12 @@ class Dispatcher {
     }
 
     Listeners[listenerKey] = [];
-    state.on('change', rerender);
-    Listeners[listenerKey] = Listeners[listenerKey] || [];
-    Listeners[listenerKey].push(rerender);
 
+    if (renderOptions.initiator !== Initiator.StateUpdate) {
+      state.on('change', rerender);
+      Listeners[listenerKey] = Listeners[listenerKey] || [];
+      Listeners[listenerKey].push(rerender);
+    }
     state.getValue(+new Date());
     const value = state.value as T;
 

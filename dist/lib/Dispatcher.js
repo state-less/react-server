@@ -159,6 +159,7 @@ var Dispatcher = /*#__PURE__*/function () {
         } finally {
           _iterator2.f();
         }
+        console.log('Rerendering', listenerKey, Listeners[listenerKey].length);
         (0, _internals.render)(_currentComponent, _objectSpread(_objectSpread({}, renderOptions), {}, {
           initiator: _types.Initiator.StateUpdate
         }), _this2._currentComponent.at(-2));
@@ -176,9 +177,11 @@ var Dispatcher = /*#__PURE__*/function () {
         _iterator3.f();
       }
       Listeners[listenerKey] = [];
-      state.on('change', rerender);
-      Listeners[listenerKey] = Listeners[listenerKey] || [];
-      Listeners[listenerKey].push(rerender);
+      if (renderOptions.initiator !== _types.Initiator.StateUpdate) {
+        state.on('change', rerender);
+        Listeners[listenerKey] = Listeners[listenerKey] || [];
+        Listeners[listenerKey].push(rerender);
+      }
       state.getValue(+new Date());
       var value = state.value;
       return [value, function (value) {
