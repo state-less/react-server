@@ -142,14 +142,16 @@ export const render = <T,>(
       requestContext as ClientContext
     );
 
-    console.log('Publishing updateComponent', pubsubKey);
+    console.log('Publishing updateComponent', pubsubKey, rendered);
     Dispatcher.getCurrent()._pubsub.publish(pubsubKey, {
       updateComponent: { rendered },
     });
   }
 
   /** TODO: remove client specific key logic from userland to here */
-  renderCache[key] = rendered;
+  if (renderOptions.initiator !== Initiator.FunctionCall) {
+    renderCache[key] = rendered;
+  }
 
   return rendered;
 };

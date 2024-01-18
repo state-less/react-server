@@ -124,7 +124,7 @@ var render = function render(tree) {
   }, node);
   if ((0, _types.isClientContext)(requestContext) && renderOptions.initiator !== _types.Initiator.FunctionCall && JSON.stringify(rendered) !== JSON.stringify(renderCache[key])) {
     var pubsubKey = (0, _util.generateComponentPubSubKey)(tree, requestContext);
-    console.log('Publishing updateComponent', pubsubKey);
+    console.log('Publishing updateComponent', pubsubKey, rendered);
     _Dispatcher["default"].getCurrent()._pubsub.publish(pubsubKey, {
       updateComponent: {
         rendered: rendered
@@ -133,7 +133,9 @@ var render = function render(tree) {
   }
 
   /** TODO: remove client specific key logic from userland to here */
-  renderCache[key] = rendered;
+  if (renderOptions.initiator !== _types.Initiator.FunctionCall) {
+    renderCache[key] = rendered;
+  }
   return rendered;
 };
 exports.render = render;

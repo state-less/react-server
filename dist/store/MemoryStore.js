@@ -65,7 +65,7 @@ var State = /*#__PURE__*/function (_EventEmitter) {
   (0, _createClass2["default"])(State, [{
     key: "publish",
     value: function publish() {
-      console.log('Emitting change', this.key);
+      console.log('Emitting change', this.key, this.value);
       this.emit('change', this.value);
     }
   }, {
