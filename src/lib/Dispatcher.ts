@@ -153,13 +153,6 @@ class Dispatcher {
     }
 
     const rerender = () => {
-      console.log('Rerendering', listenerKey, Listeners[listenerKey].length);
-      // for (const listener of Listeners[listenerKey] || []) {
-      //   state.removeListener('change', listener);
-      //   (Listeners[listenerKey] || []).splice(
-      //     Listeners[listenerKey].indexOf(listener)
-      //   );
-      // }
       render(
         _currentComponent,
         {
@@ -181,7 +174,6 @@ class Dispatcher {
 
     if (
       renderOptions.initiator === Initiator.RenderClient ||
-      renderOptions.initiator === Initiator.StateUpdate ||
       renderOptions.initiator === Initiator.FunctionCall
     ) {
       state.on('change', rerender);

@@ -23,7 +23,7 @@ export class PostgresTransport extends Transport {
 
     const db = pgPromise({})(connectionString);
     try {
-      db.connect().then(() => console.log('Connected'));
+      db.connect().then(() => console.log('Connected to database.'));
     } catch (e) {
       throw new Error('Unable to connect to database');
     }

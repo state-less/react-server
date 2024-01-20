@@ -142,7 +142,6 @@ export const render = <T,>(
       requestContext as ClientContext
     );
 
-    console.log('Publishing updateComponent', pubsubKey);
     Dispatcher.getCurrent()._pubsub.publish(pubsubKey, {
       updateComponent: { rendered },
     });

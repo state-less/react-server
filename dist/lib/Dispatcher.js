@@ -147,13 +147,6 @@ var Dispatcher = /*#__PURE__*/function () {
         recordedStates.push(state);
       }
       var rerender = function rerender() {
-        console.log('Rerendering', listenerKey, Listeners[listenerKey].length);
-        // for (const listener of Listeners[listenerKey] || []) {
-        //   state.removeListener('change', listener);
-        //   (Listeners[listenerKey] || []).splice(
-        //     Listeners[listenerKey].indexOf(listener)
-        //   );
-        // }
         (0, _internals.render)(_currentComponent, _objectSpread(_objectSpread({}, renderOptions), {}, {
           initiator: _types.Initiator.StateUpdate
         }), _this2._currentComponent.at(-2));
@@ -173,7 +166,7 @@ var Dispatcher = /*#__PURE__*/function () {
       } finally {
         _iterator2.f();
       }
-      if (renderOptions.initiator === _types.Initiator.RenderClient || renderOptions.initiator === _types.Initiator.StateUpdate || renderOptions.initiator === _types.Initiator.FunctionCall) {
+      if (renderOptions.initiator === _types.Initiator.RenderClient || renderOptions.initiator === _types.Initiator.FunctionCall) {
         state.on('change', rerender);
         Listeners[listenerKey] = Listeners[listenerKey] || [];
         Listeners[listenerKey].push(rerender);

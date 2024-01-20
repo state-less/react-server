@@ -47,7 +47,7 @@ var PostgresTransport = /*#__PURE__*/function (_Transport) {
     var db = (0, _pgPromise["default"])({})(connectionString);
     try {
       db.connect().then(function () {
-        return console.log('Connected');
+        return console.log('Connected to database.');
       });
     } catch (e) {
       throw new Error('Unable to connect to database');
