@@ -174,6 +174,7 @@ class Dispatcher {
 
     if (
       renderOptions.initiator === Initiator.RenderClient ||
+      renderOptions.initiator === Initiator.StateUpdate ||
       renderOptions.initiator === Initiator.FunctionCall
     ) {
       state.on('change', rerender);
