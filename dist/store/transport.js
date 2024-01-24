@@ -58,25 +58,57 @@ var PostgresTransport = /*#__PURE__*/function (_Transport) {
   (0, _createClass2["default"])(PostgresTransport, [{
     key: "setState",
     value: function () {
-      var _setState = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee(state) {
-        var scope, key, value, query, result;
-        return _regenerator["default"].wrap(function _callee$(_context) {
-          while (1) switch (_context.prev = _context.next) {
+      var _setState = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee2(state) {
+        var _this2 = this;
+        var scope, key, value, query, retries, result;
+        return _regenerator["default"].wrap(function _callee2$(_context2) {
+          while (1) switch (_context2.prev = _context2.next) {
             case 0:
               scope = state.scope, key = state.key, value = state.value;
               query = "INSERT INTO states (scope, key, value) VALUES ($1, $2, $3) ON CONFLICT (scope, key) DO UPDATE SET value = $3";
-              _context.next = 4;
+              retries = 0;
+              _context2.prev = 3;
+              _context2.next = 6;
               return this._db.query(query, [scope, key, {
                 value: value
               }]);
-            case 4:
-              result = _context.sent;
-              return _context.abrupt("return", result);
             case 6:
+              result = _context2.sent;
+              return _context2.abrupt("return", result);
+            case 10:
+              _context2.prev = 10;
+              _context2.t0 = _context2["catch"](3);
+              if (!(retries < 3)) {
+                _context2.next = 17;
+                break;
+              }
+              retries++;
+              return _context2.abrupt("return", new Promise(function (resolve) {
+                console.error("Error setting state ".concat(key, ". Retrying..."));
+                setTimeout( /*#__PURE__*/(0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee() {
+                  return _regenerator["default"].wrap(function _callee$(_context) {
+                    while (1) switch (_context.prev = _context.next) {
+                      case 0:
+                        _context.t0 = resolve;
+                        _context.next = 3;
+                        return _this2.setState(state);
+                      case 3:
+                        _context.t1 = _context.sent;
+                        (0, _context.t0)(_context.t1);
+                      case 5:
+                      case "end":
+                        return _context.stop();
+                    }
+                  }, _callee);
+                })), 1000 * 10 * (retries - 1));
+              }));
+            case 17:
+              throw _context2.t0;
+            case 18:
             case "end":
-              return _context.stop();
+              return _context2.stop();
           }
-        }, _callee, this);
+        }, _callee2, this, [[3, 10]]);
       }));
       function setState(_x) {
         return _setState.apply(this, arguments);
@@ -86,28 +118,60 @@ var PostgresTransport = /*#__PURE__*/function (_Transport) {
   }, {
     key: "getState",
     value: function () {
-      var _getState = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee2(scope, key) {
-        var query, result;
-        return _regenerator["default"].wrap(function _callee2$(_context2) {
-          while (1) switch (_context2.prev = _context2.next) {
+      var _getState = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee4(scope, key) {
+        var _this3 = this;
+        var query, retries, result;
+        return _regenerator["default"].wrap(function _callee4$(_context4) {
+          while (1) switch (_context4.prev = _context4.next) {
             case 0:
               query = "SELECT * FROM states WHERE scope = $1 AND key = $2";
-              _context2.next = 3;
+              retries = 0;
+              _context4.prev = 2;
+              _context4.next = 5;
               return this._db.query(query, [scope, key]);
-            case 3:
-              result = _context2.sent;
+            case 5:
+              result = _context4.sent;
               if (!(result.length === 0)) {
-                _context2.next = 6;
+                _context4.next = 8;
                 break;
               }
-              return _context2.abrupt("return", null);
-            case 6:
-              return _context2.abrupt("return", result[0].value);
-            case 7:
+              return _context4.abrupt("return", null);
+            case 8:
+              return _context4.abrupt("return", result[0].value);
+            case 11:
+              _context4.prev = 11;
+              _context4.t0 = _context4["catch"](2);
+              if (!(retries < 3)) {
+                _context4.next = 18;
+                break;
+              }
+              retries++;
+              return _context4.abrupt("return", new Promise(function (resolve) {
+                console.error("Error getting state ".concat(key, ". Retrying..."));
+                setTimeout( /*#__PURE__*/(0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee3() {
+                  return _regenerator["default"].wrap(function _callee3$(_context3) {
+                    while (1) switch (_context3.prev = _context3.next) {
+                      case 0:
+                        _context3.t0 = resolve;
+                        _context3.next = 3;
+                        return _this3.getState(scope, key);
+                      case 3:
+                        _context3.t1 = _context3.sent;
+                        (0, _context3.t0)(_context3.t1);
+                      case 5:
+                      case "end":
+                        return _context3.stop();
+                    }
+                  }, _callee3);
+                })), 1000 * 10 * (retries - 1));
+              }));
+            case 18:
+              throw _context4.t0;
+            case 19:
             case "end":
-              return _context2.stop();
+              return _context4.stop();
           }
-        }, _callee2, this);
+        }, _callee4, this, [[2, 11]]);
       }));
       function getState(_x2, _x3) {
         return _getState.apply(this, arguments);

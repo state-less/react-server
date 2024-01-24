@@ -171,9 +171,9 @@ class Dispatcher {
     }
 
     // Listeners[listenerKey] = [];
-
     if (
       renderOptions.initiator === Initiator.RenderClient ||
+      renderOptions.initiator === Initiator.RenderServer ||
       renderOptions.initiator === Initiator.StateUpdate ||
       renderOptions.initiator === Initiator.FunctionCall
     ) {
