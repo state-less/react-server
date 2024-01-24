@@ -57,8 +57,11 @@ export class PostgresTransport extends Transport {
     const query = `SELECT * FROM states WHERE scope = $1 AND key = $2`;
     let retries = 0;
     try {
-      console.log('Getting state from db', key);
       const result = await this._db.query(query, [scope, key]);
+      console.log('Getting state from db', key, result);
+      this._db
+        .connect()
+        .then(() => console.log('Connected to database. Retry'));
       if (result.length === 0) {
         return null;
       }
