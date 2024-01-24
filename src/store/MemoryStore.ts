@@ -93,7 +93,6 @@ export class State<T> extends EventEmitter {
             if (timestamp > this.timestamp) {
               if (this.initialValue === this.value) {
                 this.value = storedState.value;
-                console.log('PUBLISHING INITIAL VALUE', this.key, this.value);
                 this.publish();
               }
             }

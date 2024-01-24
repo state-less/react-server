@@ -117,7 +117,6 @@ var State = /*#__PURE__*/function (_EventEmitter) {
             if (timestamp > _this3.timestamp) {
               if (_this3.initialValue === _this3.value) {
                 _this3.value = storedState.value;
-                console.log('PUBLISHING INITIAL VALUE', _this3.key, _this3.value);
                 _this3.publish();
               }
             }

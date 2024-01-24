@@ -153,6 +153,7 @@ class Dispatcher {
     }
 
     const rerender = () => {
+      console.log('RERENDERING', _currentComponent.key);
       render(
         _currentComponent,
         {
