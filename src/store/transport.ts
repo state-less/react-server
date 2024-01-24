@@ -33,9 +33,24 @@ export class PostgresTransport extends Transport {
   async setState(state: State<unknown>) {
     const { scope, key, value } = state;
     const query = `INSERT INTO states (scope, key, value) VALUES ($1, $2, $3) ON CONFLICT (scope, key) DO UPDATE SET value = $3`;
-    const result = await this._db.query(query, [scope, key, { value }]);
 
-    return result;
+    let retries = 0;
+    try {
+      const result = await this._db.query(query, [scope, key, { value }]);
+      return result;
+    } catch (e) {
+      if (retries < 3) {
+        retries++;
+        return new Promise((resolve) => {
+          setTimeout(async () => {
+            console.log('Retrying');
+            resolve(await this.setState(state));
+          }, 1000 * 10 * (retries - 1));
+        });
+      } else {
+        throw e;
+      }
+    }
   }
 
   async getState<T>(scope: string, key: string): Promise<State<T> | null> {

@@ -58,25 +58,57 @@ var PostgresTransport = /*#__PURE__*/function (_Transport) {
   (0, _createClass2["default"])(PostgresTransport, [{
     key: "setState",
     value: function () {
-      var _setState = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee(state) {
-        var scope, key, value, query, result;
-        return _regenerator["default"].wrap(function _callee$(_context) {
-          while (1) switch (_context.prev = _context.next) {
+      var _setState = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee2(state) {
+        var _this2 = this;
+        var scope, key, value, query, retries, result;
+        return _regenerator["default"].wrap(function _callee2$(_context2) {
+          while (1) switch (_context2.prev = _context2.next) {
             case 0:
               scope = state.scope, key = state.key, value = state.value;
               query = "INSERT INTO states (scope, key, value) VALUES ($1, $2, $3) ON CONFLICT (scope, key) DO UPDATE SET value = $3";
-              _context.next = 4;
+              retries = 0;
+              _context2.prev = 3;
+              _context2.next = 6;
               return this._db.query(query, [scope, key, {
                 value: value
               }]);
-            case 4:
-              result = _context.sent;
-              return _context.abrupt("return", result);
             case 6:
+              result = _context2.sent;
+              return _context2.abrupt("return", result);
+            case 10:
+              _context2.prev = 10;
+              _context2.t0 = _context2["catch"](3);
+              if (!(retries < 3)) {
+                _context2.next = 17;
+                break;
+              }
+              retries++;
+              return _context2.abrupt("return", new Promise(function (resolve) {
+                setTimeout( /*#__PURE__*/(0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee() {
+                  return _regenerator["default"].wrap(function _callee$(_context) {
+                    while (1) switch (_context.prev = _context.next) {
+                      case 0:
+                        console.log('Retrying');
+                        _context.t0 = resolve;
+                        _context.next = 4;
+                        return _this2.setState(state);
+                      case 4:
+                        _context.t1 = _context.sent;
+                        (0, _context.t0)(_context.t1);
+                      case 6:
+                      case "end":
+                        return _context.stop();
+                    }
+                  }, _callee);
+                })), 1000 * 10 * (retries - 1));
+              }));
+            case 17:
+              throw _context2.t0;
+            case 18:
             case "end":
-              return _context.stop();
+              return _context2.stop();
           }
-        }, _callee, this);
+        }, _callee2, this, [[3, 10]]);
       }));
       function setState(_x) {
         return _setState.apply(this, arguments);
@@ -86,28 +118,28 @@ var PostgresTransport = /*#__PURE__*/function (_Transport) {
   }, {
     key: "getState",
     value: function () {
-      var _getState = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee2(scope, key) {
+      var _getState = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee3(scope, key) {
         var query, result;
-        return _regenerator["default"].wrap(function _callee2$(_context2) {
-          while (1) switch (_context2.prev = _context2.next) {
+        return _regenerator["default"].wrap(function _callee3$(_context3) {
+          while (1) switch (_context3.prev = _context3.next) {
             case 0:
               query = "SELECT * FROM states WHERE scope = $1 AND key = $2";
-              _context2.next = 3;
+              _context3.next = 3;
               return this._db.query(query, [scope, key]);
             case 3:
-              result = _context2.sent;
+              result = _context3.sent;
               if (!(result.length === 0)) {
-                _context2.next = 6;
+                _context3.next = 6;
                 break;
               }
-              return _context2.abrupt("return", null);
+              return _context3.abrupt("return", null);
             case 6:
-              return _context2.abrupt("return", result[0].value);
+              return _context3.abrupt("return", result[0].value);
             case 7:
             case "end":
-              return _context2.stop();
+              return _context3.stop();
           }
-        }, _callee2, this);
+        }, _callee3, this);
       }));
       function getState(_x2, _x3) {
         return _getState.apply(this, arguments);
