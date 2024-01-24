@@ -118,28 +118,60 @@ var PostgresTransport = /*#__PURE__*/function (_Transport) {
   }, {
     key: "getState",
     value: function () {
-      var _getState = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee3(scope, key) {
-        var query, result;
-        return _regenerator["default"].wrap(function _callee3$(_context3) {
-          while (1) switch (_context3.prev = _context3.next) {
+      var _getState = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee4(scope, key) {
+        var _this3 = this;
+        var query, retries, result;
+        return _regenerator["default"].wrap(function _callee4$(_context4) {
+          while (1) switch (_context4.prev = _context4.next) {
             case 0:
               query = "SELECT * FROM states WHERE scope = $1 AND key = $2";
-              _context3.next = 3;
+              retries = 0;
+              _context4.prev = 2;
+              _context4.next = 5;
               return this._db.query(query, [scope, key]);
-            case 3:
-              result = _context3.sent;
+            case 5:
+              result = _context4.sent;
               if (!(result.length === 0)) {
-                _context3.next = 6;
+                _context4.next = 8;
                 break;
               }
-              return _context3.abrupt("return", null);
-            case 6:
-              return _context3.abrupt("return", result[0].value);
-            case 7:
+              return _context4.abrupt("return", null);
+            case 8:
+              return _context4.abrupt("return", result[0].value);
+            case 11:
+              _context4.prev = 11;
+              _context4.t0 = _context4["catch"](2);
+              if (!(retries < 3)) {
+                _context4.next = 18;
+                break;
+              }
+              retries++;
+              return _context4.abrupt("return", new Promise(function (resolve) {
+                setTimeout( /*#__PURE__*/(0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee3() {
+                  return _regenerator["default"].wrap(function _callee3$(_context3) {
+                    while (1) switch (_context3.prev = _context3.next) {
+                      case 0:
+                        console.log('Retrying');
+                        _context3.t0 = resolve;
+                        _context3.next = 4;
+                        return _this3.getState(scope, key);
+                      case 4:
+                        _context3.t1 = _context3.sent;
+                        (0, _context3.t0)(_context3.t1);
+                      case 6:
+                      case "end":
+                        return _context3.stop();
+                    }
+                  }, _callee3);
+                })), 1000 * 10 * (retries - 1));
+              }));
+            case 18:
+              throw _context4.t0;
+            case 19:
             case "end":
-              return _context3.stop();
+              return _context4.stop();
           }
-        }, _callee3, this);
+        }, _callee4, this, [[2, 11]]);
       }));
       function getState(_x2, _x3) {
         return _getState.apply(this, arguments);

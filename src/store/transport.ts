@@ -55,12 +55,25 @@ export class PostgresTransport extends Transport {
 
   async getState<T>(scope: string, key: string): Promise<State<T> | null> {
     const query = `SELECT * FROM states WHERE scope = $1 AND key = $2`;
-
-    const result = await this._db.query(query, [scope, key]);
-
-    if (result.length === 0) {
-      return null;
+    let retries = 0;
+    try {
+      const result = await this._db.query(query, [scope, key]);
+      if (result.length === 0) {
+        return null;
+      }
+      return result[0].value;
+    } catch (e) {
+      if (retries < 3) {
+        retries++;
+        return new Promise((resolve) => {
+          setTimeout(async () => {
+            console.log('Retrying');
+            resolve(await this.getState(scope, key));
+          }, 1000 * 10 * (retries - 1));
+        });
+      } else {
+        throw e;
+      }
     }
-    return result[0].value;
   }
 }
