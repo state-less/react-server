@@ -12,7 +12,7 @@ export const createId = (debugHint) => {
 
 export const clientKey = (key, requestContext: RequestContext) => {
   return `${key}::${
-    (requestContext as ClientContext).headers?.['x-unique-id'] || serverKey
+    (requestContext as ClientContext)?.headers?.['x-unique-id'] || serverKey
   }`;
 };
 

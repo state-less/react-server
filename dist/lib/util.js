@@ -15,7 +15,7 @@ var createId = function createId(debugHint) {
 exports.createId = createId;
 var clientKey = function clientKey(key, requestContext) {
   var _headers;
-  return "".concat(key, "::").concat(((_headers = requestContext.headers) === null || _headers === void 0 ? void 0 : _headers['x-unique-id']) || serverKey);
+  return "".concat(key, "::").concat((requestContext === null || requestContext === void 0 ? void 0 : (_headers = requestContext.headers) === null || _headers === void 0 ? void 0 : _headers['x-unique-id']) || serverKey);
 };
 exports.clientKey = clientKey;
 var generateComponentPubSubKey = function generateComponentPubSubKey(component, requestContext) {
