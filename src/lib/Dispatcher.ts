@@ -153,7 +153,6 @@ class Dispatcher {
     }
 
     const rerender = () => {
-      console.log('RERENDERING', _currentComponent.key);
       render(
         _currentComponent,
         {
@@ -172,7 +171,6 @@ class Dispatcher {
     }
 
     // Listeners[listenerKey] = [];
-    console.log('USE STATE', state.key, renderOptions.initiator);
     if (
       renderOptions.initiator === Initiator.RenderClient ||
       renderOptions.initiator === Initiator.RenderServer ||

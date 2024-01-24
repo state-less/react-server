@@ -84,18 +84,18 @@ var PostgresTransport = /*#__PURE__*/function (_Transport) {
               }
               retries++;
               return _context2.abrupt("return", new Promise(function (resolve) {
+                console.error("Error setting state ".concat(key, ". Retrying..."));
                 setTimeout( /*#__PURE__*/(0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee() {
                   return _regenerator["default"].wrap(function _callee$(_context) {
                     while (1) switch (_context.prev = _context.next) {
                       case 0:
-                        console.log('Retrying');
                         _context.t0 = resolve;
-                        _context.next = 4;
+                        _context.next = 3;
                         return _this2.setState(state);
-                      case 4:
+                      case 3:
                         _context.t1 = _context.sent;
                         (0, _context.t0)(_context.t1);
-                      case 6:
+                      case 5:
                       case "end":
                         return _context.stop();
                     }
@@ -147,18 +147,18 @@ var PostgresTransport = /*#__PURE__*/function (_Transport) {
               }
               retries++;
               return _context4.abrupt("return", new Promise(function (resolve) {
+                console.error("Error getting state ".concat(key, ". Retrying..."));
                 setTimeout( /*#__PURE__*/(0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee3() {
                   return _regenerator["default"].wrap(function _callee3$(_context3) {
                     while (1) switch (_context3.prev = _context3.next) {
                       case 0:
-                        console.log('Retrying');
                         _context3.t0 = resolve;
-                        _context3.next = 4;
+                        _context3.next = 3;
                         return _this3.getState(scope, key);
-                      case 4:
+                      case 3:
                         _context3.t1 = _context3.sent;
                         (0, _context3.t0)(_context3.t1);
-                      case 6:
+                      case 5:
                       case "end":
                         return _context3.stop();
                     }

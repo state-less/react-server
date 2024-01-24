@@ -147,7 +147,6 @@ var Dispatcher = /*#__PURE__*/function () {
         recordedStates.push(state);
       }
       var rerender = function rerender() {
-        console.log('RERENDERING', _currentComponent.key);
         (0, _internals.render)(_currentComponent, _objectSpread(_objectSpread({}, renderOptions), {}, {
           initiator: _types.Initiator.StateUpdate
         }), _this2._currentComponent.at(-2));
@@ -167,7 +166,6 @@ var Dispatcher = /*#__PURE__*/function () {
       } finally {
         _iterator2.f();
       }
-      console.log('USE STATE', state.key, renderOptions.initiator);
       if (renderOptions.initiator === _types.Initiator.RenderClient || renderOptions.initiator === _types.Initiator.RenderServer || renderOptions.initiator === _types.Initiator.StateUpdate || renderOptions.initiator === _types.Initiator.FunctionCall) {
         state.on('change', rerender);
         Listeners[listenerKey] = Listeners[listenerKey] || [];
