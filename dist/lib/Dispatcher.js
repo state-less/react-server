@@ -167,6 +167,7 @@ var Dispatcher = /*#__PURE__*/function () {
       } finally {
         _iterator2.f();
       }
+      console.log('USE STATE', state.key, renderOptions.initiator);
       if (renderOptions.initiator === _types.Initiator.RenderClient || renderOptions.initiator === _types.Initiator.RenderServer || renderOptions.initiator === _types.Initiator.StateUpdate || renderOptions.initiator === _types.Initiator.FunctionCall) {
         state.on('change', rerender);
         Listeners[listenerKey] = Listeners[listenerKey] || [];
