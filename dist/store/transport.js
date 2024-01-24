@@ -131,22 +131,18 @@ var PostgresTransport = /*#__PURE__*/function (_Transport) {
               return this._db.query(query, [scope, key]);
             case 5:
               result = _context4.sent;
-              console.log('Getting state from db', key, result);
-              this._db.connect().then(function () {
-                return console.log('Connected to database. Retry');
-              });
               if (!(result.length === 0)) {
-                _context4.next = 10;
+                _context4.next = 8;
                 break;
               }
               return _context4.abrupt("return", null);
-            case 10:
+            case 8:
               return _context4.abrupt("return", result[0].value);
-            case 13:
-              _context4.prev = 13;
+            case 11:
+              _context4.prev = 11;
               _context4.t0 = _context4["catch"](2);
               if (!(retries < 3)) {
-                _context4.next = 20;
+                _context4.next = 18;
                 break;
               }
               retries++;
@@ -169,13 +165,13 @@ var PostgresTransport = /*#__PURE__*/function (_Transport) {
                   }, _callee3);
                 })), 1000 * 10 * (retries - 1));
               }));
-            case 20:
+            case 18:
               throw _context4.t0;
-            case 21:
+            case 19:
             case "end":
               return _context4.stop();
           }
-        }, _callee4, this, [[2, 13]]);
+        }, _callee4, this, [[2, 11]]);
       }));
       function getState(_x2, _x3) {
         return _getState.apply(this, arguments);

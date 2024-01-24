@@ -58,10 +58,6 @@ export class PostgresTransport extends Transport {
     let retries = 0;
     try {
       const result = await this._db.query(query, [scope, key]);
-      console.log('Getting state from db', key, result);
-      this._db
-        .connect()
-        .then(() => console.log('Connected to database. Retry'));
       if (result.length === 0) {
         return null;
       }
