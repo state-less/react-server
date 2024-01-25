@@ -6,6 +6,7 @@
 
 For detailed documentation and in-depth guides, please visit the official website at [state-less.cloud](https://state-less.cloud).
 
+The changelog can be found here: [state-less.cloud/changes](https://state-less.cloud/changes)
 # React Server
 React Server allows the creation of server-side React components using TSX, promoting a component-driven architecture for building robust and maintainable backend solutions. 
 <sub>By using [@state-less/clean-starter](https://github.com/state-less/clean-starter), developers can quickly get started with this innovative approach to full-stack development.</sub>
