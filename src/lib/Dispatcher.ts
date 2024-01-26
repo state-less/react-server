@@ -174,8 +174,8 @@ class Dispatcher {
     if (
       renderOptions.initiator === Initiator.RenderClient ||
       renderOptions.initiator === Initiator.RenderServer ||
-      renderOptions.initiator === Initiator.StateUpdate ||
-      renderOptions.initiator === Initiator.FunctionCall
+      renderOptions.initiator === Initiator.StateUpdate
+      // renderOptions.initiator === Initiator.FunctionCall
     ) {
       state.on('change', rerender);
       Listeners[listenerKey] = Listeners[listenerKey] || [];
