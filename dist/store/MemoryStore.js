@@ -53,6 +53,7 @@ var State = /*#__PURE__*/function (_EventEmitter) {
     _this.labels = options.labels || [];
     _this.value = initialValue;
     _this.initialValue = initialValue;
+    _this.initialValuePublished = false;
     _this.timestamp = 0;
     if ((_assertThisInitialize2 = (0, _assertThisInitialized2["default"])(_this)) !== null && _assertThisInitialize2 !== void 0 && (_assertThisInitialize3 = _assertThisInitialize2._store) !== null && _assertThisInitialize3 !== void 0 && (_assertThisInitialize4 = _assertThisInitialize3._options) !== null && _assertThisInitialize4 !== void 0 && _assertThisInitialize4.transport) {
       _this._store._options.transport.getState(options.scope, options.key).then(function (state) {
@@ -115,8 +116,9 @@ var State = /*#__PURE__*/function (_EventEmitter) {
         this._store._options.transport.getState(this.scope, this.key).then(function (storedState) {
           if (storedState !== null) {
             if (timestamp > _this3.timestamp) {
-              if (_this3.initialValue === _this3.value) {
+              if (!_this3.initialValuePublished) {
                 _this3.value = storedState.value;
+                _this3.initialValuePublished = true;
                 _this3.publish();
               }
             }

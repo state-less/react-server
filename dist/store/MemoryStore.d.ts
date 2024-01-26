@@ -18,6 +18,7 @@ export declare class State<T> extends EventEmitter {
     scope: string;
     value: StateValue<T>;
     initialValue: StateValue<T>;
+    initialValuePublished: boolean;
     timestamp: number;
     labels: string[];
     _store: Store;
