@@ -137,7 +137,7 @@ var PostgresTransport = /*#__PURE__*/function (_Transport) {
               }
               return _context4.abrupt("return", null);
             case 8:
-              return _context4.abrupt("return", result[0]);
+              return _context4.abrupt("return", result[0].value);
             case 11:
               _context4.prev = 11;
               _context4.t0 = _context4["catch"](2);

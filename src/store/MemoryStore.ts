@@ -47,14 +47,15 @@ export class State<T> extends EventEmitter {
     this.initialValue = initialValue;
     this.initialValuePublished = false;
     this.timestamp = 0;
-    if (this?._store?._options?.transport) {
-      this._store._options.transport
-        .getState<T>(options.scope, options.key)
-        .then((state) => {
-          this.value = state.value;
-          this.publish();
-        });
-    }
+    // if (this?._store?._options?.transport) {
+    //   this._store._options.transport
+    //     .getState<T>(options.scope, options.key)
+    //     .then((state) => {
+    //       this.initialValuePublished = true;
+    //       this.value = state.value;
+    //       this.publish();
+    //     });
+    // }
   }
 
   publish() {
@@ -93,8 +94,8 @@ export class State<T> extends EventEmitter {
         .then((storedState) => {
           if (storedState !== null) {
             if (timestamp > this.timestamp) {
+              this.value = storedState.value;
               if (!this.initialValuePublished) {
-                this.value = storedState.value;
                 this.initialValuePublished = true;
                 this.publish();
               }
