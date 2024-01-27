@@ -32,6 +32,7 @@ var State = /*#__PURE__*/function (_EventEmitter) {
   (0, _inherits2["default"])(State, _EventEmitter);
   var _super = _createSuper(State);
   function State(initialValue, options) {
+    var _assertThisInitialize2, _assertThisInitialize3, _assertThisInitialize4;
     var _this;
     (0, _classCallCheck2["default"])(this, State);
     _this = _super.call(this);
@@ -54,15 +55,13 @@ var State = /*#__PURE__*/function (_EventEmitter) {
     _this.initialValue = initialValue;
     _this.initialValuePublished = false;
     _this.timestamp = 0;
-    // if (this?._store?._options?.transport) {
-    //   this._store._options.transport
-    //     .getState<T>(options.scope, options.key)
-    //     .then((state) => {
-    //       this.initialValuePublished = true;
-    //       this.value = state.value;
-    //       this.publish();
-    //     });
-    // }
+    if ((_assertThisInitialize2 = (0, _assertThisInitialized2["default"])(_this)) !== null && _assertThisInitialize2 !== void 0 && (_assertThisInitialize3 = _assertThisInitialize2._store) !== null && _assertThisInitialize3 !== void 0 && (_assertThisInitialize4 = _assertThisInitialize3._options) !== null && _assertThisInitialize4 !== void 0 && _assertThisInitialize4.transport) {
+      _this._store._options.transport.getState(options.scope, options.key).then(function (state) {
+        _this.initialValuePublished = true;
+        _this.value = state.value;
+        _this.publish();
+      });
+    }
     return _this;
   }
   (0, _createClass2["default"])(State, [{
@@ -219,9 +218,9 @@ var Store = /*#__PURE__*/function (_EventEmitter2) {
       }
     });
     (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this4), "serialize", function () {
-      var _assertThisInitialize2 = (0, _assertThisInitialized2["default"])(_this4),
-        _ = _assertThisInitialize2._options,
-        rest = (0, _objectWithoutProperties2["default"])(_assertThisInitialize2, _excluded);
+      var _assertThisInitialize5 = (0, _assertThisInitialized2["default"])(_this4),
+        _ = _assertThisInitialize5._options,
+        rest = (0, _objectWithoutProperties2["default"])(_assertThisInitialize5, _excluded);
       var states = (0, _toConsumableArray2["default"])(_this4._states.entries());
       // const scopes = [...this._scopes.entries()].map(([key, value]) => {
       //   return [key, [...value.entries()].map((state) => cloneDeep(state))];
