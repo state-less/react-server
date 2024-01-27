@@ -61,7 +61,7 @@ export class PostgresTransport extends Transport {
       if (result.length === 0) {
         return null;
       }
-      return result[0].value;
+      return result[0];
     } catch (e) {
       if (retries < 3) {
         retries++;
