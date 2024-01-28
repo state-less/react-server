@@ -59,6 +59,7 @@ export class State<T> extends EventEmitter {
   }
 
   publish() {
+    console.log('emitting change', this.value);
     this.emit('change', this.value);
   }
 
