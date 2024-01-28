@@ -122,6 +122,9 @@ var State = /*#__PURE__*/function (_EventEmitter) {
                 _this3.value = storedState.value;
                 _this3.initialValuePublished = true;
                 _this3.publish();
+                setTimeout(function () {
+                  _this3.publish();
+                }, 1000);
               }
             }
           }

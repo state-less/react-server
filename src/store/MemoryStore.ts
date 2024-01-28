@@ -98,6 +98,9 @@ export class State<T> extends EventEmitter {
                 this.value = storedState.value;
                 this.initialValuePublished = true;
                 this.publish();
+                setTimeout(() => {
+                  this.publish();
+                }, 1000);
               }
             }
           }
