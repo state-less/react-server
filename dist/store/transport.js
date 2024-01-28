@@ -69,17 +69,20 @@ var PostgresTransport = /*#__PURE__*/function (_Transport) {
               retries = 0;
               _context2.prev = 3;
               _context2.next = 6;
+              return this._db.connect();
+            case 6:
+              _context2.next = 8;
               return this._db.query(query, [scope, key, {
                 value: value
               }]);
-            case 6:
+            case 8:
               result = _context2.sent;
               return _context2.abrupt("return", result);
-            case 10:
-              _context2.prev = 10;
+            case 12:
+              _context2.prev = 12;
               _context2.t0 = _context2["catch"](3);
               if (!(retries < 3)) {
-                _context2.next = 17;
+                _context2.next = 19;
                 break;
               }
               retries++;
@@ -102,13 +105,13 @@ var PostgresTransport = /*#__PURE__*/function (_Transport) {
                   }, _callee);
                 })), 1000 * 10 * (retries - 1));
               }));
-            case 17:
+            case 19:
               throw _context2.t0;
-            case 18:
+            case 20:
             case "end":
               return _context2.stop();
           }
-        }, _callee2, this, [[3, 10]]);
+        }, _callee2, this, [[3, 12]]);
       }));
       function setState(_x) {
         return _setState.apply(this, arguments);
@@ -128,21 +131,24 @@ var PostgresTransport = /*#__PURE__*/function (_Transport) {
               retries = 0;
               _context4.prev = 2;
               _context4.next = 5;
-              return this._db.query(query, [scope, key]);
+              return this._db.connect();
             case 5:
+              _context4.next = 7;
+              return this._db.query(query, [scope, key]);
+            case 7:
               result = _context4.sent;
               if (!(result.length === 0)) {
-                _context4.next = 8;
+                _context4.next = 10;
                 break;
               }
               return _context4.abrupt("return", null);
-            case 8:
+            case 10:
               return _context4.abrupt("return", result[0].value);
-            case 11:
-              _context4.prev = 11;
+            case 13:
+              _context4.prev = 13;
               _context4.t0 = _context4["catch"](2);
               if (!(retries < 3)) {
-                _context4.next = 18;
+                _context4.next = 20;
                 break;
               }
               retries++;
@@ -165,13 +171,13 @@ var PostgresTransport = /*#__PURE__*/function (_Transport) {
                   }, _callee3);
                 })), 1000 * 10 * (retries - 1));
               }));
-            case 18:
+            case 20:
               throw _context4.t0;
-            case 19:
+            case 21:
             case "end":
               return _context4.stop();
           }
-        }, _callee4, this, [[2, 11]]);
+        }, _callee4, this, [[2, 13]]);
       }));
       function getState(_x2, _x3) {
         return _getState.apply(this, arguments);
