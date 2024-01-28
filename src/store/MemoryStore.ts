@@ -101,7 +101,7 @@ export class State<T> extends EventEmitter {
                 this.publish();
                 setTimeout(() => {
                   this.publish();
-                }, 1000);
+                }, 5000);
               }
             }
           }

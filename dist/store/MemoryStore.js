@@ -125,7 +125,7 @@ var State = /*#__PURE__*/function (_EventEmitter) {
                 _this3.publish();
                 setTimeout(function () {
                   _this3.publish();
-                }, 1000);
+                }, 5000);
               }
             }
           }
