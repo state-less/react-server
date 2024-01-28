@@ -36,7 +36,6 @@ export class PostgresTransport extends Transport {
 
     let retries = 0;
     try {
-      await this._db.connect();
       const result = await this._db.query(query, [scope, key, { value }]);
       return result;
     } catch (e) {
@@ -58,7 +57,6 @@ export class PostgresTransport extends Transport {
     const query = `SELECT * FROM states WHERE scope = $1 AND key = $2`;
     let retries = 0;
     try {
-      await this._db.connect();
       const result = await this._db.query(query, [scope, key]);
       if (result.length === 0) {
         return null;
