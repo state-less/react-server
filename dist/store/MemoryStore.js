@@ -89,6 +89,7 @@ var State = /*#__PURE__*/function (_EventEmitter) {
               }
               this.value = value;
               if (this !== null && this !== void 0 && (_this$_store = this._store) !== null && _this$_store !== void 0 && (_this$_store$_options = _this$_store._options) !== null && _this$_store$_options !== void 0 && _this$_store$_options.transport) {
+                this.timestamp = +new Date();
                 this._store._options.transport.setState(this).then(function () {
                   _this2.timestamp = +new Date();
                 });
@@ -122,10 +123,12 @@ var State = /*#__PURE__*/function (_EventEmitter) {
               if (!_this3.initialValuePublished) {
                 _this3.value = storedState.value;
                 _this3.initialValuePublished = true;
-                _this3.publish();
+
+                // TODO: The client hasn't yet subscribed to component updates when this response is received
+                // We need to add a "once" listener to the subscribe event which will trigger the publish
                 setTimeout(function () {
                   _this3.publish();
-                }, 5000);
+                }, 1000);
               }
             }
           }

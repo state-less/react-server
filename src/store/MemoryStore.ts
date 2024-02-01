@@ -76,6 +76,7 @@ export class State<T> extends EventEmitter {
     this.value = value;
 
     if (this?._store?._options?.transport) {
+      this.timestamp = +new Date();
       this._store._options.transport.setState(this).then(() => {
         this.timestamp = +new Date();
       });
@@ -98,10 +99,12 @@ export class State<T> extends EventEmitter {
               if (!this.initialValuePublished) {
                 this.value = storedState.value;
                 this.initialValuePublished = true;
-                this.publish();
+
+                // TODO: The client hasn't yet subscribed to component updates when this response is received
+                // We need to add a "once" listener to the subscribe event which will trigger the publish
                 setTimeout(() => {
                   this.publish();
-                }, 5000);
+                }, 1000);
               }
             }
           }
