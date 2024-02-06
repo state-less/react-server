@@ -10,6 +10,7 @@ var _objectWithoutProperties2 = _interopRequireDefault(require("@babel/runtime/h
 var _taggedTemplateLiteral2 = _interopRequireDefault(require("@babel/runtime/helpers/taggedTemplateLiteral"));
 var _regenerator = _interopRequireDefault(require("@babel/runtime/regenerator"));
 var _asyncToGenerator2 = _interopRequireDefault(require("@babel/runtime/helpers/asyncToGenerator"));
+var _typeof2 = _interopRequireDefault(require("@babel/runtime/helpers/typeof"));
 var _assertThisInitialized2 = _interopRequireDefault(require("@babel/runtime/helpers/assertThisInitialized"));
 var _defineProperty2 = _interopRequireDefault(require("@babel/runtime/helpers/defineProperty"));
 var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
@@ -76,7 +77,7 @@ var State = /*#__PURE__*/function (_EventEmitter2) {
    */
 
   function State(initialValue, options) {
-    var _assertThisInitialize2, _assertThisInitialize3, _assertThisInitialize4;
+    var _assertThisInitialize5, _assertThisInitialize6, _assertThisInitialize7;
     var _this3;
     (0, _classCallCheck2["default"])(this, State);
     _this3 = _super2.call(this);
@@ -101,9 +102,12 @@ var State = /*#__PURE__*/function (_EventEmitter2) {
     _this3.initialValue = initialValue;
     _this3.initialValuePublished = false;
     _this3.timestamp = 0;
-    console.log('Sttate options', options.key, options.storeInitialState);
-    if (options !== null && options !== void 0 && options.storeInitialState && (_assertThisInitialize2 = (0, _assertThisInitialized2["default"])(_this3)) !== null && _assertThisInitialize2 !== void 0 && (_assertThisInitialize3 = _assertThisInitialize2._store) !== null && _assertThisInitialize3 !== void 0 && (_assertThisInitialize4 = _assertThisInitialize3._options) !== null && _assertThisInitialize4 !== void 0 && _assertThisInitialize4.transport) {
-      console.log('Sttate options', options.key, initialValue);
+    if (options.key === 'post') {
+      var _assertThisInitialize2, _assertThisInitialize3, _assertThisInitialize4;
+      console.log('Sttate options', options.key, options, (0, _typeof2["default"])((_assertThisInitialize2 = (0, _assertThisInitialized2["default"])(_this3)) === null || _assertThisInitialize2 === void 0 ? void 0 : (_assertThisInitialize3 = _assertThisInitialize2._store) === null || _assertThisInitialize3 === void 0 ? void 0 : (_assertThisInitialize4 = _assertThisInitialize3._options) === null || _assertThisInitialize4 === void 0 ? void 0 : _assertThisInitialize4.transport));
+    }
+    if (options !== null && options !== void 0 && options.storeInitialState && (_assertThisInitialize5 = (0, _assertThisInitialized2["default"])(_this3)) !== null && _assertThisInitialize5 !== void 0 && (_assertThisInitialize6 = _assertThisInitialize5._store) !== null && _assertThisInitialize6 !== void 0 && (_assertThisInitialize7 = _assertThisInitialize6._options) !== null && _assertThisInitialize7 !== void 0 && _assertThisInitialize7.transport) {
+      console.log('Storing initial state', options.key, initialValue);
       _this3._store._options.transport.setInitialState((0, _assertThisInitialized2["default"])(_this3));
     }
     // if (this?._store?._options?.transport) {
@@ -277,9 +281,9 @@ var Store = /*#__PURE__*/function (_EventEmitter3) {
       }
     });
     (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this6), "serialize", function () {
-      var _assertThisInitialize5 = (0, _assertThisInitialized2["default"])(_this6),
-        _ = _assertThisInitialize5._options,
-        rest = (0, _objectWithoutProperties2["default"])(_assertThisInitialize5, _excluded);
+      var _assertThisInitialize8 = (0, _assertThisInitialized2["default"])(_this6),
+        _ = _assertThisInitialize8._options,
+        rest = (0, _objectWithoutProperties2["default"])(_assertThisInitialize8, _excluded);
       var states = (0, _toConsumableArray2["default"])(_this6._states.entries());
       // const scopes = [...this._scopes.entries()].map(([key, value]) => {
       //   return [key, [...value.entries()].map((state) => cloneDeep(state))];
