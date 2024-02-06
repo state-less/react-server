@@ -90,11 +90,16 @@ export class State<T> extends EventEmitter {
     this.timestamp = 0;
 
     if (options.key === 'post') {
-      console.log('Sttate options', options.key, options);
+      console.log(
+        'Sttate options',
+        options.key,
+        options,
+        typeof this?._store?._options?.transport
+      );
     }
 
     if (options?.storeInitialState && this?._store?._options?.transport) {
-      console.log('Sttate options', options.key, initialValue);
+      console.log('Storing initial state', options.key, initialValue);
       this._store._options.transport.setInitialState(this);
     }
     // if (this?._store?._options?.transport) {
