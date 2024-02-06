@@ -112,7 +112,7 @@ export class PostgresTransport extends Transport {
     const { id, user, key, client, scope } = stateOptions;
     const where = ['user', 'key', 'client', 'scope', 'id']
       .filter((k) => stateOptions[k])
-      .map((k, i) => `state.${k} = $${i}`)
+      .map((k, i) => `${k} = $${i}`)
       .join(' AND ');
     const query = `SELECT * FROM states WHERE ${where}`;
 
