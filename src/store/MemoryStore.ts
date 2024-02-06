@@ -321,10 +321,10 @@ export class Store extends EventEmitter {
 
   query<T>(initialValue: StateValue<T>, options: StateOptions) {
     console.log('QUERYING ', options, this.hasQuery(options));
-    if (this.hasQuery(options)) {
+    if (!this.hasQuery(options)) {
       return this.createQuery(initialValue, options);
     }
-    const query = new Query(initialValue, options);
+    const query = this._queries.get(Store.getKey(options));
     query._store = this;
 
     return query;
