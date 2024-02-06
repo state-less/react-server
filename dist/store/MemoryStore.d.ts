@@ -13,6 +13,7 @@ export type StateOptions = {
     key: string;
     labels?: string[];
     id?: string;
+    storeInitialState?: boolean;
 };
 export type QueryOptions = StateOptions & {
     poll?: number;
