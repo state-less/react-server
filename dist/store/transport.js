@@ -132,19 +132,21 @@ var PostgresTransport = /*#__PURE__*/function (_Transport) {
               scope = state.scope, key = state.key, value = state.value;
               query = "INSERT INTO states (scope, key, value) VALUES ($1, $2, $3) ON CONFLICT DO NOTHING";
               retries = 0;
-              _context4.prev = 3;
-              _context4.next = 6;
+              console.log('SETTING INITIAL STATE', key, value);
+              _context4.prev = 4;
+              _context4.next = 7;
               return this._db.query(query, [scope, key, {
                 value: value
               }]);
-            case 6:
+            case 7:
               result = _context4.sent;
               return _context4.abrupt("return", result);
-            case 10:
-              _context4.prev = 10;
-              _context4.t0 = _context4["catch"](3);
+            case 11:
+              _context4.prev = 11;
+              _context4.t0 = _context4["catch"](4);
+              console.log('ERROR Setting initial state', _context4.t0);
               if (!(retries < 3)) {
-                _context4.next = 17;
+                _context4.next = 19;
                 break;
               }
               retries++;
@@ -167,13 +169,13 @@ var PostgresTransport = /*#__PURE__*/function (_Transport) {
                   }, _callee3);
                 })), 1000 * 10 * (retries - 1));
               }));
-            case 17:
+            case 19:
               throw _context4.t0;
-            case 18:
+            case 20:
             case "end":
               return _context4.stop();
           }
-        }, _callee4, this, [[3, 10]]);
+        }, _callee4, this, [[4, 11]]);
       }));
       function setInitialState(_x2) {
         return _setInitialState.apply(this, arguments);

@@ -61,10 +61,12 @@ export class PostgresTransport extends Transport {
     const query = `INSERT INTO states (scope, key, value) VALUES ($1, $2, $3) ON CONFLICT DO NOTHING`;
 
     let retries = 0;
+    console.log('SETTING INITIAL STATE', key, value);
     try {
       const result = await this._db.query(query, [scope, key, { value }]);
       return result;
     } catch (e) {
+      console.log('ERROR Setting initial state', e);
       if (retries < 3) {
         retries++;
         return new Promise((resolve) => {

@@ -23,6 +23,7 @@ export type StateOptions = {
   key: string;
   labels?: string[];
   id?: string;
+  storeInitialState?: boolean;
 };
 
 export type QueryOptions = StateOptions & {
@@ -88,7 +89,7 @@ export class State<T> extends EventEmitter {
     this.initialValuePublished = false;
     this.timestamp = 0;
 
-    if (this?._store?._options?.transport) {
+    if (options?.storeInitialState && this?._store?._options?.transport) {
       this._store._options.transport.setInitialState(this);
     }
     // if (this?._store?._options?.transport) {
