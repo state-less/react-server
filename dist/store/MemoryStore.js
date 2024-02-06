@@ -346,15 +346,24 @@ var Store = /*#__PURE__*/function (_EventEmitter3) {
       }
     }
   }, {
+    key: "createQuery",
+    value: function createQuery(initialValue, options) {
+      if (this.hasQuery(options)) {
+        return this._queries.get(Store.getKey(options));
+      }
+      var query = new Query(initialValue, options);
+      query._store = this;
+      this._queries.set(Store.getKey(options), query);
+      return query;
+    }
+  }, {
     key: "query",
     value: function query(initialValue, options) {
-      var query;
       if (this.hasQuery(options)) {
-        query = this._queries.get(Store.getKey(options));
-      } else {
-        query = new Query(initialValue, options);
-        query._store = this;
+        return this.createQuery(initialValue, options);
       }
+      var query = new Query(initialValue, options);
+      query._store = this;
       return query;
     }
   }, {

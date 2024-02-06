@@ -308,14 +308,24 @@ export class Store extends EventEmitter {
       return false;
     }
   }
-  query<T>(initialValue: StateValue<T>, options: StateOptions) {
-    let query;
+
+  createQuery<T>(initialValue: StateValue<T>, options: QueryOptions) {
     if (this.hasQuery(options)) {
-      query = this._queries.get(Store.getKey(options));
-    } else {
-      query = new Query(initialValue, options);
-      query._store = this;
+      return this._queries.get(Store.getKey(options));
     }
+    const query = new Query(initialValue, options);
+    query._store = this;
+    this._queries.set(Store.getKey(options), query);
+    return query;
+  }
+
+  query<T>(initialValue: StateValue<T>, options: StateOptions) {
+    if (this.hasQuery(options)) {
+      return this.createQuery(initialValue, options);
+    }
+    const query = new Query(initialValue, options);
+    query._store = this;
+
     return query;
   }
 

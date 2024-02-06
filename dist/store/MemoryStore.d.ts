@@ -76,7 +76,8 @@ export declare class Store extends EventEmitter {
     serialize: () => any;
     getScope: (scope: string) => Map<string, State<unknown>>;
     hasQuery(key: string | StateOptions): boolean;
-    query<T>(initialValue: StateValue<T>, options: StateOptions): any;
+    createQuery<T>(initialValue: StateValue<T>, options: QueryOptions): Query<any>;
+    query<T>(initialValue: StateValue<T>, options: StateOptions): Query<any>;
     createState<T>(value: StateValue<T>, options?: StateOptions): State<T>;
     deleteState: (options: StateOptions) => void;
     hasState(key: string | StateOptions): boolean;
