@@ -39,6 +39,7 @@ var Query = /*#__PURE__*/function (_EventEmitter) {
     _this.value = initialValue;
     _this.initialValue = initialValue;
     _this._options = options;
+    _this.fetched = false;
     return _this;
   }
   (0, _createClass2["default"])(Query, [{
@@ -48,9 +49,10 @@ var Query = /*#__PURE__*/function (_EventEmitter) {
         _this$_store$_options,
         _this2 = this;
       var transport = (_this$_store = this._store) === null || _this$_store === void 0 ? void 0 : (_this$_store$_options = _this$_store._options) === null || _this$_store$_options === void 0 ? void 0 : _this$_store$_options.transport;
-      if (transport instanceof _transport.PostgresTransport) {
+      if (transport instanceof _transport.PostgresTransport && !this.fetched) {
         transport.queryByOptions(this._options).then(function (query) {
           _this2.value = query;
+          _this2.fetched = true;
           _this2.emit('change', _this2.value);
         });
       }
@@ -58,6 +60,7 @@ var Query = /*#__PURE__*/function (_EventEmitter) {
   }, {
     key: "refetch",
     value: function refetch() {
+      this.fetched = false;
       this.getValue();
     }
   }]);

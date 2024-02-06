@@ -21,6 +21,7 @@ export type QueryOptions = StateOptions & {
 export declare class Query<T> extends EventEmitter {
     value: StateValue<T>;
     initialValue: StateValue<T>;
+    fetched: boolean;
     _options: QueryOptions;
     _store: Store;
     constructor(initialValue: StateValue<T>, options: QueryOptions);

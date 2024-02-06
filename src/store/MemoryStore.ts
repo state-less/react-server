@@ -32,6 +32,7 @@ export type QueryOptions = StateOptions & {
 export class Query<T> extends EventEmitter {
   value: StateValue<T>;
   initialValue: StateValue<T>;
+  fetched: boolean;
   _options: QueryOptions;
   _store: Store;
   constructor(initialValue: StateValue<T>, options: QueryOptions) {
@@ -39,19 +40,22 @@ export class Query<T> extends EventEmitter {
     this.value = initialValue;
     this.initialValue = initialValue;
     this._options = options;
+    this.fetched = false;
   }
 
   getValue() {
     const transport = this._store?._options?.transport;
-    if (transport instanceof PostgresTransport) {
+    if (transport instanceof PostgresTransport && !this.fetched) {
       transport.queryByOptions(this._options).then((query) => {
         this.value = query;
+        this.fetched = true;
         this.emit('change', this.value);
       });
     }
   }
 
   refetch() {
+    this.fetched = false;
     this.getValue();
   }
 }
