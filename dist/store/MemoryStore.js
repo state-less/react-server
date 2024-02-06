@@ -101,8 +101,8 @@ var State = /*#__PURE__*/function (_EventEmitter2) {
     _this3.initialValue = initialValue;
     _this3.initialValuePublished = false;
     _this3.timestamp = 0;
-    console.log('Sttate options', options.key, options === null || options === void 0 ? void 0 : options.storeInitialState);
     if (options !== null && options !== void 0 && options.storeInitialState && (_assertThisInitialize2 = (0, _assertThisInitialized2["default"])(_this3)) !== null && _assertThisInitialize2 !== void 0 && (_assertThisInitialize3 = _assertThisInitialize2._store) !== null && _assertThisInitialize3 !== void 0 && (_assertThisInitialize4 = _assertThisInitialize3._options) !== null && _assertThisInitialize4 !== void 0 && _assertThisInitialize4.transport) {
+      console.log('Sttate options', options.key, initialValue);
       _this3._store._options.transport.setInitialState((0, _assertThisInitialized2["default"])(_this3));
     }
     // if (this?._store?._options?.transport) {
