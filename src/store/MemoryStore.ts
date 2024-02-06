@@ -89,19 +89,6 @@ export class State<T> extends EventEmitter {
     this.initialValuePublished = false;
     this.timestamp = 0;
 
-    if (options.key === 'post') {
-      console.log(
-        'Sttate options',
-        options.key,
-        options,
-        typeof this?._store?._options?.transport
-      );
-    }
-
-    if (options?.storeInitialState && this?._store?._options?.transport) {
-      console.log('Storing initial state', options.key, initialValue);
-      this._store._options.transport.setInitialState(this);
-    }
     // if (this?._store?._options?.transport) {
     //   this._store._options.transport
     //     .getState<T>(options.scope, options.key)
@@ -315,6 +302,11 @@ export class Store extends EventEmitter {
   createState<T>(value: StateValue<T>, options?: StateOptions) {
     const state = new State(value, { ...options });
     state._store = this;
+
+    if (options?.storeInitialState && this?._options?.transport) {
+      console.log('Storing initial state', options.key);
+      this._options.transport.setInitialState(state);
+    }
 
     const states = this.getScope(options.scope);
     states.set(options.key, state);
