@@ -8,11 +8,11 @@ export type StateValue<T = unknown> = T;
 export type SetValueAction<T> = StateValue<T> | ((value: StateValue<T>) => StateValue<T>);
 export type StateOptions = {
     scope: string;
+    id?: string;
     user?: string;
     client?: string;
     key: string;
     labels?: string[];
-    id?: string;
     storeInitialState?: boolean;
 };
 export type QueryOptions = StateOptions & {

@@ -18,11 +18,11 @@ export type SetValueAction<T> =
 
 export type StateOptions = {
   scope: string;
+  id?: string;
   user?: string;
   client?: string;
   key: string;
   labels?: string[];
-  id?: string;
   storeInitialState?: boolean;
 };
 

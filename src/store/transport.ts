@@ -1,5 +1,5 @@
 import pgPromise, { IDatabase, queryResult } from 'pg-promise';
-import { State } from './MemoryStore';
+import { State, StateOptions } from './MemoryStore';
 
 export class Transport {
   constructor() {}
@@ -105,21 +105,19 @@ export class PostgresTransport extends Transport {
     }
   }
 
-  async queryByOptions<T>({
-    user,
-    key,
-    client,
-    scope,
-  }: {
-    user?: string;
-    key: string;
-    scope: string;
-    client?: string;
-  }): Promise<any> {
-    const query = `SELECT * FROM states WHERE state.key = $2 AND state.scope = $3 AND state.client = $4 AND state.user = $1`;
+  async queryByOptions<T>(stateOptions: StateOptions): Promise<any> {
+    const { id, user, key, client, scope } = stateOptions;
+    const where = ['user', 'key', 'client', 'scope', 'id']
+      .filter((k) => stateOptions[k])
+      .map((k, i) => `state.${k} = $${i}`)
+      .join(' AND ');
+    const query = `SELECT * FROM states WHERE ${where}`;
     let retries = 0;
     try {
-      const result = await this._db.query(query, [user, key, scope, client]);
+      const result = await this._db.query(
+        query,
+        [user, key, client, scope, id].filter(Boolean)
+      );
       return result;
     } catch (e) {
       if (retries < 3) {
