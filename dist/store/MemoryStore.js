@@ -51,7 +51,9 @@ var Query = /*#__PURE__*/function (_EventEmitter) {
       var transport = (_this$_store = this._store) === null || _this$_store === void 0 ? void 0 : (_this$_store$_options = _this$_store._options) === null || _this$_store$_options === void 0 ? void 0 : _this$_store$_options.transport;
       if (transport instanceof _transport.PostgresTransport && !this.fetched) {
         transport.queryByOptions(this._options).then(function (query) {
-          _this2.value = query;
+          _this2.value = query === null || query === void 0 ? void 0 : query.map(function (state) {
+            return state.value.value;
+          });
           _this2.fetched = true;
           _this2.emit('change', _this2.value);
         });
