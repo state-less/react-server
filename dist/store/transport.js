@@ -267,12 +267,13 @@ var PostgresTransport = /*#__PURE__*/function (_Transport) {
               return this._db.query(query, [user, key, client, scope, id].filter(Boolean));
             case 7:
               result = _context8.sent;
+              console.log('RESULT', result);
               return _context8.abrupt("return", result);
-            case 11:
-              _context8.prev = 11;
+            case 12:
+              _context8.prev = 12;
               _context8.t0 = _context8["catch"](4);
               if (!(retries < 3)) {
-                _context8.next = 17;
+                _context8.next = 18;
                 break;
               }
               return _context8.abrupt("return", new Promise(function (resolve) {
@@ -299,13 +300,13 @@ var PostgresTransport = /*#__PURE__*/function (_Transport) {
                   }, _callee7);
                 })), 1000 * 10 * (retries - 1));
               }));
-            case 17:
-              throw _context8.t0;
             case 18:
+              throw _context8.t0;
+            case 19:
             case "end":
               return _context8.stop();
           }
-        }, _callee8, this, [[4, 11]]);
+        }, _callee8, this, [[4, 12]]);
       }));
       function queryByOptions(_x5, _x6) {
         return _queryByOptions.apply(this, arguments);

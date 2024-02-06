@@ -122,6 +122,7 @@ export class PostgresTransport extends Transport {
         query,
         [user, key, client, scope, id].filter(Boolean)
       );
+      console.log('RESULT', result);
       return result;
     } catch (e) {
       if (retries < 3) {
