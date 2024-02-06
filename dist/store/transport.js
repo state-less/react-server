@@ -248,9 +248,9 @@ var PostgresTransport = /*#__PURE__*/function (_Transport) {
   }, {
     key: "queryByOptions",
     value: function () {
-      var _queryByOptions = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee8(stateOptions) {
+      var _queryByOptions = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee8(stateOptions, retries) {
         var _this5 = this;
-        var id, user, key, client, scope, where, query, retries, result;
+        var id, user, key, client, scope, where, query, result;
         return _regenerator["default"].wrap(function _callee8$(_context8) {
           while (1) switch (_context8.prev = _context8.next) {
             case 0:
@@ -261,7 +261,7 @@ var PostgresTransport = /*#__PURE__*/function (_Transport) {
                 return "state.".concat(k, " = $").concat(i);
               }).join(' AND ');
               query = "SELECT * FROM states WHERE ".concat(where);
-              retries = 0;
+              console.log('QUERY', query);
               _context8.prev = 4;
               _context8.next = 7;
               return this._db.query(query, [user, key, client, scope, id].filter(Boolean));
@@ -272,10 +272,9 @@ var PostgresTransport = /*#__PURE__*/function (_Transport) {
               _context8.prev = 11;
               _context8.t0 = _context8["catch"](4);
               if (!(retries < 3)) {
-                _context8.next = 18;
+                _context8.next = 17;
                 break;
               }
-              retries++;
               return _context8.abrupt("return", new Promise(function (resolve) {
                 console.error("Error getting states for user ".concat(user, ". Retrying..."));
                 setTimeout( /*#__PURE__*/(0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee7() {
@@ -289,7 +288,7 @@ var PostgresTransport = /*#__PURE__*/function (_Transport) {
                           key: key,
                           client: client,
                           scope: scope
-                        });
+                        }, retries + 1);
                       case 3:
                         _context7.t1 = _context7.sent;
                         (0, _context7.t0)(_context7.t1);
@@ -300,15 +299,15 @@ var PostgresTransport = /*#__PURE__*/function (_Transport) {
                   }, _callee7);
                 })), 1000 * 10 * (retries - 1));
               }));
-            case 18:
+            case 17:
               throw _context8.t0;
-            case 19:
+            case 18:
             case "end":
               return _context8.stop();
           }
         }, _callee8, this, [[4, 11]]);
       }));
-      function queryByOptions(_x5) {
+      function queryByOptions(_x5, _x6) {
         return _queryByOptions.apply(this, arguments);
       }
       return queryByOptions;

@@ -105,14 +105,18 @@ export class PostgresTransport extends Transport {
     }
   }
 
-  async queryByOptions<T>(stateOptions: StateOptions): Promise<any> {
+  async queryByOptions<T>(
+    stateOptions: StateOptions,
+    retries?: number
+  ): Promise<any> {
     const { id, user, key, client, scope } = stateOptions;
     const where = ['user', 'key', 'client', 'scope', 'id']
       .filter((k) => stateOptions[k])
       .map((k, i) => `state.${k} = $${i}`)
       .join(' AND ');
     const query = `SELECT * FROM states WHERE ${where}`;
-    let retries = 0;
+
+    console.log('QUERY', query);
     try {
       const result = await this._db.query(
         query,
@@ -121,17 +125,19 @@ export class PostgresTransport extends Transport {
       return result;
     } catch (e) {
       if (retries < 3) {
-        retries++;
         return new Promise((resolve) => {
           console.error(`Error getting states for user ${user}. Retrying...`);
           setTimeout(async () => {
             resolve(
-              await this.queryByOptions({
-                user,
-                key,
-                client,
-                scope,
-              })
+              await this.queryByOptions(
+                {
+                  user,
+                  key,
+                  client,
+                  scope,
+                },
+                retries + 1
+              )
             );
           }, 1000 * 10 * (retries - 1));
         });

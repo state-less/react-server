@@ -15,5 +15,5 @@ export declare class PostgresTransport extends Transport {
     setState(state: State<unknown>): Promise<any>;
     setInitialState(state: State<unknown>): Promise<any>;
     getState<T>(scope: string, key: string): Promise<State<T> | null>;
-    queryByOptions<T>(stateOptions: StateOptions): Promise<any>;
+    queryByOptions<T>(stateOptions: StateOptions, retries?: number): Promise<any>;
 }
