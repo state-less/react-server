@@ -258,7 +258,7 @@ var PostgresTransport = /*#__PURE__*/function (_Transport) {
               where = ['user', 'key', 'client', 'scope', 'id'].filter(function (k) {
                 return stateOptions[k];
               }).map(function (k, i) {
-                return "".concat(k, " = $").concat(i);
+                return "".concat(k, " = $").concat(i + 1);
               }).join(' AND ');
               query = "SELECT * FROM states WHERE ".concat(where);
               console.log('QUERY', query);
