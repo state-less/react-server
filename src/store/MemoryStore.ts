@@ -173,6 +173,7 @@ export type StoreOptions = {
 
 export class Store extends EventEmitter {
   _scopes: Map<string, Map<string, State<unknown>>>;
+  _queries: Map<string, Query<any>>;
   _states: Map<string, State<any>>;
   _options: StoreOptions;
   _storing: boolean;
@@ -184,6 +185,7 @@ export class Store extends EventEmitter {
   constructor(options: StoreOptions) {
     super();
     this._states = new Map();
+    this._queries = new Map();
     this._scopes = new Map();
     this._options = options;
     this._storing = false;
@@ -297,9 +299,23 @@ export class Store extends EventEmitter {
     return this._scopes.get(scope);
   };
 
+  hasQuery(key: string | StateOptions) {
+    if (typeof key === 'string') {
+      return this._queries.has(key);
+    } else if (isStateOptions(key)) {
+      return this._queries.has(Store.getKey(key));
+    } else {
+      return false;
+    }
+  }
   query<T>(initialValue: StateValue<T>, options: StateOptions) {
-    const query = new Query(initialValue, options);
-    query._store = this;
+    let query;
+    if (this.hasQuery(options)) {
+      query = this._queries.get(Store.getKey(options));
+    } else {
+      query = new Query(initialValue, options);
+      query._store = this;
+    }
     return query;
   }
 

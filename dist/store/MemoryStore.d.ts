@@ -63,6 +63,7 @@ export type StoreOptions = {
 };
 export declare class Store extends EventEmitter {
     _scopes: Map<string, Map<string, State<unknown>>>;
+    _queries: Map<string, Query<any>>;
     _states: Map<string, State<any>>;
     _options: StoreOptions;
     _storing: boolean;
@@ -74,7 +75,8 @@ export declare class Store extends EventEmitter {
     dehydrate: (obj: any) => void;
     serialize: () => any;
     getScope: (scope: string) => Map<string, State<unknown>>;
-    query<T>(initialValue: StateValue<T>, options: StateOptions): Query<T>;
+    hasQuery(key: string | StateOptions): boolean;
+    query<T>(initialValue: StateValue<T>, options: StateOptions): any;
     createState<T>(value: StateValue<T>, options?: StateOptions): State<T>;
     deleteState: (options: StateOptions) => void;
     hasState(key: string | StateOptions): boolean;

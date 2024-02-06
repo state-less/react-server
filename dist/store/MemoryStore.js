@@ -325,6 +325,7 @@ var Store = /*#__PURE__*/function (_EventEmitter3) {
       }
     });
     _this6._states = new Map();
+    _this6._queries = new Map();
     _this6._scopes = new Map();
     _this6._options = _options;
     _this6._storing = false;
@@ -334,10 +335,26 @@ var Store = /*#__PURE__*/function (_EventEmitter3) {
     return _this6;
   }
   (0, _createClass2["default"])(Store, [{
+    key: "hasQuery",
+    value: function hasQuery(key) {
+      if (typeof key === 'string') {
+        return this._queries.has(key);
+      } else if ((0, _util.isStateOptions)(key)) {
+        return this._queries.has(Store.getKey(key));
+      } else {
+        return false;
+      }
+    }
+  }, {
     key: "query",
     value: function query(initialValue, options) {
-      var query = new Query(initialValue, options);
-      query._store = this;
+      var query;
+      if (this.hasQuery(options)) {
+        query = this._queries.get(Store.getKey(options));
+      } else {
+        query = new Query(initialValue, options);
+        query._store = this;
+      }
       return query;
     }
   }, {
