@@ -47,7 +47,11 @@ export class Query<T> extends EventEmitter {
     const transport = this._store?._options?.transport;
     if (transport instanceof PostgresTransport && !this.fetched) {
       transport.queryByOptions(this._options).then((query) => {
-        this.value = query?.map((state) => ({key: state.key, ...state.value});
+        this.value = query?.map((state) => ({
+          key: state.key,
+          scope: state.scope,
+          ...state.value,
+        }));
         this.fetched = true;
         this.emit('change', this.value);
       });
