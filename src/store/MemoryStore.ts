@@ -305,7 +305,10 @@ export class Store extends EventEmitter {
 
     if (options?.storeInitialState && this?._options?.transport) {
       console.log('Storing initial state', options.key);
-      this._options.transport.setInitialState(state);
+      this._options.transport.setInitialState(state).then(() => {
+        state.emit('stored', state.value);
+        this.emit(`created::${state.key}`, state.value);
+      });
     }
 
     const states = this.getScope(options.scope);

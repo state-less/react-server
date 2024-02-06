@@ -178,6 +178,45 @@ var Dispatcher = /*#__PURE__*/function () {
       }];
     }
   }, {
+    key: "useQuery",
+    value: function useQuery(initialValue, options) {
+      var _this3 = this;
+      var _currentComponent = this._currentComponent.at(-1);
+      var renderOptions = this._renderOptions;
+      var scope = getRuntimeScope(options.scope, renderOptions.context);
+      var query = this.store.query(initialValue, _objectSpread(_objectSpread({}, options), {}, {
+        scope: scope
+      }));
+      var listenerKey = (0, _util.clientKey)(_currentComponent.key, renderOptions.context) + '::' + options.key;
+      var rerender = function rerender() {
+        (0, _internals.render)(_currentComponent, _objectSpread(_objectSpread({}, renderOptions), {}, {
+          initiator: _types.Initiator.StateUpdate
+        }), _this3._currentComponent.at(-2));
+      };
+      var _iterator3 = _createForOfIteratorHelper(Listeners[listenerKey] || []),
+        _step3;
+      try {
+        for (_iterator3.s(); !(_step3 = _iterator3.n()).done;) {
+          var listener = _step3.value;
+          query.removeListener('change', listener);
+          (Listeners[listenerKey] || []).splice(Listeners[listenerKey].indexOf(listener));
+        }
+      } catch (err) {
+        _iterator3.e(err);
+      } finally {
+        _iterator3.f();
+      }
+      if (renderOptions.initiator === _types.Initiator.RenderClient || renderOptions.initiator === _types.Initiator.RenderServer || renderOptions.initiator === _types.Initiator.StateUpdate || renderOptions.initiator === _types.Initiator.FunctionCall) {
+        query.on('change', rerender);
+        Listeners[listenerKey] = Listeners[listenerKey] || [];
+        Listeners[listenerKey].push(rerender);
+      }
+      query.getValue();
+      return [query.value, function () {
+        query.getValue();
+      }];
+    }
+  }, {
     key: "useEffect",
     value: function useEffect(fn, deps) {
       var clientContext = this._renderOptions;

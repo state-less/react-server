@@ -340,12 +340,16 @@ var Store = /*#__PURE__*/function (_EventEmitter3) {
   }, {
     key: "createState",
     value: function createState(value, options) {
-      var _this$_options;
+      var _this$_options,
+        _this7 = this;
       var state = new State(value, _objectSpread({}, options));
       state._store = this;
       if (options !== null && options !== void 0 && options.storeInitialState && this !== null && this !== void 0 && (_this$_options = this._options) !== null && _this$_options !== void 0 && _this$_options.transport) {
         console.log('Storing initial state', options.key);
-        this._options.transport.setInitialState(state);
+        this._options.transport.setInitialState(state).then(function () {
+          state.emit('stored', state.value);
+          _this7.emit("created::".concat(state.key), state.value);
+        });
       }
       var states = this.getScope(options.scope);
       states.set(options.key, state);

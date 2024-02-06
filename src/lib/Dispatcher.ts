@@ -192,6 +192,54 @@ class Dispatcher {
     ];
   }
 
+  useQuery<T>(initialValue: StateValue<T>, options: StateOptions) {
+    const _currentComponent = this._currentComponent.at(-1);
+    const renderOptions = this._renderOptions;
+    const scope = getRuntimeScope(options.scope, renderOptions.context);
+
+    const query = this.store.query(initialValue, { ...options, scope });
+    const listenerKey =
+      clientKey(_currentComponent.key, renderOptions.context) +
+      '::' +
+      options.key;
+    const rerender = () => {
+      render(
+        _currentComponent,
+        {
+          ...renderOptions,
+          initiator: Initiator.StateUpdate,
+        },
+        this._currentComponent.at(-2)
+      );
+    };
+
+    for (const listener of Listeners[listenerKey] || []) {
+      query.removeListener('change', listener);
+      (Listeners[listenerKey] || []).splice(
+        Listeners[listenerKey].indexOf(listener)
+      );
+    }
+
+    if (
+      renderOptions.initiator === Initiator.RenderClient ||
+      renderOptions.initiator === Initiator.RenderServer ||
+      renderOptions.initiator === Initiator.StateUpdate ||
+      renderOptions.initiator === Initiator.FunctionCall
+    ) {
+      query.on('change', rerender);
+      Listeners[listenerKey] = Listeners[listenerKey] || [];
+      Listeners[listenerKey].push(rerender);
+    }
+
+    query.getValue();
+    return [
+      query.value,
+      () => {
+        query.getValue();
+      },
+    ];
+  }
+
   useEffect(
     fn: () => void,
     deps: Array<any>
