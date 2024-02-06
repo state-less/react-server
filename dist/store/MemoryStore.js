@@ -359,6 +359,7 @@ var Store = /*#__PURE__*/function (_EventEmitter3) {
   }, {
     key: "query",
     value: function query(initialValue, options) {
+      console.log('QUERYING ', options, this.hasQuery(options));
       if (this.hasQuery(options)) {
         return this.createQuery(initialValue, options);
       }
