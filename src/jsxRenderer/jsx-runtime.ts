@@ -13,6 +13,7 @@ export const jsxs = (Component, props, key = v4()) => {
 
 export const jsx = (Component, props, key = v4()) => {
   // const rendered = Lifecycle(Component, props, { key });
+  console.log('REGISTERING COMPONENT', key, props.key);
   globalInstance.components.set(key, {
     key,
     Component,

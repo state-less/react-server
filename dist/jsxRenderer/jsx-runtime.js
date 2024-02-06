@@ -28,6 +28,7 @@ exports.jsxs = jsxs;
 var jsx = function jsx(Component, props) {
   var key = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : (0, _uuid.v4)();
   // const rendered = Lifecycle(Component, props, { key });
+  console.log('REGISTERING COMPONENT', key, props.key);
   _reactServer.globalInstance.components.set(key, {
     key: key,
     Component: Component,
