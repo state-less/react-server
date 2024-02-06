@@ -192,7 +192,10 @@ class Dispatcher {
     ];
   }
 
-  useQuery<T>(initialValue: StateValue<T>, options: StateOptions) {
+  useQuery<T>(
+    initialValue: StateValue<T>,
+    options: StateOptions
+  ): [StateValue<T>, () => void] {
     const _currentComponent = this._currentComponent.at(-1);
     const renderOptions = this._renderOptions;
     const scope = getRuntimeScope(options.scope, renderOptions.context);

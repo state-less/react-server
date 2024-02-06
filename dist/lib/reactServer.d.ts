@@ -5,7 +5,7 @@ export type ReactServerGlobal = {
 };
 export declare const globalInstance: ReactServerGlobal;
 export declare const useState: <T>(initialValue: T, options: StateOptions) => [T, (value: import("../store/MemoryStore").SetValueAction<T>) => void];
-export declare const useQuery: <T>(initialValue: T, options: StateOptions) => (T | (() => void))[];
+export declare const useQuery: <T>(initialValue: T, options: StateOptions) => [T, () => void];
 export declare const useEffect: (fn: () => void, deps?: Array<any>) => [unknown, (value: unknown) => void];
 export declare const useClientEffect: (fn: () => void, deps?: Array<any>) => [unknown, (value: unknown) => void];
 export declare const destroy: () => void;

@@ -38,7 +38,7 @@ declare class Dispatcher {
     addCurrentComponent: (component: ReactServerComponent<unknown>) => void;
     popCurrentComponent: () => void;
     useState<T>(initialValue: StateValue<T>, options: StateOptions): [StateValue<T>, (value: SetValueAction<T>) => void];
-    useQuery<T>(initialValue: StateValue<T>, options: StateOptions): (T | (() => void))[];
+    useQuery<T>(initialValue: StateValue<T>, options: StateOptions): [StateValue<T>, () => void];
     useEffect(fn: () => void, deps: Array<any>): [StateValue, (value: StateValue) => void];
     useClientEffect(fn: () => void | (() => void), deps?: Array<any>): [StateValue, (value: StateValue) => void];
     useContext: (context: Context<unknown>) => unknown;
