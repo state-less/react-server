@@ -16,6 +16,13 @@ export const useState = <T>(
   return Dispatcher.getCurrent().useState<T>(initialValue, options);
 };
 
+export const useQuery = <T>(
+  initialValue: StateValue<T>,
+  options: StateOptions
+) => {
+  return Dispatcher.getCurrent().useQuery<T>(initialValue, options);
+};
+
 export const useEffect = (fn: () => void, deps?: Array<any>) => {
   return Dispatcher.getCurrent().useEffect(fn, deps);
 };
