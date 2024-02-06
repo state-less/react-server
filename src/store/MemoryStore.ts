@@ -1,11 +1,9 @@
 import { createId, isStateOptions } from '../lib/util';
-import { Transport } from './transport';
-import ee from 'event-emitter';
+import { PostgresTransport, Transport } from './transport';
 import { EventEmitter } from 'events';
 import fs from 'fs';
 import path from 'path';
 import json from 'big-json';
-import cloneDeep from 'clone-deep';
 
 type PrimitiveValue = string | number;
 
@@ -20,14 +18,54 @@ export type SetValueAction<T> =
 
 export type StateOptions = {
   scope: string;
+  user?: string;
+  client?: string;
   key: string;
   labels?: string[];
   id?: string;
 };
 
+export type QueryOptions = StateOptions & {
+  poll?: number;
+};
+export class Query<T> extends EventEmitter {
+  value: StateValue<T>;
+  initialValue: StateValue<T>;
+  _options: QueryOptions;
+  _store: Store;
+  constructor(initialValue: StateValue<T>, options: QueryOptions) {
+    super();
+    this.value = initialValue;
+    this.initialValue = initialValue;
+    this._options = options;
+  }
+
+  getValue() {
+    const transport = this._store?._options?.transport;
+    if (transport instanceof PostgresTransport) {
+      transport.queryByOptions(this._options).then((query) => {
+        this.value = query;
+        this.emit('change', this.value);
+      });
+    }
+  }
+
+  refetch() {
+    this.getValue();
+  }
+}
+
 export class State<T> extends EventEmitter {
   id: string;
   key: string;
+  /**
+   * The unique id of the currently authenticated user.
+   * */
+  user: string;
+  /**
+   * The unique id of the connected client.
+   */
+  client: string;
   scope: string;
   value: StateValue<T>;
   initialValue: StateValue<T>;
@@ -42,11 +80,17 @@ export class State<T> extends EventEmitter {
     this.id = options.id || createId(options.scope);
     this.key = options.key;
     this.scope = options.scope;
+    this.user = options.user;
+    this.client = options.client;
     this.labels = options.labels || [];
     this.value = initialValue;
     this.initialValue = initialValue;
     this.initialValuePublished = false;
     this.timestamp = 0;
+
+    if (this?._store?._options?.transport) {
+      this._store._options.transport.setInitialState(this);
+    }
     // if (this?._store?._options?.transport) {
     //   this._store._options.transport
     //     .getState<T>(options.scope, options.key)
@@ -251,6 +295,12 @@ export class Store extends EventEmitter {
     return this._scopes.get(scope);
   };
 
+  query<T>(initialValue: StateValue<T>, options: StateOptions) {
+    const query = new Query(initialValue, options);
+    query._store = this;
+    return query;
+  }
+
   createState<T>(value: StateValue<T>, options?: StateOptions) {
     const state = new State(value, { ...options });
     state._store = this;
@@ -286,10 +336,25 @@ export class Store extends EventEmitter {
     return this._states.get(Store.getKey(options));
   }
 
+  // getStatesByUser = (userId: string) => {
+  //   if (!this._options.transport) {
+  //     this._;
+  //   }
+
+  //   return [...this._states.entries()].filter(
+  //     ([_, state]) => state.user === userId
+  //   );
+  // };
+
   purgeLabels = (labels: string[]) => {
     for (const state of [...this._states.values()]) {
       if (state.labels.some((label) => labels.includes(label))) {
-        this.deleteState({ scope: state.scope, key: state.key });
+        this.deleteState({
+          scope: state.scope,
+          key: state.key,
+          client: state.client,
+          user: state.user,
+        });
       }
     }
   };

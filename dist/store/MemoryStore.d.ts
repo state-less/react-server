@@ -8,13 +8,35 @@ export type StateValue<T = unknown> = T;
 export type SetValueAction<T> = StateValue<T> | ((value: StateValue<T>) => StateValue<T>);
 export type StateOptions = {
     scope: string;
+    user?: string;
+    client?: string;
     key: string;
     labels?: string[];
     id?: string;
 };
+export type QueryOptions = StateOptions & {
+    poll?: number;
+};
+export declare class Query<T> extends EventEmitter {
+    value: StateValue<T>;
+    initialValue: StateValue<T>;
+    _options: QueryOptions;
+    _store: Store;
+    constructor(initialValue: StateValue<T>, options: QueryOptions);
+    getValue(): void;
+    refetch(): void;
+}
 export declare class State<T> extends EventEmitter {
     id: string;
     key: string;
+    /**
+     * The unique id of the currently authenticated user.
+     * */
+    user: string;
+    /**
+     * The unique id of the connected client.
+     */
+    client: string;
     scope: string;
     value: StateValue<T>;
     initialValue: StateValue<T>;
@@ -50,6 +72,7 @@ export declare class Store extends EventEmitter {
     dehydrate: (obj: any) => void;
     serialize: () => any;
     getScope: (scope: string) => Map<string, State<unknown>>;
+    query<T>(initialValue: StateValue<T>, options: StateOptions): Query<T>;
     createState<T>(value: StateValue<T>, options?: StateOptions): State<T>;
     deleteState: (options: StateOptions) => void;
     hasState(key: string | StateOptions): boolean;

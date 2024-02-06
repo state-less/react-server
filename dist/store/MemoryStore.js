@@ -4,20 +4,21 @@ var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefau
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.Store = exports.State = void 0;
+exports.Store = exports.State = exports.Query = void 0;
 var _toConsumableArray2 = _interopRequireDefault(require("@babel/runtime/helpers/toConsumableArray"));
 var _objectWithoutProperties2 = _interopRequireDefault(require("@babel/runtime/helpers/objectWithoutProperties"));
 var _taggedTemplateLiteral2 = _interopRequireDefault(require("@babel/runtime/helpers/taggedTemplateLiteral"));
 var _regenerator = _interopRequireDefault(require("@babel/runtime/regenerator"));
 var _asyncToGenerator2 = _interopRequireDefault(require("@babel/runtime/helpers/asyncToGenerator"));
+var _assertThisInitialized2 = _interopRequireDefault(require("@babel/runtime/helpers/assertThisInitialized"));
+var _defineProperty2 = _interopRequireDefault(require("@babel/runtime/helpers/defineProperty"));
 var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
 var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
-var _assertThisInitialized2 = _interopRequireDefault(require("@babel/runtime/helpers/assertThisInitialized"));
 var _inherits2 = _interopRequireDefault(require("@babel/runtime/helpers/inherits"));
 var _possibleConstructorReturn2 = _interopRequireDefault(require("@babel/runtime/helpers/possibleConstructorReturn"));
 var _getPrototypeOf2 = _interopRequireDefault(require("@babel/runtime/helpers/getPrototypeOf"));
-var _defineProperty2 = _interopRequireDefault(require("@babel/runtime/helpers/defineProperty"));
 var _util = require("../lib/util");
+var _transport = require("./transport");
 var _events = require("events");
 var _fs = _interopRequireDefault(require("fs"));
 var _path = _interopRequireDefault(require("path"));
@@ -28,15 +29,59 @@ function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (O
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { (0, _defineProperty2["default"])(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = (0, _getPrototypeOf2["default"])(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = (0, _getPrototypeOf2["default"])(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return (0, _possibleConstructorReturn2["default"])(this, result); }; }
 function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
-var State = /*#__PURE__*/function (_EventEmitter) {
-  (0, _inherits2["default"])(State, _EventEmitter);
-  var _super = _createSuper(State);
-  function State(initialValue, options) {
+var Query = /*#__PURE__*/function (_EventEmitter) {
+  (0, _inherits2["default"])(Query, _EventEmitter);
+  var _super = _createSuper(Query);
+  function Query(initialValue, options) {
     var _this;
-    (0, _classCallCheck2["default"])(this, State);
+    (0, _classCallCheck2["default"])(this, Query);
     _this = _super.call(this);
-    (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "toJSON", function () {
-      var _assertThisInitialize = (0, _assertThisInitialized2["default"])(_this),
+    _this.value = initialValue;
+    _this.initialValue = initialValue;
+    _this._options = options;
+    return _this;
+  }
+  (0, _createClass2["default"])(Query, [{
+    key: "getValue",
+    value: function getValue() {
+      var _this$_store,
+        _this$_store$_options,
+        _this2 = this;
+      var transport = (_this$_store = this._store) === null || _this$_store === void 0 ? void 0 : (_this$_store$_options = _this$_store._options) === null || _this$_store$_options === void 0 ? void 0 : _this$_store$_options.transport;
+      if (transport instanceof _transport.PostgresTransport) {
+        transport.queryByOptions(this._options).then(function (query) {
+          _this2.value = query;
+          _this2.emit('change', _this2.value);
+        });
+      }
+    }
+  }, {
+    key: "refetch",
+    value: function refetch() {
+      this.getValue();
+    }
+  }]);
+  return Query;
+}(_events.EventEmitter);
+exports.Query = Query;
+var State = /*#__PURE__*/function (_EventEmitter2) {
+  (0, _inherits2["default"])(State, _EventEmitter2);
+  var _super2 = _createSuper(State);
+  /**
+   * The unique id of the currently authenticated user.
+   * */
+
+  /**
+   * The unique id of the connected client.
+   */
+
+  function State(initialValue, options) {
+    var _assertThisInitialize2, _assertThisInitialize3, _assertThisInitialize4;
+    var _this3;
+    (0, _classCallCheck2["default"])(this, State);
+    _this3 = _super2.call(this);
+    (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this3), "toJSON", function () {
+      var _assertThisInitialize = (0, _assertThisInitialized2["default"])(_this3),
         scope = _assertThisInitialize.scope,
         key = _assertThisInitialize.key,
         value = _assertThisInitialize.value;
@@ -46,14 +91,19 @@ var State = /*#__PURE__*/function (_EventEmitter) {
         value: value
       };
     });
-    _this.id = options.id || (0, _util.createId)(options.scope);
-    _this.key = options.key;
-    _this.scope = options.scope;
-    _this.labels = options.labels || [];
-    _this.value = initialValue;
-    _this.initialValue = initialValue;
-    _this.initialValuePublished = false;
-    _this.timestamp = 0;
+    _this3.id = options.id || (0, _util.createId)(options.scope);
+    _this3.key = options.key;
+    _this3.scope = options.scope;
+    _this3.user = options.user;
+    _this3.client = options.client;
+    _this3.labels = options.labels || [];
+    _this3.value = initialValue;
+    _this3.initialValue = initialValue;
+    _this3.initialValuePublished = false;
+    _this3.timestamp = 0;
+    if ((_assertThisInitialize2 = (0, _assertThisInitialized2["default"])(_this3)) !== null && _assertThisInitialize2 !== void 0 && (_assertThisInitialize3 = _assertThisInitialize2._store) !== null && _assertThisInitialize3 !== void 0 && (_assertThisInitialize4 = _assertThisInitialize3._options) !== null && _assertThisInitialize4 !== void 0 && _assertThisInitialize4.transport) {
+      _this3._store._options.transport.setInitialState((0, _assertThisInitialized2["default"])(_this3));
+    }
     // if (this?._store?._options?.transport) {
     //   this._store._options.transport
     //     .getState<T>(options.scope, options.key)
@@ -63,7 +113,7 @@ var State = /*#__PURE__*/function (_EventEmitter) {
     //       this.publish();
     //     });
     // }
-    return _this;
+    return _this3;
   }
   (0, _createClass2["default"])(State, [{
     key: "publish",
@@ -74,9 +124,9 @@ var State = /*#__PURE__*/function (_EventEmitter) {
     key: "setValue",
     value: function () {
       var _setValue = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee(valueAction) {
-        var _this$_store,
-          _this$_store$_options,
-          _this2 = this;
+        var _this$_store2,
+          _this$_store2$_option,
+          _this4 = this;
         var value;
         return _regenerator["default"].wrap(function _callee$(_context) {
           while (1) switch (_context.prev = _context.next) {
@@ -87,10 +137,10 @@ var State = /*#__PURE__*/function (_EventEmitter) {
                 value = valueAction;
               }
               this.value = value;
-              if (this !== null && this !== void 0 && (_this$_store = this._store) !== null && _this$_store !== void 0 && (_this$_store$_options = _this$_store._options) !== null && _this$_store$_options !== void 0 && _this$_store$_options.transport) {
+              if (this !== null && this !== void 0 && (_this$_store2 = this._store) !== null && _this$_store2 !== void 0 && (_this$_store2$_option = _this$_store2._options) !== null && _this$_store2$_option !== void 0 && _this$_store2$_option.transport) {
                 this.timestamp = +new Date();
                 this._store._options.transport.setState(this).then(function () {
-                  _this2.timestamp = +new Date();
+                  _this4.timestamp = +new Date();
                 });
                 this.publish();
               } else {
@@ -111,22 +161,22 @@ var State = /*#__PURE__*/function (_EventEmitter) {
   }, {
     key: "getValue",
     value: function getValue() {
-      var _this$_store2,
-        _this$_store2$_option,
-        _this3 = this;
+      var _this$_store3,
+        _this$_store3$_option,
+        _this5 = this;
       var timestamp = +new Date();
-      if (this !== null && this !== void 0 && (_this$_store2 = this._store) !== null && _this$_store2 !== void 0 && (_this$_store2$_option = _this$_store2._options) !== null && _this$_store2$_option !== void 0 && _this$_store2$_option.transport) {
+      if (this !== null && this !== void 0 && (_this$_store3 = this._store) !== null && _this$_store3 !== void 0 && (_this$_store3$_option = _this$_store3._options) !== null && _this$_store3$_option !== void 0 && _this$_store3$_option.transport) {
         this._store._options.transport.getState(this.scope, this.key).then(function (storedState) {
           if (storedState !== null) {
-            if (timestamp > _this3.timestamp) {
-              if (!_this3.initialValuePublished) {
-                _this3.value = storedState.value;
-                _this3.initialValuePublished = true;
+            if (timestamp > _this5.timestamp) {
+              if (!_this5.initialValuePublished) {
+                _this5.value = storedState.value;
+                _this5.initialValuePublished = true;
 
                 // TODO: The client hasn't yet subscribed to component updates when this response is received
                 // We need to add a "once" listener to the subscribe event which will trigger the publish
                 setTimeout(function () {
-                  _this3.publish();
+                  _this5.publish();
                 }, 1000);
               }
             }
@@ -139,59 +189,59 @@ var State = /*#__PURE__*/function (_EventEmitter) {
   return State;
 }(_events.EventEmitter); // ee(State.prototype);
 exports.State = State;
-var Store = /*#__PURE__*/function (_EventEmitter2) {
-  (0, _inherits2["default"])(Store, _EventEmitter2);
-  var _super2 = _createSuper(Store);
+var Store = /*#__PURE__*/function (_EventEmitter3) {
+  (0, _inherits2["default"])(Store, _EventEmitter3);
+  var _super3 = _createSuper(Store);
   function Store(_options) {
-    var _this4;
+    var _this6;
     (0, _classCallCheck2["default"])(this, Store);
-    _this4 = _super2.call(this);
-    (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this4), "restore", function () {
-      var fn = _path["default"].resolve(_this4._options.file);
+    _this6 = _super3.call(this);
+    (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this6), "restore", function () {
+      var fn = _path["default"].resolve(_this6._options.file);
       if (_fs["default"].existsSync(fn)) {
-        if (_this4._options.logger) {
-          _this4._options.logger.info(_templateObject || (_templateObject = (0, _taggedTemplateLiteral2["default"])(["Deserializing store from ", ""])), fn);
+        if (_this6._options.logger) {
+          _this6._options.logger.info(_templateObject || (_templateObject = (0, _taggedTemplateLiteral2["default"])(["Deserializing store from ", ""])), fn);
         }
-        _this4._storing = true;
+        _this6._storing = true;
         var stream = _fs["default"].createReadStream(fn);
         var parseStream = _bigJson["default"].createParseStream();
         parseStream.on('data', function (pojo) {
-          _this4.dehydrate(pojo);
+          _this6.dehydrate(pojo);
         });
         stream.pipe(parseStream);
       }
     });
-    (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this4), "store", function () {
-      var fn = _path["default"].resolve(_this4._options.file);
-      if (_this4._storing) return;
-      _this4._storing = true;
-      if (_this4._options.logger) {
-        _this4._options.logger.info(_templateObject2 || (_templateObject2 = (0, _taggedTemplateLiteral2["default"])(["Serializing store to ", ""])), fn);
+    (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this6), "store", function () {
+      var fn = _path["default"].resolve(_this6._options.file);
+      if (_this6._storing) return;
+      _this6._storing = true;
+      if (_this6._options.logger) {
+        _this6._options.logger.info(_templateObject2 || (_templateObject2 = (0, _taggedTemplateLiteral2["default"])(["Serializing store to ", ""])), fn);
       }
       if (_fs["default"].existsSync(fn)) {
         _fs["default"].copyFileSync(fn, fn + '.bak');
         _fs["default"].unlinkSync(fn);
       }
       var writeStream = _fs["default"].createWriteStream(fn);
-      var stream = _this4.serialize();
+      var stream = _this6.serialize();
       stream.pipe(writeStream);
       stream.on('end', function () {
-        if (_this4._options.logger) {
-          _this4._options.logger.info(_templateObject3 || (_templateObject3 = (0, _taggedTemplateLiteral2["default"])(["Serialized store to ", ""])), fn);
+        if (_this6._options.logger) {
+          _this6._options.logger.info(_templateObject3 || (_templateObject3 = (0, _taggedTemplateLiteral2["default"])(["Serialized store to ", ""])), fn);
         }
         writeStream.end();
-        _this4._storing = false;
+        _this6._storing = false;
       });
       writeStream.on('error', function (err) {
         writeStream.end();
-        _this4._storing = false;
+        _this6._storing = false;
       });
     });
-    (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this4), "sync", function () {
+    (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this6), "sync", function () {
       var interval = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1000 * 60;
-      return setInterval(_this4.store, interval);
+      return setInterval(_this6.store, interval);
     });
-    (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this4), "dehydrate", function (obj) {
+    (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this6), "dehydrate", function (obj) {
       try {
         var _states;
         if (Array.isArray(obj)) {
@@ -214,21 +264,21 @@ var Store = /*#__PURE__*/function (_EventEmitter2) {
         // });
         // Object.assign(this, { _scopes: scopes, _states: states });
         // this._scopes = scopes as any;
-        _this4._states = states;
-        if (_this4._options.logger) {
-          _this4._options.logger.info(_templateObject4 || (_templateObject4 = (0, _taggedTemplateLiteral2["default"])(["Deserialized store. ", ""])), _this4._states.size);
+        _this6._states = states;
+        if (_this6._options.logger) {
+          _this6._options.logger.info(_templateObject4 || (_templateObject4 = (0, _taggedTemplateLiteral2["default"])(["Deserialized store. ", ""])), _this6._states.size);
         }
-        _this4.emit('dehydrate');
-        _this4._storing = false;
+        _this6.emit('dehydrate');
+        _this6._storing = false;
       } catch (e) {
         throw new Error("Invalid JSON");
       }
     });
-    (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this4), "serialize", function () {
-      var _assertThisInitialize2 = (0, _assertThisInitialized2["default"])(_this4),
-        _ = _assertThisInitialize2._options,
-        rest = (0, _objectWithoutProperties2["default"])(_assertThisInitialize2, _excluded);
-      var states = (0, _toConsumableArray2["default"])(_this4._states.entries());
+    (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this6), "serialize", function () {
+      var _assertThisInitialize5 = (0, _assertThisInitialized2["default"])(_this6),
+        _ = _assertThisInitialize5._options,
+        rest = (0, _objectWithoutProperties2["default"])(_assertThisInitialize5, _excluded);
+      var states = (0, _toConsumableArray2["default"])(_this6._states.entries());
       // const scopes = [...this._scopes.entries()].map(([key, value]) => {
       //   return [key, [...value.entries()].map((state) => cloneDeep(state))];
       // });
@@ -239,41 +289,58 @@ var Store = /*#__PURE__*/function (_EventEmitter2) {
         body: out
       });
     });
-    (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this4), "getScope", function (scope) {
-      if (_this4._scopes.has(scope)) return _this4._scopes.get(scope);
-      _this4._scopes.set(scope, new Map());
-      return _this4._scopes.get(scope);
+    (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this6), "getScope", function (scope) {
+      if (_this6._scopes.has(scope)) return _this6._scopes.get(scope);
+      _this6._scopes.set(scope, new Map());
+      return _this6._scopes.get(scope);
     });
-    (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this4), "deleteState", function (options) {
+    (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this6), "deleteState", function (options) {
       var key = options.key,
         scope = options.scope;
-      var states = _this4.getScope(scope);
+      var states = _this6.getScope(scope);
       states["delete"](key);
-      _this4._states["delete"](Store.getKey(options));
+      _this6._states["delete"](Store.getKey(options));
     });
-    (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this4), "purgeLabels", function (labels) {
-      for (var _i = 0, _arr = (0, _toConsumableArray2["default"])(_this4._states.values()); _i < _arr.length; _i++) {
+    // getStatesByUser = (userId: string) => {
+    //   if (!this._options.transport) {
+    //     this._;
+    //   }
+    //   return [...this._states.entries()].filter(
+    //     ([_, state]) => state.user === userId
+    //   );
+    // };
+    (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this6), "purgeLabels", function (labels) {
+      for (var _i = 0, _arr = (0, _toConsumableArray2["default"])(_this6._states.values()); _i < _arr.length; _i++) {
         var state = _arr[_i];
         if (state.labels.some(function (label) {
           return labels.includes(label);
         })) {
-          _this4.deleteState({
+          _this6.deleteState({
             scope: state.scope,
-            key: state.key
+            key: state.key,
+            client: state.client,
+            user: state.user
           });
         }
       }
     });
-    _this4._states = new Map();
-    _this4._scopes = new Map();
-    _this4._options = _options;
-    _this4._storing = false;
+    _this6._states = new Map();
+    _this6._scopes = new Map();
+    _this6._options = _options;
+    _this6._storing = false;
     if (_options.file) {
-      _this4.restore();
+      _this6.restore();
     }
-    return _this4;
+    return _this6;
   }
   (0, _createClass2["default"])(Store, [{
+    key: "query",
+    value: function query(initialValue, options) {
+      var query = new Query(initialValue, options);
+      query._store = this;
+      return query;
+    }
+  }, {
     key: "createState",
     value: function createState(value, options) {
       var state = new State(value, _objectSpread({}, options));
