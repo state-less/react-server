@@ -413,6 +413,5 @@ var Store = /*#__PURE__*/function (_EventEmitter3) {
 }(_events.EventEmitter);
 exports.Store = Store;
 (0, _defineProperty2["default"])(Store, "getKey", function (options) {
-  console.log('GETTING KEY', options, "".concat(options.scope, ":").concat(options.key, ":").concat(options.user, ":").concat(options.id));
   return "".concat(options.scope, ":").concat(options.key, ":").concat(options.user, ":").concat(options.id);
 });

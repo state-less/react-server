@@ -128,6 +128,7 @@ var Dispatcher = /*#__PURE__*/function () {
       var state = this.store.getState(initialValue, _objectSpread(_objectSpread({}, options), {}, {
         scope: scope
       }));
+      console.log('Use State', options.key, state);
       var _iterator = _createForOfIteratorHelper(this._currentComponent),
         _step;
       try {

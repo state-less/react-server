@@ -181,11 +181,6 @@ export class Store extends EventEmitter {
   _storing: boolean;
 
   static getKey = (options: StateOptions) => {
-    console.log(
-      'GETTING KEY',
-      options,
-      `${options.scope}:${options.key}:${options.user}:${options.id}`
-    );
     return `${options.scope}:${options.key}:${options.user}:${options.id}`;
   };
 
