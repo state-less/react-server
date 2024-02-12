@@ -61,8 +61,8 @@ var Query = /*#__PURE__*/function (_EventEmitter) {
           _this2.fetched = true;
           _this2.emit('change', _this2.value);
         });
-        console.log('Query listening for destructing', 'destroy::' + Store.getKey(this._options));
-        this._store.on('destroy::' + Store.getKey(this._options), function () {
+        console.log('Query listening for destructing', 'destroy::' + this._options.scope + ':' + this._options.key);
+        this._store.on('destroy::' + this._options.scope + ':' + this._options.key, function () {
           _this2.fetched = false;
           console.log('Destroy triggered, refetching query');
           _this2.refetch();
@@ -109,7 +109,7 @@ var State = /*#__PURE__*/function (_EventEmitter2) {
       }
       _this3.emit('destroy');
       console.log('Emitting destry', 'destroy::' + Store.getKey((0, _assertThisInitialized2["default"])(_this3)));
-      _this3._store.emit('destroy::' + Store.getKey((0, _assertThisInitialized2["default"])(_this3)));
+      _this3._store.emit('destroy::' + _this3.scope + ':' + _this3.key, (0, _assertThisInitialized2["default"])(_this3));
     });
     (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this3), "toJSON", function () {
       var _assertThisInitialize4 = (0, _assertThisInitialized2["default"])(_this3),

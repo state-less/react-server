@@ -58,13 +58,16 @@ export class Query<T> extends EventEmitter {
       });
       console.log(
         'Query listening for destructing',
-        'destroy::' + Store.getKey(this._options)
+        'destroy::' + this._options.scope + ':' + this._options.key
       );
-      this._store.on('destroy::' + Store.getKey(this._options), () => {
-        this.fetched = false;
-        console.log('Destroy triggered, refetching query');
-        this.refetch();
-      });
+      this._store.on(
+        'destroy::' + this._options.scope + ':' + this._options.key,
+        () => {
+          this.fetched = false;
+          console.log('Destroy triggered, refetching query');
+          this.refetch();
+        }
+      );
     }
   }
 
@@ -190,7 +193,7 @@ export class State<T> extends EventEmitter {
     }
     this.emit('destroy');
     console.log('Emitting destry', 'destroy::' + Store.getKey(this));
-    this._store.emit('destroy::' + Store.getKey(this));
+    this._store.emit('destroy::' + this.scope + ':' + this.key, this);
   };
   toJSON = () => {
     const { scope, key, value } = this;
