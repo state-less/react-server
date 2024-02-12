@@ -185,6 +185,7 @@ export class State<T> extends EventEmitter {
       this._store._options.transport.deleteState(this);
     }
     this.emit('destroy');
+    console.log('Emitting destry', 'destroy::' + Store.getKey(this));
     this._store.emit('destroy::' + Store.getKey(this));
   };
   toJSON = () => {

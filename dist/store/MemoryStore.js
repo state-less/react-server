@@ -107,6 +107,7 @@ var State = /*#__PURE__*/function (_EventEmitter2) {
         _this3._store._options.transport.deleteState((0, _assertThisInitialized2["default"])(_this3));
       }
       _this3.emit('destroy');
+      console.log('Emitting destry', 'destroy::' + Store.getKey((0, _assertThisInitialized2["default"])(_this3)));
       _this3._store.emit('destroy::' + Store.getKey((0, _assertThisInitialized2["default"])(_this3)));
     });
     (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this3), "toJSON", function () {
