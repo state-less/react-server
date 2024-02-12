@@ -4,7 +4,7 @@ export type ReactServerGlobal = {
     components: Map<string, any>;
 };
 export declare const globalInstance: ReactServerGlobal;
-export declare const useState: <T>(initialValue: T, options: StateOptions) => [T, (value: import("../store/MemoryStore").SetValueAction<T>) => void];
+export declare const useState: <T>(initialValue: T, options: StateOptions) => [T, (value: import("../store/MemoryStore").SetValueAction<T>) => void, import("./Dispatcher").UseStateExtra];
 export declare const useQuery: <T>(initialValue: T, options: StateOptions) => [T, () => void];
 export declare const useEffect: (fn: () => void, deps?: Array<any>) => [unknown, (value: unknown) => void];
 export declare const useClientEffect: (fn: () => void, deps?: Array<any>) => [unknown, (value: unknown) => void];

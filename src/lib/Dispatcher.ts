@@ -64,6 +64,10 @@ const recordedStates: State<unknown>[] = [];
 const lastDeps: Record<string, any[]> = {};
 const usedStates: Record<string, Record<string, State<unknown>>> = {};
 const cleanupFns: Record<string, Array<() => void>> = {};
+
+export type UseStateExtra = {
+  destroy: () => void;
+};
 class Dispatcher {
   store: Store;
   _pubsub: PubSub;
@@ -131,12 +135,12 @@ class Dispatcher {
   useState<T>(
     initialValue: StateValue<T>,
     options: StateOptions
-  ): [StateValue<T>, (value: SetValueAction<T>) => void] {
+  ): [StateValue<T>, (value: SetValueAction<T>) => void, UseStateExtra] {
     const _currentComponent = this._currentComponent.at(-1);
     const renderOptions = this._renderOptions;
     const scope = getRuntimeScope(options.scope, renderOptions.context);
     const state = this.store.getState<T>(initialValue, { ...options, scope });
-    console.log('Use State', options.key, state.value);
+
     for (const comp of this._currentComponent) {
       if (!state.labels.includes(comp.key)) {
         state.labels.push(comp.key);
@@ -188,6 +192,11 @@ class Dispatcher {
       value,
       (value: StateValue<T>) => {
         state.setValue(value);
+      },
+      {
+        destroy: () => {
+          state.destroy();
+        },
       },
     ];
   }

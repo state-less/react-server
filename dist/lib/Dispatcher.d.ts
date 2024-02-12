@@ -13,6 +13,9 @@ export type Context<C> = {
 };
 export declare const createContext: <T>() => Context<T>;
 export declare const getRuntimeScope: (scope: string, context: RequestContext) => string;
+export type UseStateExtra = {
+    destroy: () => void;
+};
 declare class Dispatcher {
     store: Store;
     _pubsub: PubSub;
@@ -37,7 +40,7 @@ declare class Dispatcher {
     getStore(): Store;
     addCurrentComponent: (component: ReactServerComponent<unknown>) => void;
     popCurrentComponent: () => void;
-    useState<T>(initialValue: StateValue<T>, options: StateOptions): [StateValue<T>, (value: SetValueAction<T>) => void];
+    useState<T>(initialValue: StateValue<T>, options: StateOptions): [StateValue<T>, (value: SetValueAction<T>) => void, UseStateExtra];
     useQuery<T>(initialValue: StateValue<T>, options: StateOptions): [StateValue<T>, () => void];
     useEffect(fn: () => void, deps: Array<any>): [StateValue, (value: StateValue) => void];
     useClientEffect(fn: () => void | (() => void), deps?: Array<any>): [StateValue, (value: StateValue) => void];

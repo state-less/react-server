@@ -51,6 +51,7 @@ export declare class State<T> extends EventEmitter {
     publish(): void;
     setValue(valueAction: SetValueAction<T>): Promise<this>;
     getValue(): T;
+    destroy: () => void;
     toJSON: () => {
         scope: string;
         key: string;

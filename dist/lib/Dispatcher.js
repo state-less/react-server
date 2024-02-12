@@ -128,7 +128,6 @@ var Dispatcher = /*#__PURE__*/function () {
       var state = this.store.getState(initialValue, _objectSpread(_objectSpread({}, options), {}, {
         scope: scope
       }));
-      console.log('Use State', options.key, state.value);
       var _iterator = _createForOfIteratorHelper(this._currentComponent),
         _step;
       try {
@@ -176,6 +175,10 @@ var Dispatcher = /*#__PURE__*/function () {
       var value = state.value;
       return [value, function (value) {
         state.setValue(value);
+      }, {
+        destroy: function destroy() {
+          state.destroy();
+        }
       }];
     }
   }, {

@@ -12,6 +12,9 @@ export class Transport {
   getState<T>(state: State<any>): Promise<State<T> | null> {
     throw new Error('Not implemented');
   }
+  deleteState<T>(state: State<any>): Promise<State<T> | null> {
+    throw new Error('Not implemented');
+  }
 }
 
 export class PostgresTransport extends Transport {
@@ -65,6 +68,31 @@ export class PostgresTransport extends Transport {
     }
   }
 
+  async deleteState<T>(state: State<any>): Promise<State<T>> {
+    const { scope, key, uuid } = state;
+    const where = ['scope', 'key', 'uuid']
+      .map((k, i) => `${k} = $${i + 1}`)
+      .join(' AND ');
+
+    const query = `DELETE FROM states WHERE ${where}`;
+    let retries = 0;
+    try {
+      const result = await this._db.query(query, [scope, key, uuid]);
+      return result;
+    } catch (e) {
+      if (retries < 3) {
+        retries++;
+        return new Promise((resolve) => {
+          console.error(`Error deleting state ${key}. Retrying...`);
+          setTimeout(async () => {
+            resolve(await this.deleteState(state));
+          }, 1000 * 10 * (retries - 1));
+        });
+      } else {
+        throw e;
+      }
+    }
+  }
   async setInitialState(state: State<unknown>) {
     const { scope, key, uuid, user, client, value } = state;
     const query = `INSERT INTO states (scope, key, uuid, "user", client, value) VALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT DO NOTHING`;

@@ -166,6 +166,20 @@ export class State<T> extends EventEmitter {
     }
     return this.value;
   }
+
+  destroy = () => {
+    if (this._store) {
+      this._store.deleteState({
+        key: this.key,
+        scope: this.scope,
+        user: this.user,
+        client: this.client,
+      });
+    }
+    if (this?._store?._options?.transport) {
+      this._store._options.transport.deleteState(this);
+    }
+  };
   toJSON = () => {
     const { scope, key, value } = this;
     return { scope, key, value };
