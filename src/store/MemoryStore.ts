@@ -369,9 +369,11 @@ export class Store extends EventEmitter {
   }
 
   getState<T>(initialValue: StateValue<T>, options: StateOptions): State<T> {
-    if (!this.hasState(Store.getKey(options)))
+    if (!this.hasState(Store.getKey(options))) {
+      console.log('CREATING STATE');
       return this.createState<T>(initialValue, options);
-
+    }
+    console.log('STATE EXISTS', Store.getKey(options));
     return this._states.get(Store.getKey(options));
   }
 

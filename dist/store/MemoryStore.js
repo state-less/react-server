@@ -405,7 +405,11 @@ var Store = /*#__PURE__*/function (_EventEmitter3) {
   }, {
     key: "getState",
     value: function getState(initialValue, options) {
-      if (!this.hasState(Store.getKey(options))) return this.createState(initialValue, options);
+      if (!this.hasState(Store.getKey(options))) {
+        console.log('CREATING STATE');
+        return this.createState(initialValue, options);
+      }
+      console.log('STATE EXISTS', Store.getKey(options));
       return this._states.get(Store.getKey(options));
     }
   }]);
