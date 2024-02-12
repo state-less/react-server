@@ -121,7 +121,7 @@ export class State<T> extends EventEmitter {
     } else {
       value = valueAction;
     }
-
+    console.log('SET VALUE', this.key, value);
     this.value = value;
 
     if (this?._store?._options?.transport) {
@@ -144,6 +144,11 @@ export class State<T> extends EventEmitter {
         if (storedState !== null) {
           if (timestamp > this.timestamp) {
             if (!this.initialValuePublished) {
+              console.log(
+                'SET VALUE IN GET VALUE',
+                this.key,
+                storedState.value
+              );
               this.value = storedState.value;
               this.initialValuePublished = true;
 
@@ -322,7 +327,6 @@ export class Store extends EventEmitter {
   }
 
   query<T>(initialValue: StateValue<T>, options: StateOptions) {
-    console.log('QUERYING ', options, this.hasQuery(options));
     if (!this.hasQuery(options)) {
       return this.createQuery(initialValue, options);
     }
@@ -370,10 +374,8 @@ export class Store extends EventEmitter {
 
   getState<T>(initialValue: StateValue<T>, options: StateOptions): State<T> {
     if (!this.hasState(Store.getKey(options))) {
-      console.log('CREATING STATE');
       return this.createState<T>(initialValue, options);
     }
-    console.log('STATE EXISTS', Store.getKey(options));
     return this._states.get(Store.getKey(options));
   }
 

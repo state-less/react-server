@@ -141,6 +141,7 @@ var State = /*#__PURE__*/function (_EventEmitter2) {
               } else {
                 value = valueAction;
               }
+              console.log('SET VALUE', this.key, value);
               this.value = value;
               if (this !== null && this !== void 0 && (_this$_store2 = this._store) !== null && _this$_store2 !== void 0 && (_this$_store2$_option = _this$_store2._options) !== null && _this$_store2$_option !== void 0 && _this$_store2$_option.transport) {
                 this.timestamp = +new Date();
@@ -152,7 +153,7 @@ var State = /*#__PURE__*/function (_EventEmitter2) {
                 this.publish();
               }
               return _context.abrupt("return", this);
-            case 4:
+            case 5:
             case "end":
               return _context.stop();
           }
@@ -175,6 +176,7 @@ var State = /*#__PURE__*/function (_EventEmitter2) {
           if (storedState !== null) {
             if (timestamp > _this5.timestamp) {
               if (!_this5.initialValuePublished) {
+                console.log('SET VALUE IN GET VALUE', _this5.key, storedState.value);
                 _this5.value = storedState.value;
                 _this5.initialValuePublished = true;
 
@@ -364,7 +366,6 @@ var Store = /*#__PURE__*/function (_EventEmitter3) {
   }, {
     key: "query",
     value: function query(initialValue, options) {
-      console.log('QUERYING ', options, this.hasQuery(options));
       if (!this.hasQuery(options)) {
         return this.createQuery(initialValue, options);
       }
@@ -406,10 +407,8 @@ var Store = /*#__PURE__*/function (_EventEmitter3) {
     key: "getState",
     value: function getState(initialValue, options) {
       if (!this.hasState(Store.getKey(options))) {
-        console.log('CREATING STATE');
         return this.createState(initialValue, options);
       }
-      console.log('STATE EXISTS', Store.getKey(options));
       return this._states.get(Store.getKey(options));
     }
   }]);
