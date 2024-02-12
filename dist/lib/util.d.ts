@@ -1,4 +1,4 @@
-import { StateOptions } from '../store/MemoryStore';
+import { State, StateOptions, StateValue } from '../store/MemoryStore';
 import { ClientContext, ReactServerComponent, RequestContext } from './types';
 import { PartialAuth } from '../types/auth';
 export declare const serverKey = "server";
@@ -7,4 +7,4 @@ export declare const clientKey: (key: any, requestContext: RequestContext) => st
 export declare const generateComponentPubSubKey: (component: ReactServerComponent<any>, requestContext: ClientContext) => string;
 export declare const isStateOptions: (options: any) => options is StateOptions;
 export declare const authenticate: (headers: Record<string, string>, secret?: string) => PartialAuth<unknown>;
-export declare const retrieve: (initialValue: any, callback: (id: any) => StateOptions) => (id: any) => import("../store/MemoryStore").State<StateOptions>;
+export declare const retrieve: <T>(initialValue: T, callback: (id: any) => StateOptions) => (id: any) => State<T>;

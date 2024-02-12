@@ -1,5 +1,5 @@
 import { v4 } from 'uuid';
-import { StateOptions } from '../store/MemoryStore';
+import { State, StateOptions, StateValue } from '../store/MemoryStore';
 import { ClientContext, ReactServerComponent, RequestContext } from './types';
 import jwt from 'jsonwebtoken';
 import { PartialAuth } from '../types/auth';
@@ -50,9 +50,10 @@ export const authenticate = (
 };
 
 export const retrieve =
-  (initialValue: any, callback: (id) => StateOptions) => (id) => {
+  <T>(initialValue: StateValue<T>, callback: (id) => StateOptions) =>
+  (id): State<T> => {
     const options = callback(id);
     const store = Dispatcher._current.getStore();
-    const state = store.getState(options, initialValue);
+    const state = store.getState(initialValue, options);
     return state;
   };

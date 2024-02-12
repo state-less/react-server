@@ -46,7 +46,7 @@ var retrieve = function retrieve(initialValue, callback) {
   return function (id) {
     var options = callback(id);
     var store = _Dispatcher["default"]._current.getStore();
-    var state = store.getState(options, initialValue);
+    var state = store.getState(initialValue, options);
     return state;
   };
 };
