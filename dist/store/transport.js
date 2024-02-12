@@ -65,16 +65,16 @@ var PostgresTransport = /*#__PURE__*/function (_Transport) {
     value: function () {
       var _setState = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee2(state) {
         var _this2 = this;
-        var scope, key, value, query, retries, result;
+        var scope, key, value, id, user, client, query, retries, result;
         return _regenerator["default"].wrap(function _callee2$(_context2) {
           while (1) switch (_context2.prev = _context2.next) {
             case 0:
-              scope = state.scope, key = state.key, value = state.value;
-              query = "INSERT INTO states (scope, key, value) VALUES ($1, $2, $3) ON CONFLICT (scope, key) DO UPDATE SET value = $3";
+              scope = state.scope, key = state.key, value = state.value, id = state.id, user = state.user, client = state.client;
+              query = "INSERT INTO states (scope, key, uuid, user, client, value) VALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT (scope, key) DO UPDATE SET value = $6";
               retries = 0;
               _context2.prev = 3;
               _context2.next = 6;
-              return this._db.query(query, [scope, key, {
+              return this._db.query(query, [scope, key, id, user, client, {
                 value: value
               }]);
             case 6:
@@ -89,7 +89,7 @@ var PostgresTransport = /*#__PURE__*/function (_Transport) {
               }
               retries++;
               return _context2.abrupt("return", new Promise(function (resolve) {
-                console.error("Error setting state ".concat(key, ". Retrying..."));
+                console.error("Error setting state ".concat(key, ". Retrying...\n").concat(_context2.t0.message));
                 setTimeout( /*#__PURE__*/(0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee() {
                   return _regenerator["default"].wrap(function _callee$(_context) {
                     while (1) switch (_context.prev = _context.next) {
@@ -125,17 +125,17 @@ var PostgresTransport = /*#__PURE__*/function (_Transport) {
     value: function () {
       var _setInitialState = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee4(state) {
         var _this3 = this;
-        var scope, key, value, query, retries, result;
+        var scope, key, id, user, client, value, query, retries, result;
         return _regenerator["default"].wrap(function _callee4$(_context4) {
           while (1) switch (_context4.prev = _context4.next) {
             case 0:
-              scope = state.scope, key = state.key, value = state.value;
-              query = "INSERT INTO states (scope, key, value) VALUES ($1, $2, $3) ON CONFLICT DO NOTHING";
+              scope = state.scope, key = state.key, id = state.id, user = state.user, client = state.client, value = state.value;
+              query = "INSERT INTO states (scope, key, uuid, user, client, value) VALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT DO NOTHING";
               retries = 0;
               console.log('SETTING INITIAL STATE', key, value);
               _context4.prev = 4;
               _context4.next = 7;
-              return this._db.query(query, [scope, key, {
+              return this._db.query(query, [scope, key, id, user, client, {
                 value: value
               }]);
             case 7:

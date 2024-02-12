@@ -34,18 +34,27 @@ export class PostgresTransport extends Transport {
   }
 
   async setState(state: State<unknown>) {
-    const { scope, key, value } = state;
-    const query = `INSERT INTO states (scope, key, value) VALUES ($1, $2, $3) ON CONFLICT (scope, key) DO UPDATE SET value = $3`;
+    const { scope, key, value, id, user, client } = state;
+    const query = `INSERT INTO states (scope, key, uuid, user, client, value) VALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT (scope, key) DO UPDATE SET value = $6`;
 
     let retries = 0;
     try {
-      const result = await this._db.query(query, [scope, key, { value }]);
+      const result = await this._db.query(query, [
+        scope,
+        key,
+        id,
+        user,
+        client,
+        { value },
+      ]);
       return result;
     } catch (e) {
       if (retries < 3) {
         retries++;
         return new Promise((resolve) => {
-          console.error(`Error setting state ${key}. Retrying...`);
+          console.error(
+            `Error setting state ${key}. Retrying...\n${e.message}`
+          );
           setTimeout(async () => {
             resolve(await this.setState(state));
           }, 1000 * 10 * (retries - 1));
@@ -57,13 +66,20 @@ export class PostgresTransport extends Transport {
   }
 
   async setInitialState(state: State<unknown>) {
-    const { scope, key, value } = state;
-    const query = `INSERT INTO states (scope, key, value) VALUES ($1, $2, $3) ON CONFLICT DO NOTHING`;
+    const { scope, key, id, user, client, value } = state;
+    const query = `INSERT INTO states (scope, key, uuid, user, client, value) VALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT DO NOTHING`;
 
     let retries = 0;
     console.log('SETTING INITIAL STATE', key, value);
     try {
-      const result = await this._db.query(query, [scope, key, { value }]);
+      const result = await this._db.query(query, [
+        scope,
+        key,
+        id,
+        user,
+        client,
+        { value },
+      ]);
       return result;
     } catch (e) {
       console.log('ERROR Setting initial state', e);
