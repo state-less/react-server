@@ -50,6 +50,7 @@ export class Query<T> extends EventEmitter {
         this.value = query?.map((state) => ({
           key: state.key,
           scope: state.scope,
+          uuid: state.uuid,
           ...state.value,
         }));
         this.fetched = true;

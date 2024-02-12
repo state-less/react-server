@@ -54,7 +54,8 @@ var Query = /*#__PURE__*/function (_EventEmitter) {
           _this2.value = query === null || query === void 0 ? void 0 : query.map(function (state) {
             return _objectSpread({
               key: state.key,
-              scope: state.scope
+              scope: state.scope,
+              uuid: state.uuid
             }, state.value);
           });
           _this2.fetched = true;
