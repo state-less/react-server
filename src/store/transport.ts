@@ -35,7 +35,7 @@ export class PostgresTransport extends Transport {
 
   async setState(state: State<unknown>) {
     const { scope, key, value, id, user, client } = state;
-    const query = `INSERT INTO states (scope, key, uuid, "user", client, value) VALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT (scope, key) DO UPDATE SET value = $6`;
+    const query = `INSERT INTO states (scope, key, uuid, "user", client, value) VALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT (scope, key, uuid) DO UPDATE SET value = $6`;
 
     let retries = 0;
     try {

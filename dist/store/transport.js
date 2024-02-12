@@ -70,7 +70,7 @@ var PostgresTransport = /*#__PURE__*/function (_Transport) {
           while (1) switch (_context2.prev = _context2.next) {
             case 0:
               scope = state.scope, key = state.key, value = state.value, id = state.id, user = state.user, client = state.client;
-              query = "INSERT INTO states (scope, key, uuid, \"user\", client, value) VALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT (scope, key) DO UPDATE SET value = $6";
+              query = "INSERT INTO states (scope, key, uuid, \"user\", client, value) VALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT (scope, key, uuid) DO UPDATE SET value = $6";
               retries = 0;
               _context2.prev = 3;
               _context2.next = 6;
