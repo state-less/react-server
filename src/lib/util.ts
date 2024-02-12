@@ -3,6 +3,7 @@ import { StateOptions } from '../store/MemoryStore';
 import { ClientContext, ReactServerComponent, RequestContext } from './types';
 import jwt from 'jsonwebtoken';
 import { PartialAuth } from '../types/auth';
+import Dispatcher from './Dispatcher';
 
 export const serverKey = 'server';
 
@@ -47,3 +48,11 @@ export const authenticate = (
     throw new Error('Not authorized');
   }
 };
+
+export const retrieve =
+  (initialValue: any, callback: (id) => StateOptions) => (id) => {
+    const options = callback(id);
+    const store = Dispatcher._current.getStore();
+    const state = store.getState(options, initialValue);
+    return state;
+  };

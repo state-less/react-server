@@ -4,9 +4,10 @@ var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefau
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.serverKey = exports.isStateOptions = exports.generateComponentPubSubKey = exports.createId = exports.clientKey = exports.authenticate = void 0;
+exports.serverKey = exports.retrieve = exports.isStateOptions = exports.generateComponentPubSubKey = exports.createId = exports.clientKey = exports.authenticate = void 0;
 var _uuid = require("uuid");
 var _jsonwebtoken = _interopRequireDefault(require("jsonwebtoken"));
+var _Dispatcher = _interopRequireDefault(require("./Dispatcher"));
 var serverKey = 'server';
 exports.serverKey = serverKey;
 var createId = function createId(debugHint) {
@@ -41,3 +42,12 @@ var authenticate = function authenticate(headers) {
   }
 };
 exports.authenticate = authenticate;
+var retrieve = function retrieve(initialValue, callback) {
+  return function (id) {
+    var options = callback(id);
+    var store = _Dispatcher["default"]._current.getStore();
+    var state = store.getState(options, initialValue);
+    return state;
+  };
+};
+exports.retrieve = retrieve;
