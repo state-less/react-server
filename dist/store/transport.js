@@ -139,7 +139,7 @@ var PostgresTransport = /*#__PURE__*/function (_Transport) {
               }]);
             case 6:
               result = _context4.sent;
-              console.log('Setting initial state', scope, key, uuid);
+              console.log('Setting initial state', scope, key, uuid, result);
               return _context4.abrupt("return", result);
             case 11:
               _context4.prev = 11;
