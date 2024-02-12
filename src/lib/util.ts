@@ -51,9 +51,9 @@ export const authenticate = (
 
 export const retrieve =
   <T>(initialValue: StateValue<T>, callback: (id) => StateOptions) =>
-  (id): State<T> => {
+  (id): StateValue<T> => {
     const options = callback(id);
     const store = Dispatcher._current.getStore();
     const state = store.getState(initialValue, options);
-    return state;
+    return state.value;
   };
