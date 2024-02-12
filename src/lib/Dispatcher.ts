@@ -136,7 +136,7 @@ class Dispatcher {
     const renderOptions = this._renderOptions;
     const scope = getRuntimeScope(options.scope, renderOptions.context);
     const state = this.store.getState<T>(initialValue, { ...options, scope });
-    console.log('Use State', options.key, state);
+    console.log('Use State', options.key, state.value);
     for (const comp of this._currentComponent) {
       if (!state.labels.includes(comp.key)) {
         state.labels.push(comp.key);
