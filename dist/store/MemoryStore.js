@@ -171,7 +171,7 @@ var State = /*#__PURE__*/function (_EventEmitter2) {
         _this5 = this;
       var timestamp = +new Date();
       if (this !== null && this !== void 0 && (_this$_store3 = this._store) !== null && _this$_store3 !== void 0 && (_this$_store3$_option = _this$_store3._options) !== null && _this$_store3$_option !== void 0 && _this$_store3$_option.transport) {
-        this._store._options.transport.getState(this.scope, this.key).then(function (storedState) {
+        this._store._options.transport.getState(this).then(function (storedState) {
           if (storedState !== null) {
             if (timestamp > _this5.timestamp) {
               if (!_this5.initialValuePublished) {

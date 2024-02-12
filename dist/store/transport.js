@@ -31,7 +31,7 @@ var Transport = /*#__PURE__*/function () {
     }
   }, {
     key: "getState",
-    value: function getState(scope, key) {
+    value: function getState(state) {
       throw new Error('Not implemented');
     }
   }]);
@@ -185,31 +185,37 @@ var PostgresTransport = /*#__PURE__*/function (_Transport) {
   }, {
     key: "getState",
     value: function () {
-      var _getState = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee6(scope, key) {
+      var _getState = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee6(state) {
         var _this4 = this;
-        var query, retries, result;
+        var scope, key, id, where, query, retries, result;
         return _regenerator["default"].wrap(function _callee6$(_context6) {
           while (1) switch (_context6.prev = _context6.next) {
             case 0:
-              query = "SELECT * FROM states WHERE scope = $1 AND key = $2";
+              scope = state.scope, key = state.key, id = state.id;
+              where = ['scope', 'key', 'id'].filter(function (k) {
+                return state[k];
+              }).map(function (k, i) {
+                return "".concat(k, " = $").concat(i + 1);
+              }).join(' AND ');
+              query = "SELECT * FROM states WHERE ".concat(where);
               retries = 0;
-              _context6.prev = 2;
-              _context6.next = 5;
-              return this._db.query(query, [scope, key]);
-            case 5:
+              _context6.prev = 4;
+              _context6.next = 7;
+              return this._db.query(query, [scope, key, id]);
+            case 7:
               result = _context6.sent;
               if (!(result.length === 0)) {
-                _context6.next = 8;
+                _context6.next = 10;
                 break;
               }
               return _context6.abrupt("return", null);
-            case 8:
+            case 10:
               return _context6.abrupt("return", result[0].value);
-            case 11:
-              _context6.prev = 11;
-              _context6.t0 = _context6["catch"](2);
+            case 13:
+              _context6.prev = 13;
+              _context6.t0 = _context6["catch"](4);
               if (!(retries < 3)) {
-                _context6.next = 18;
+                _context6.next = 20;
                 break;
               }
               retries++;
@@ -221,7 +227,7 @@ var PostgresTransport = /*#__PURE__*/function (_Transport) {
                       case 0:
                         _context5.t0 = resolve;
                         _context5.next = 3;
-                        return _this4.getState(scope, key);
+                        return _this4.getState(state);
                       case 3:
                         _context5.t1 = _context5.sent;
                         (0, _context5.t0)(_context5.t1);
@@ -232,15 +238,15 @@ var PostgresTransport = /*#__PURE__*/function (_Transport) {
                   }, _callee5);
                 })), 1000 * 10 * (retries - 1));
               }));
-            case 18:
+            case 20:
               throw _context6.t0;
-            case 19:
+            case 21:
             case "end":
               return _context6.stop();
           }
-        }, _callee6, this, [[2, 11]]);
+        }, _callee6, this, [[4, 13]]);
       }));
-      function getState(_x3, _x4) {
+      function getState(_x3) {
         return _getState.apply(this, arguments);
       }
       return getState;
@@ -308,7 +314,7 @@ var PostgresTransport = /*#__PURE__*/function (_Transport) {
           }
         }, _callee8, this, [[4, 12]]);
       }));
-      function queryByOptions(_x5, _x6) {
+      function queryByOptions(_x4, _x5) {
         return _queryByOptions.apply(this, arguments);
       }
       return queryByOptions;

@@ -4,7 +4,7 @@ export declare class Transport {
     constructor();
     setState<T>(state: State<any>): Promise<State<T> | null>;
     setInitialState<T>(state: State<any>): Promise<State<T> | null>;
-    getState<T>(scope: string, key: string): Promise<State<T> | null>;
+    getState<T>(state: State<any>): Promise<State<T> | null>;
 }
 export declare class PostgresTransport extends Transport {
     connectionString: string;
@@ -14,6 +14,6 @@ export declare class PostgresTransport extends Transport {
     });
     setState(state: State<unknown>): Promise<any>;
     setInitialState(state: State<unknown>): Promise<any>;
-    getState<T>(scope: string, key: string): Promise<State<T> | null>;
+    getState<T>(state: State<T>): Promise<State<T> | null>;
     queryByOptions<T>(stateOptions: StateOptions, retries?: number): Promise<any>;
 }

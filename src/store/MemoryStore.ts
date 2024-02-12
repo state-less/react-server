@@ -140,24 +140,22 @@ export class State<T> extends EventEmitter {
   getValue() {
     const timestamp = +new Date();
     if (this?._store?._options?.transport) {
-      this._store._options.transport
-        .getState<T>(this.scope, this.key)
-        .then((storedState) => {
-          if (storedState !== null) {
-            if (timestamp > this.timestamp) {
-              if (!this.initialValuePublished) {
-                this.value = storedState.value;
-                this.initialValuePublished = true;
+      this._store._options.transport.getState<T>(this).then((storedState) => {
+        if (storedState !== null) {
+          if (timestamp > this.timestamp) {
+            if (!this.initialValuePublished) {
+              this.value = storedState.value;
+              this.initialValuePublished = true;
 
-                // TODO: The client hasn't yet subscribed to component updates when this response is received
-                // We need to add a "once" listener to the subscribe event which will trigger the publish
-                setTimeout(() => {
-                  this.publish();
-                }, 1000);
-              }
+              // TODO: The client hasn't yet subscribed to component updates when this response is received
+              // We need to add a "once" listener to the subscribe event which will trigger the publish
+              setTimeout(() => {
+                this.publish();
+              }, 1000);
             }
           }
-        });
+        }
+      });
     }
     return this.value;
   }

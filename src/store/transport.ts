@@ -9,7 +9,7 @@ export class Transport {
   setInitialState<T>(state: State<any>): Promise<State<T> | null> {
     throw new Error('Not implemented');
   }
-  getState<T>(scope: string, key: string): Promise<State<T> | null> {
+  getState<T>(state: State<any>): Promise<State<T> | null> {
     throw new Error('Not implemented');
   }
 }
@@ -97,11 +97,18 @@ export class PostgresTransport extends Transport {
     }
   }
 
-  async getState<T>(scope: string, key: string): Promise<State<T> | null> {
-    const query = `SELECT * FROM states WHERE scope = $1 AND key = $2`;
+  async getState<T>(state: State<T>): Promise<State<T> | null> {
+    const { scope, key, id } = state;
+
+    const where = ['scope', 'key', 'id']
+      .filter((k) => state[k])
+      .map((k, i) => `${k} = $${i + 1}`)
+      .join(' AND ');
+
+    const query = `SELECT * FROM states WHERE ${where}`;
     let retries = 0;
     try {
-      const result = await this._db.query(query, [scope, key]);
+      const result = await this._db.query(query, [scope, key, id]);
       if (result.length === 0) {
         return null;
       }
@@ -112,7 +119,7 @@ export class PostgresTransport extends Transport {
         return new Promise((resolve) => {
           console.error(`Error getting state ${key}. Retrying...`);
           setTimeout(async () => {
-            resolve(await this.getState(scope, key));
+            resolve(await this.getState(state));
           }, 1000 * 10 * (retries - 1));
         });
       } else {
