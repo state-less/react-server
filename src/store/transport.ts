@@ -66,23 +66,23 @@ export class PostgresTransport extends Transport {
   }
 
   async setInitialState(state: State<unknown>) {
-    const { scope, key, id, user, client, value } = state;
+    const { scope, key, uuid, user, client, value } = state;
     const query = `INSERT INTO states (scope, key, uuid, "user", client, value) VALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT DO NOTHING`;
 
     let retries = 0;
-    console.log('SETTING INITIAL STATE', key, value);
+
     try {
       const result = await this._db.query(query, [
         scope,
         key,
-        id,
+        uuid,
         user,
         client,
         { value },
       ]);
       return result;
     } catch (e) {
-      console.log('ERROR Setting initial state', e);
+      console.error('Error setting initial state:', e.message);
       if (retries < 3) {
         retries++;
         return new Promise((resolve) => {
@@ -98,17 +98,15 @@ export class PostgresTransport extends Transport {
   }
 
   async getState<T>(state: State<T>): Promise<State<T> | null> {
-    const { scope, key, id } = state;
-
+    const { scope, key, uuid } = state;
     const where = ['scope', 'key', 'uuid']
-      .filter((k) => state[k])
       .map((k, i) => `${k} = $${i + 1}`)
       .join(' AND ');
 
     const query = `SELECT * FROM states WHERE ${where}`;
     let retries = 0;
     try {
-      const result = await this._db.query(query, [scope, key, id]);
+      const result = await this._db.query(query, [scope, key, uuid]);
       if (result.length === 0) {
         return null;
       }

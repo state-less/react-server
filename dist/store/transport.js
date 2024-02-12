@@ -125,28 +125,27 @@ var PostgresTransport = /*#__PURE__*/function (_Transport) {
     value: function () {
       var _setInitialState = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee4(state) {
         var _this3 = this;
-        var scope, key, id, user, client, value, query, retries, result;
+        var scope, key, uuid, user, client, value, query, retries, result;
         return _regenerator["default"].wrap(function _callee4$(_context4) {
           while (1) switch (_context4.prev = _context4.next) {
             case 0:
-              scope = state.scope, key = state.key, id = state.id, user = state.user, client = state.client, value = state.value;
+              scope = state.scope, key = state.key, uuid = state.uuid, user = state.user, client = state.client, value = state.value;
               query = "INSERT INTO states (scope, key, uuid, \"user\", client, value) VALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT DO NOTHING";
               retries = 0;
-              console.log('SETTING INITIAL STATE', key, value);
-              _context4.prev = 4;
-              _context4.next = 7;
-              return this._db.query(query, [scope, key, id, user, client, {
+              _context4.prev = 3;
+              _context4.next = 6;
+              return this._db.query(query, [scope, key, uuid, user, client, {
                 value: value
               }]);
-            case 7:
+            case 6:
               result = _context4.sent;
               return _context4.abrupt("return", result);
-            case 11:
-              _context4.prev = 11;
-              _context4.t0 = _context4["catch"](4);
-              console.log('ERROR Setting initial state', _context4.t0);
+            case 10:
+              _context4.prev = 10;
+              _context4.t0 = _context4["catch"](3);
+              console.error('Error setting initial state:', _context4.t0.message);
               if (!(retries < 3)) {
-                _context4.next = 19;
+                _context4.next = 18;
                 break;
               }
               retries++;
@@ -169,13 +168,13 @@ var PostgresTransport = /*#__PURE__*/function (_Transport) {
                   }, _callee3);
                 })), 1000 * 10 * (retries - 1));
               }));
-            case 19:
+            case 18:
               throw _context4.t0;
-            case 20:
+            case 19:
             case "end":
               return _context4.stop();
           }
-        }, _callee4, this, [[4, 11]]);
+        }, _callee4, this, [[3, 10]]);
       }));
       function setInitialState(_x2) {
         return _setInitialState.apply(this, arguments);
@@ -187,21 +186,19 @@ var PostgresTransport = /*#__PURE__*/function (_Transport) {
     value: function () {
       var _getState = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee6(state) {
         var _this4 = this;
-        var scope, key, id, where, query, retries, result;
+        var scope, key, uuid, where, query, retries, result;
         return _regenerator["default"].wrap(function _callee6$(_context6) {
           while (1) switch (_context6.prev = _context6.next) {
             case 0:
-              scope = state.scope, key = state.key, id = state.id;
-              where = ['scope', 'key', 'uuid'].filter(function (k) {
-                return state[k];
-              }).map(function (k, i) {
+              scope = state.scope, key = state.key, uuid = state.uuid;
+              where = ['scope', 'key', 'uuid'].map(function (k, i) {
                 return "".concat(k, " = $").concat(i + 1);
               }).join(' AND ');
               query = "SELECT * FROM states WHERE ".concat(where);
               retries = 0;
               _context6.prev = 4;
               _context6.next = 7;
-              return this._db.query(query, [scope, key, id]);
+              return this._db.query(query, [scope, key, uuid]);
             case 7:
               result = _context6.sent;
               if (!(result.length === 0)) {

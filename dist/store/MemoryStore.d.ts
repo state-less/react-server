@@ -30,6 +30,7 @@ export declare class Query<T> extends EventEmitter {
 }
 export declare class State<T> extends EventEmitter {
     id: string;
+    uuid: string;
     key: string;
     /**
      * The unique id of the currently authenticated user.
