@@ -139,13 +139,14 @@ var PostgresTransport = /*#__PURE__*/function (_Transport) {
               }]);
             case 6:
               result = _context4.sent;
+              console.log('Setting initial state', scope, key, uuid);
               return _context4.abrupt("return", result);
-            case 10:
-              _context4.prev = 10;
+            case 11:
+              _context4.prev = 11;
               _context4.t0 = _context4["catch"](3);
               console.error('Error setting initial state:', _context4.t0.message);
               if (!(retries < 3)) {
-                _context4.next = 18;
+                _context4.next = 19;
                 break;
               }
               retries++;
@@ -168,13 +169,13 @@ var PostgresTransport = /*#__PURE__*/function (_Transport) {
                   }, _callee3);
                 })), 1000 * 10 * (retries - 1));
               }));
-            case 18:
-              throw _context4.t0;
             case 19:
+              throw _context4.t0;
+            case 20:
             case "end":
               return _context4.stop();
           }
-        }, _callee4, this, [[3, 10]]);
+        }, _callee4, this, [[3, 11]]);
       }));
       function setInitialState(_x2) {
         return _setInitialState.apply(this, arguments);

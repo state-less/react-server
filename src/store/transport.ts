@@ -80,6 +80,7 @@ export class PostgresTransport extends Transport {
         client,
         { value },
       ]);
+      console.log('Setting initial state', scope, key, uuid);
       return result;
     } catch (e) {
       console.error('Error setting initial state:', e.message);
