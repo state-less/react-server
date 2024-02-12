@@ -56,6 +56,10 @@ export class Query<T> extends EventEmitter {
         this.fetched = true;
         this.emit('change', this.value);
       });
+      console.log(
+        'Query listening for destructing',
+        'destroy::' + Store.getKey(this._options)
+      );
       this._store.on('destroy::' + Store.getKey(this._options), () => {
         this.fetched = false;
         console.log('Destroy triggered, refetching query');

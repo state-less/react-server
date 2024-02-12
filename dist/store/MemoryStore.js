@@ -61,6 +61,7 @@ var Query = /*#__PURE__*/function (_EventEmitter) {
           _this2.fetched = true;
           _this2.emit('change', _this2.value);
         });
+        console.log('Query listening for destructing', 'destroy::' + Store.getKey(this._options));
         this._store.on('destroy::' + Store.getKey(this._options), function () {
           _this2.fetched = false;
           console.log('Destroy triggered, refetching query');
