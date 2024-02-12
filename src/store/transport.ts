@@ -100,7 +100,7 @@ export class PostgresTransport extends Transport {
   async getState<T>(state: State<T>): Promise<State<T> | null> {
     const { scope, key, id } = state;
 
-    const where = ['scope', 'key', 'id']
+    const where = ['scope', 'key', 'uuid']
       .filter((k) => state[k])
       .map((k, i) => `${k} = $${i + 1}`)
       .join(' AND ');

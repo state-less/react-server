@@ -192,7 +192,7 @@ var PostgresTransport = /*#__PURE__*/function (_Transport) {
           while (1) switch (_context6.prev = _context6.next) {
             case 0:
               scope = state.scope, key = state.key, id = state.id;
-              where = ['scope', 'key', 'id'].filter(function (k) {
+              where = ['scope', 'key', 'uuid'].filter(function (k) {
                 return state[k];
               }).map(function (k, i) {
                 return "".concat(k, " = $").concat(i + 1);
