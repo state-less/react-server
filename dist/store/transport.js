@@ -145,12 +145,13 @@ var PostgresTransport = /*#__PURE__*/function (_Transport) {
               return this._db.query(query, [scope, key, uuid]);
             case 7:
               result = _context4.sent;
+              console.log('Deleted state', scope, key, uuid, result);
               return _context4.abrupt("return", result);
-            case 11:
-              _context4.prev = 11;
+            case 12:
+              _context4.prev = 12;
               _context4.t0 = _context4["catch"](4);
               if (!(retries < 3)) {
-                _context4.next = 18;
+                _context4.next = 19;
                 break;
               }
               retries++;
@@ -173,13 +174,13 @@ var PostgresTransport = /*#__PURE__*/function (_Transport) {
                   }, _callee3);
                 })), 1000 * 10 * (retries - 1));
               }));
-            case 18:
-              throw _context4.t0;
             case 19:
+              throw _context4.t0;
+            case 20:
             case "end":
               return _context4.stop();
           }
-        }, _callee4, this, [[4, 11]]);
+        }, _callee4, this, [[4, 12]]);
       }));
       function deleteState(_x2) {
         return _deleteState.apply(this, arguments);

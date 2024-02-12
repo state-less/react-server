@@ -78,6 +78,7 @@ export class PostgresTransport extends Transport {
     let retries = 0;
     try {
       const result = await this._db.query(query, [scope, key, uuid]);
+      console.log('Deleted state', scope, key, uuid, result);
       return result;
     } catch (e) {
       if (retries < 3) {
