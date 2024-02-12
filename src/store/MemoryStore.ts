@@ -56,6 +56,11 @@ export class Query<T> extends EventEmitter {
         this.fetched = true;
         this.emit('change', this.value);
       });
+      this._store.on('destroy::' + Store.getKey(this._options), () => {
+        this.fetched = false;
+        console.log('Destroy triggered, refetching query');
+        this.refetch();
+      });
     }
   }
 
@@ -179,6 +184,8 @@ export class State<T> extends EventEmitter {
     if (this?._store?._options?.transport) {
       this._store._options.transport.deleteState(this);
     }
+    this.emit('destroy');
+    this._store.emit('destroy::' + Store.getKey(this));
   };
   toJSON = () => {
     const { scope, key, value } = this;

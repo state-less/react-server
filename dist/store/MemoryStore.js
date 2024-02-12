@@ -61,6 +61,11 @@ var Query = /*#__PURE__*/function (_EventEmitter) {
           _this2.fetched = true;
           _this2.emit('change', _this2.value);
         });
+        this._store.on('destroy::' + Store.getKey(this._options), function () {
+          _this2.fetched = false;
+          console.log('Destroy triggered, refetching query');
+          _this2.refetch();
+        });
       }
     }
   }, {
@@ -101,6 +106,8 @@ var State = /*#__PURE__*/function (_EventEmitter2) {
       if ((_assertThisInitialize = (0, _assertThisInitialized2["default"])(_this3)) !== null && _assertThisInitialize !== void 0 && (_assertThisInitialize2 = _assertThisInitialize._store) !== null && _assertThisInitialize2 !== void 0 && (_assertThisInitialize3 = _assertThisInitialize2._options) !== null && _assertThisInitialize3 !== void 0 && _assertThisInitialize3.transport) {
         _this3._store._options.transport.deleteState((0, _assertThisInitialized2["default"])(_this3));
       }
+      _this3.emit('destroy');
+      _this3._store.emit('destroy::' + Store.getKey((0, _assertThisInitialized2["default"])(_this3)));
     });
     (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this3), "toJSON", function () {
       var _assertThisInitialize4 = (0, _assertThisInitialized2["default"])(_this3),
