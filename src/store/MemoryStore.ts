@@ -56,15 +56,19 @@ export class Query<T> extends EventEmitter {
         this.fetched = true;
         this.emit('change', this.value);
       });
-      console.log(
-        'Query listening for destructing',
-        'destroy::' + this._options.scope + ':' + this._options.key
-      );
+
       this._store.on(
         'destroy::' + this._options.scope + ':' + this._options.key,
         () => {
           this.fetched = false;
           console.log('Destroy triggered, refetching query');
+          this.refetch();
+        }
+      );
+      this._store.on(
+        `created::${this._options.scope}:${this._options.key}`,
+        () => {
+          console.log('State created, refetching query');
           this.refetch();
         }
       );
@@ -375,7 +379,7 @@ export class Store extends EventEmitter {
       console.log('Storing initial state', options.key);
       this._options.transport.setInitialState(state).then(() => {
         state.emit('stored', state.value);
-        this.emit(`created::${state.key}`, state.value);
+        this.emit(`created::${options.scope}:${options.key}`, state.value);
       });
     }
 

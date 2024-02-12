@@ -61,10 +61,13 @@ var Query = /*#__PURE__*/function (_EventEmitter) {
           _this2.fetched = true;
           _this2.emit('change', _this2.value);
         });
-        console.log('Query listening for destructing', 'destroy::' + this._options.scope + ':' + this._options.key);
         this._store.on('destroy::' + this._options.scope + ':' + this._options.key, function () {
           _this2.fetched = false;
           console.log('Destroy triggered, refetching query');
+          _this2.refetch();
+        });
+        this._store.on("created::".concat(this._options.scope, ":").concat(this._options.key), function () {
+          console.log('State created, refetching query');
           _this2.refetch();
         });
       }
@@ -408,7 +411,7 @@ var Store = /*#__PURE__*/function (_EventEmitter3) {
         console.log('Storing initial state', options.key);
         this._options.transport.setInitialState(state).then(function () {
           state.emit('stored', state.value);
-          _this7.emit("created::".concat(state.key), state.value);
+          _this7.emit("created::".concat(options.scope, ":").concat(options.key), state.value);
         });
       }
       var states = this.getScope(options.scope);
