@@ -183,7 +183,7 @@ export class Store extends EventEmitter {
   _storing: boolean;
 
   static getKey = (options: StateOptions) => {
-    return `${options.scope}:${options.key}`;
+    return `${options.scope}:${options.key}:${options.id}`;
   };
 
   constructor(options: StoreOptions) {
