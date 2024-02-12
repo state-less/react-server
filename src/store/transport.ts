@@ -130,8 +130,8 @@ export class PostgresTransport extends Transport {
     stateOptions: StateOptions,
     retries?: number
   ): Promise<any> {
-    const { id, user, key, client, scope } = stateOptions;
-    const where = ['user', 'key', 'client', 'scope', 'id']
+    const { uuid, user, key, client, scope } = stateOptions;
+    const where = ['user', 'key', 'client', 'scope', 'uuid']
       .filter((k) => stateOptions[k])
       .map((k, i) => `${k} = $${i + 1}`)
       .join(' AND ');
@@ -141,7 +141,7 @@ export class PostgresTransport extends Transport {
     try {
       const result = await this._db.query(
         query,
-        [user, key, client, scope, id].filter(Boolean)
+        [user, key, client, scope, uuid].filter(Boolean)
       );
       console.log('RESULT', result);
       return result;

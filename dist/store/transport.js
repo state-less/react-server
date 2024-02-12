@@ -253,12 +253,12 @@ var PostgresTransport = /*#__PURE__*/function (_Transport) {
     value: function () {
       var _queryByOptions = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee8(stateOptions, retries) {
         var _this5 = this;
-        var id, user, key, client, scope, where, query, result;
+        var uuid, user, key, client, scope, where, query, result;
         return _regenerator["default"].wrap(function _callee8$(_context8) {
           while (1) switch (_context8.prev = _context8.next) {
             case 0:
-              id = stateOptions.id, user = stateOptions.user, key = stateOptions.key, client = stateOptions.client, scope = stateOptions.scope;
-              where = ['user', 'key', 'client', 'scope', 'id'].filter(function (k) {
+              uuid = stateOptions.uuid, user = stateOptions.user, key = stateOptions.key, client = stateOptions.client, scope = stateOptions.scope;
+              where = ['user', 'key', 'client', 'scope', 'uuid'].filter(function (k) {
                 return stateOptions[k];
               }).map(function (k, i) {
                 return "".concat(k, " = $").concat(i + 1);
@@ -267,7 +267,7 @@ var PostgresTransport = /*#__PURE__*/function (_Transport) {
               console.log('QUERY', query);
               _context8.prev = 4;
               _context8.next = 7;
-              return this._db.query(query, [user, key, client, scope, id].filter(Boolean));
+              return this._db.query(query, [user, key, client, scope, uuid].filter(Boolean));
             case 7:
               result = _context8.sent;
               console.log('RESULT', result);

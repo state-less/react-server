@@ -98,7 +98,7 @@ var State = /*#__PURE__*/function (_EventEmitter2) {
         value: value
       };
     });
-    _this3.id = options.id || (0, _util.createId)(options.scope);
+    _this3.uuid = options.uuid || (0, _util.createId)(options.scope);
     _this3.key = options.key;
     _this3.scope = options.scope;
     _this3.user = options.user;
@@ -416,5 +416,5 @@ var Store = /*#__PURE__*/function (_EventEmitter3) {
 }(_events.EventEmitter);
 exports.Store = Store;
 (0, _defineProperty2["default"])(Store, "getKey", function (options) {
-  return "".concat(options.scope, ":").concat(options.key, ":").concat(options.user, ":").concat(options.id);
+  return "".concat(options.scope, ":").concat(options.key, ":").concat(options.user, ":").concat(options.uuid);
 });

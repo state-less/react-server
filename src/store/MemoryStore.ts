@@ -18,7 +18,7 @@ export type SetValueAction<T> =
 
 export type StateOptions = {
   scope: string;
-  id?: string;
+  uuid?: string;
   user?: string;
   client?: string;
   key: string;
@@ -87,7 +87,7 @@ export class State<T> extends EventEmitter {
 
   constructor(initialValue: StateValue<T>, options: StateOptions) {
     super();
-    this.id = options.id || createId(options.scope);
+    this.uuid = options.uuid || createId(options.scope);
     this.key = options.key;
     this.scope = options.scope;
     this.user = options.user;
@@ -187,7 +187,7 @@ export class Store extends EventEmitter {
   _storing: boolean;
 
   static getKey = (options: StateOptions) => {
-    return `${options.scope}:${options.key}:${options.user}:${options.id}`;
+    return `${options.scope}:${options.key}:${options.user}:${options.uuid}`;
   };
 
   constructor(options: StoreOptions) {

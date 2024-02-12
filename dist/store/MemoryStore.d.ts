@@ -8,7 +8,7 @@ export type StateValue<T = unknown> = T;
 export type SetValueAction<T> = StateValue<T> | ((value: StateValue<T>) => StateValue<T>);
 export type StateOptions = {
     scope: string;
-    id?: string;
+    uuid?: string;
     user?: string;
     client?: string;
     key: string;
