@@ -84,7 +84,7 @@ var PostgresTransport = /*#__PURE__*/function (_Transport) {
               }
               retries++;
               return _context2.abrupt("return", new Promise(function (resolve) {
-                console.error("Error setting state ".concat(key, ". Retrying..."));
+                console.error("Error ".concat(_context2.t0.message, " state ").concat(key, ". Retrying..."));
                 setTimeout( /*#__PURE__*/(0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee() {
                   return _regenerator["default"].wrap(function _callee$(_context) {
                     while (1) switch (_context.prev = _context.next) {

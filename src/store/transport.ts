@@ -42,7 +42,7 @@ export class PostgresTransport extends Transport {
       if (retries < 3) {
         retries++;
         return new Promise((resolve) => {
-          console.error(`Error setting state ${key}. Retrying...`);
+          console.error(`Error ${e.message} state ${key}. Retrying...`);
           setTimeout(async () => {
             resolve(await this.setState(state));
           }, 1000 * 10 * (retries - 1));
